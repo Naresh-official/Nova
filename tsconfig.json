@@ -1,4 +1,3 @@
 {
-  "extends": "@nova/typescript-config/base.json"
+	"extends": "@nova/typescript-config/base.json"
 }
-

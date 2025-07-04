@@ -16,9 +16,9 @@ function EmailNode({
 		<div
 			key={email.id}
 			onClick={() => setSelectedEmail(email)}
-			className={`p-4 my-2 cursor-pointer transition-all duration-300 hover:bg-[#1A1A1A] border-l-2 rounded-xl ${
+			className={`p-4 my-2 cursor-pointer transition-all duration-300 hover:bg-[#111111] border-l-2 rounded-xl ${
 				selectedEmail?.id === email.id
-					? "bg-[#1A1A1A] border-l-primary"
+					? "bg-[#111111] border-l-primary"
 					: "border-l-transparent"
 			}`}
 		>

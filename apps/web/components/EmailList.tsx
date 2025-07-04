@@ -25,7 +25,7 @@ function EmailList({
 	setSelectedEmail,
 }: EmailListProps) {
 	return (
-		<div className="w-[420px] bg-[#101010] rounded-lg">
+		<div className="w-[420px] bg-black rounded-lg">
 			<NovaHeader />
 			<div className="scroll-container h-[calc(100vh-80px)] px-2">
 				{emails.map((email) => (

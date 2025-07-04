@@ -2,15 +2,16 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@nova/ui/globals.css";
-import { SidebarProvider } from "@nova/ui/components/sidebar";
-import { NovaSidebar } from "@/components/Sidebar";
+import { ConditionalLayout } from "@/components/ConditionalLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
 	title: "Nova - AI-Powered Email Client",
 	description: "Premium email experience with AI assistance",
-	generator: "v0.dev",
+	icons: {
+		icon: "logo.svg",
+	},
 };
 
 export default function RootLayout({
@@ -21,12 +22,9 @@ export default function RootLayout({
 	return (
 		<html lang="en" className="dark">
 			<body
-				className={`${inter.className} bg-black text-white antialiased`}
+				className={`${inter.className} bg-[#101010] text-white antialiased`}
 			>
-				<SidebarProvider defaultOpen={true}>
-					<NovaSidebar />
-					<main>{children}</main>
-				</SidebarProvider>
+				<ConditionalLayout>{children}</ConditionalLayout>
 			</body>
 		</html>
 	);

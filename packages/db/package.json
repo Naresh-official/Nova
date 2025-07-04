@@ -1,0 +1,28 @@
+{
+	"name": "@nova/db",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"studio": "prisma studio",
+		"push": "prisma db push"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@nova/typescript-config": "workspace:*",
+		"@types/node": "^24.0.10",
+		"prisma": "^6.11.1",
+		"tsx": "^4.20.3",
+		"typescript": "^5.8.3"
+	},
+	"dependencies": {
+		"@prisma/client": "6.11.1"
+	},
+	"packageManager": "pnpm@10.4.1",
+	"exports": {
+		".": "./index"
+	}
+}

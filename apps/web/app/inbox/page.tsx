@@ -156,7 +156,7 @@ export default function InboxPage() {
 	const [selectedEmail, setSelectedEmail] = useState(emails[0]);
 
 	return (
-		<div className="flex h-screen bg-black p-2 w-full">
+		<div className="flex h-screen p-2 w-full">
 			<div className="flex-1 flex gap-2">
 				{/* Email List */}
 

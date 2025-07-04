@@ -19,7 +19,7 @@ interface EmailContentProps {
 
 function EmailContent({ selectedEmail }: EmailContentProps) {
 	return (
-		<div className="flex-1 flex flex-col bg-[#101010] rounded-lg scroll-container h-[calc(100vh-18px)]">
+		<div className="flex-1 flex flex-col bg-black rounded-lg scroll-container h-[calc(100vh-18px)]">
 			{selectedEmail && (
 				<div className="flex-1 animate-fade-in">
 					<div className="p-6 border-b border-[#2A2A2A]">
