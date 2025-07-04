@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { NovaHeader } from "@/components/nova-header";
+import { NovaHeader } from "@/components/Header";
 import { Badge } from "@nova/ui/components/badge";
 import { formatDistanceToNow } from "date-fns";
+import EmailList from "@/components/EmailList";
+import EmailContent from "@/components/EmailContent";
 
 const emails = [
 	{
@@ -55,172 +57,116 @@ const emails = [
 		unread: false,
 		avatar: "C",
 	},
+	{
+		id: "6",
+		sender: "GitHub",
+		subject: "Security alert: New sign-in to your account",
+		preview:
+			"We noticed a new sign-in to your GitHub account from a new device.",
+		time: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+		unread: true,
+		avatar: "G",
+	},
+	{
+		id: "7",
+		sender: "Stripe",
+		subject: "Your June invoice is ready",
+		preview:
+			"Your monthly invoice for June is now available. View your invoice.",
+		time: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+		unread: false,
+		avatar: "S",
+	},
+	{
+		id: "8",
+		sender: "Notion",
+		subject: "Welcome to Notion!",
+		preview: "Get started with your new Notion workspace.",
+		time: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+		unread: false,
+		avatar: "N",
+	},
+	{
+		id: "9",
+		sender: "Vercel",
+		subject: "Your deployment was successful",
+		preview: "Congratulations! Your project has been deployed.",
+		time: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+		unread: false,
+		avatar: "V",
+	},
+	{
+		id: "10",
+		sender: "Figma",
+		subject: "You’ve been invited to a new team",
+		preview: "Join your teammates and start collaborating in Figma.",
+		time: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000),
+		unread: true,
+		avatar: "F",
+	},
+	{
+		id: "11",
+		sender: "Slack",
+		subject: "You have unread messages",
+		preview: "Catch up on your conversations in Slack.",
+		time: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000),
+		unread: false,
+		avatar: "S",
+	},
+	{
+		id: "12",
+		sender: "Twitter",
+		subject: "New login to your account",
+		preview:
+			"We detected a login to your Twitter account from a new device.",
+		time: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+		unread: true,
+		avatar: "T",
+	},
+	{
+		id: "13",
+		sender: "LinkedIn",
+		subject: "5 new jobs that match your profile",
+		preview: "Check out these new job opportunities tailored for you.",
+		time: new Date(Date.now() - 11 * 24 * 60 * 60 * 1000),
+		unread: false,
+		avatar: "L",
+	},
+	{
+		id: "14",
+		sender: "Amazon Web Services",
+		subject: "Your AWS Free Tier usage alert",
+		preview: "You have used 85% of your AWS Free Tier limit.",
+		time: new Date(Date.now() - 12 * 24 * 60 * 60 * 1000),
+		unread: true,
+		avatar: "A",
+	},
+	{
+		id: "15",
+		sender: "Product Hunt",
+		subject: "Top products for today",
+		preview: "Discover the most upvoted products on Product Hunt.",
+		time: new Date(Date.now() - 13 * 24 * 60 * 60 * 1000),
+		unread: false,
+		avatar: "P",
+	},
 ];
 
 export default function InboxPage() {
 	const [selectedEmail, setSelectedEmail] = useState(emails[0]);
 
 	return (
-		<div className="flex h-screen bg-[#0D0D0D] w-full">
-			<div className="flex-1 flex">
+		<div className="flex h-screen bg-black p-2 w-full">
+			<div className="flex-1 flex gap-2">
 				{/* Email List */}
-				<div className="w-96 border-r border-[#2A2A2A] bg-[#0D0D0D]">
-					<NovaHeader />
-					<div className="overflow-y-auto">
-						{emails.map((email) => (
-							<div
-								key={email.id}
-								onClick={() => setSelectedEmail(email)}
-								className={`p-4 border-b border-[#1A1A1A] cursor-pointer transition-all duration-200 hover:bg-[#1A1A1A] ${
-									selectedEmail?.id === email.id
-										? "bg-[#1A1A1A] border-l-2 border-l-blue-400"
-										: ""
-								}`}
-							>
-								<div className="flex items-start gap-3">
-									<div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-										{email.avatar}
-									</div>
-									<div className="flex-1 min-w-0">
-										<div className="flex items-center justify-between mb-1">
-											<span
-												className={`text-sm font-medium ${email.unread ? "text-white" : "text-[#E0E0E0]"}`}
-											>
-												{email.sender}
-											</span>
-											<span className="text-xs text-[#999]">
-												{formatDistanceToNow(
-													email.time,
-													{ addSuffix: true }
-												)}
-											</span>
-										</div>
-										<h3
-											className={`text-sm mb-1 line-clamp-1 ${email.unread ? "text-white font-medium" : "text-[#E0E0E0]"}`}
-										>
-											{email.subject}
-										</h3>
-										<p className="text-xs text-[#999] line-clamp-2">
-											{email.preview}
-										</p>
-										{email.unread && (
-											<div className="flex items-center gap-2 mt-2">
-												<div className="w-2 h-2 rounded-full bg-blue-400"></div>
-												{email.important && (
-													<Badge
-														variant="secondary"
-														className="text-xs bg-orange-500/20 text-orange-400 border-orange-500/30"
-													>
-														Important
-													</Badge>
-												)}
-											</div>
-										)}
-									</div>
-								</div>
-							</div>
-						))}
-					</div>
-				</div>
 
+				<EmailList
+					emails={emails}
+					selectedEmail={selectedEmail}
+					setSelectedEmail={setSelectedEmail}
+				/>
 				{/* Email Content */}
-				<div className="flex-1 flex flex-col bg-[#0D0D0D]">
-					{selectedEmail && (
-						<div className="flex-1 animate-fade-in">
-							<div className="p-6 border-b border-[#2A2A2A]">
-								<div className="flex items-start justify-between mb-4">
-									<div>
-										<h1 className="text-xl font-semibold text-white mb-2">
-											{selectedEmail.subject}
-										</h1>
-										<div className="flex items-center gap-3">
-											<div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-medium">
-												{selectedEmail.avatar}
-											</div>
-											<div>
-												<div className="text-sm font-medium text-white">
-													{selectedEmail.sender}
-												</div>
-												<div className="text-xs text-[#999]">
-													To: You
-												</div>
-											</div>
-										</div>
-									</div>
-									<div className="text-sm text-[#999]">
-										{formatDistanceToNow(
-											selectedEmail.time,
-											{ addSuffix: true }
-										)}
-									</div>
-								</div>
-							</div>
-
-							<div className="flex-1 p-6">
-								<div className="prose prose-invert max-w-none">
-									<div className="bg-[#1A1A1A] rounded-lg p-6 border border-[#2A2A2A]">
-										<div className="text-center mb-6">
-											<div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center mx-auto mb-4">
-												<svg
-													className="w-8 h-8 text-white"
-													fill="currentColor"
-													viewBox="0 0 24 24"
-												>
-													<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-												</svg>
-											</div>
-											<h2 className="text-2xl font-bold text-white mb-2">
-												Inactive database notice
-											</h2>
-										</div>
-
-										<div className="space-y-4 text-[#E0E0E0]">
-											<p>Hi there,</p>
-											<p>
-												We've noticed that your free
-												tier{" "}
-												<strong>Database Zero</strong>,
-												has been inactive recently.
-											</p>
-											<p>
-												In our efforts to optimize our
-												services, we will be deleting it
-												soon. If you wish to keep your
-												database, please keep it active
-												by sending it traffic through
-												your apps or upgrade to another
-												plan. We will notify you one
-												more time before deleting. You
-												can always check your database
-												status{" "}
-												<Link
-													href="#"
-													className="text-blue-400 hover:text-blue-300"
-												>
-													here
-												</Link>
-												.
-											</p>
-											<p>
-												Thank you for choosing Upstash.
-												If you need assistance or have
-												any questions, our support team
-												is here to help at{" "}
-												<Link
-													href="#"
-													className="text-blue-400 hover:text-blue-300"
-												>
-													support@upstash.com
-												</Link>
-											</p>
-											<p>Best,</p>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					)}
-				</div>
+				<EmailContent selectedEmail={selectedEmail} />
 			</div>
 		</div>
 	);

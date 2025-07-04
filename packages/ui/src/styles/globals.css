@@ -66,7 +66,7 @@
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0% 0 0);
+  --sidebar: oklch(0.173 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.541 0.281 293.009);
   --sidebar-primary-foreground: oklch(0.969 0.016 293.756);
@@ -125,11 +125,11 @@
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
 .animate-slide-in {
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -150,4 +150,16 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.scroll-container {
+  overflow: auto; /* or overflow-y: scroll if vertical only */
+  
+  /* Hide scrollbar for Chrome, Safari, Opera */
+  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+
+}
+.scroll-container::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
 }

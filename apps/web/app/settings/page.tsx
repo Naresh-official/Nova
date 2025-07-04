@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { NovaSidebar } from "@/components/nova-sidebar";
-import { NovaHeader } from "@/components/nova-header";
+import { NovaSidebar } from "@/components/Sidebar";
+import { NovaHeader } from "@/components/Header";
 import { SidebarInset } from "@nova/ui/components/sidebar";
 import { Switch } from "@nova/ui/components/switch";
 import { Label } from "@nova/ui/components/label";

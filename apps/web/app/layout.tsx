@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@nova/ui/globals.css";
 import { SidebarProvider } from "@nova/ui/components/sidebar";
-import { NovaSidebar } from "@/components/nova-sidebar";
+import { NovaSidebar } from "@/components/Sidebar";
 
 const inter = Inter({ subsets: ["latin"] });
 

@@ -1,5 +1,5 @@
-import { NovaSidebar } from "@/components/nova-sidebar";
-import { NovaHeader } from "@/components/nova-header";
+import { NovaSidebar } from "@/components/Sidebar";
+import { NovaHeader } from "@/components/Header";
 import { SidebarInset } from "@nova/ui/components/sidebar";
 
 export default function TemplatesPage() {
