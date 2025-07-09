@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@nova/ui": "workspace:*",
+    "axios": "^1.10.0",
     "date-fns": "^4.1.0",
     "dotenv": "^17.0.1",
     "framer-motion": "^12.23.0",

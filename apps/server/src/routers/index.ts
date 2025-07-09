@@ -1,8 +1,6 @@
-import { publicProcedure, router } from "../trpc";
-import { z } from "zod";
+import { router } from "../trpc";
+import { userRouter } from "./user.router";
 
 export const appRouter = router({
-	getUser: publicProcedure.input(z.string()).query(() => {
-		return { id: "1", name: "John Doe" };
-	}),
+  user: userRouter,
 });
