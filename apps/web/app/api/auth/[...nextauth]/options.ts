@@ -38,51 +38,28 @@ export const authOptions: NextAuthOptions = {
 					if (!email) {
 						throw new Error("Email not found");
 					}
-					let existingOrNewUser = null;
+					const response = await axios.post(
+						`${process.env.BACKEND_URL}/user.login`,
+						{
+							email: user.email,
+							name: user.name,
+							image: user.image,
+							accessToken: account.access_token,
+							refreshToken: account.refresh_token,
+						}
+					);
+
 					try {
-						const response = await axios.get(
-							`${process.env.BACKEND_URL}/user.getUserByEmail?input="${email}"`
-						);
-						existingOrNewUser = response.data.result.data;
+						const loggedInuser = response.data.result.data;
+						user.id = loggedInuser.id;
+						user.name = loggedInuser.name;
+						user.image = loggedInuser.image;
+						user.email = loggedInuser.email;
+						return true;
 					} catch (error) {
-						if (
-							axios.isAxiosError(error) &&
-							error.response?.status === 404 &&
-							error.response?.data.error.message ===
-								"User not found"
-						) {
-							existingOrNewUser = null;
-						} else {
-							console.error(
-								"Error fetching user by email:",
-								error
-							);
-							throw error;
-						}
+						console.error("Error fetching user by email:", error);
+						return false;
 					}
-					if (!existingOrNewUser) {
-						try {
-							const response = await axios.post(
-								`${process.env.BACKEND_URL}/user.createUser`,
-								{
-									name: user.name || "",
-									email: user.email || "",
-									image: user.image || "",
-									accessToken: account.access_token,
-									refreshToken: account.refresh_token,
-								}
-							);
-							existingOrNewUser = response.data.result.data;
-						} catch (error) {
-							console.error("Error creating user:", error);
-							throw error;
-						}
-					}
-					user.id = existingOrNewUser.id;
-					user.name = existingOrNewUser.name;
-					user.image = existingOrNewUser.image;
-					user.email = existingOrNewUser.email;
-					return true;
 				}
 				return false;
 			} catch (error) {
@@ -111,9 +88,17 @@ export const authOptions: NextAuthOptions = {
 	secret: process.env.NEXTAUTH_SECRET,
 	session: {
 		strategy: "jwt",
-		maxAge: 2 * 24 * 60 * 60, // 2 days in seconds
+		maxAge: 4 * 24 * 60 * 60, // 4 days in seconds
 	},
 	pages: {
 		signIn: "/login",
+	},
+	cookies: {
+		sessionToken: {
+			name: "next-auth.session-token",
+			options: {
+				httpOnly: true,
+			},
+		},
 	},
 };

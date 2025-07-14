@@ -1,7 +1,0 @@
-{
-	"extends": "@nova/typescript-config/base",
-	"compilerOptions": {
-		"composite": true,
-		"noEmit": false
-	}
-}
