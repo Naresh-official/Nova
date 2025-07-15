@@ -1,12 +1,13 @@
 {
-	"name": "server",
+	"name": "@nova/server",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
 		"build": "tsc --build",
-		"start": "node dist/index.js"
+		"start": "node dist/index.js",
+		"studio": "prisma studio"
 	},
 	"keywords": [],
 	"author": "",
@@ -14,19 +15,29 @@
 	"packageManager": "pnpm@10.4.1",
 	"devDependencies": {
 		"@nova/typescript-config": "workspace:*",
+		"@types/cookie-parser": "^1.4.9",
 		"@types/cors": "^2.8.19",
 		"@types/express": "^5.0.3",
 		"@types/node": "^24.0.10",
+		"prisma": "^6.11.1",
 		"tsx": "^4.20.3",
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
-		"@nova/db": "workspace:^",
+		"@googleapis/gmail": "^14.0.1",
+		"@jrmdayn/googleapis-batcher": "^0.8.0",
+		"@prisma/client": "6.11.1",
 		"@trpc/server": "^11.4.3",
-		"bcryptjs": "^3.0.2",
+		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
+		"dotenv": "^17.0.1",
 		"express": "^5.1.0",
-		"googleapis": "105",
+		"google-auth-library": "^10.1.0",
+		"next-auth": "^4.24.11",
 		"zod": "^3.24.2"
+	},
+	"exports": {
+		"./trpc": "./src/routers/index.ts",
+		"./types": "./src/types/index.ts"
 	}
 }

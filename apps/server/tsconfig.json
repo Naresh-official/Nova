@@ -2,14 +2,8 @@
 	"extends": "@nova/typescript-config/base.json",
 	"compilerOptions": {
 		"baseUrl": ".",
-		"paths": {
-			"@nova/db": ["../../packages/db"]
-		}
+		"paths": {}
 	},
-	"references": [
-		{
-			"path": "../../packages/db"
-		}
-	],
+	// "references": [],
 	"exclude": ["node_modules"]
 }

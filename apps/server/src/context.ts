@@ -1,15 +1,17 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
-import prisma from "@nova/db";
-import bcrypt from "bcryptjs";
+import { PrismaClient } from "generated/prisma";
+
+export const prisma = new PrismaClient();
 
 export function createContext({ req, res }: CreateExpressContextOptions) {
 	return {
 		req,
 		res,
 		prisma: prisma,
-		hashPassword: (password: string) => bcrypt.hash(password, 12),
-		verifyPassword: (password: string, hashedPassword: string) =>
-			bcrypt.compare(password, hashedPassword),
 	};
 }
-export type Context = ReturnType<typeof createContext>;
+export type Context = {
+	req: CreateExpressContextOptions["req"];
+	res: CreateExpressContextOptions["res"];
+	prisma: PrismaClient;
+};
