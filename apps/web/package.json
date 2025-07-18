@@ -12,8 +12,13 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@nova/server": "workspace:*",
 		"@nova/ui": "workspace:*",
+		"@tanstack/react-query": "^5.83.0",
 		"@trpc/client": "^11.4.3",
+		"@trpc/next": "^11.4.3",
+		"@trpc/react-query": "^11.4.3",
+		"@trpc/tanstack-react-query": "^11.4.3",
 		"axios": "^1.10.0",
 		"date-fns": "^4.1.0",
 		"dotenv": "^17.0.1",
@@ -23,8 +28,7 @@
 		"next-auth": "^4.24.11",
 		"next-themes": "^0.4.6",
 		"react": "^19.1.0",
-		"react-dom": "^19.1.0",
-		"@nova/server": "workspace:*"
+		"react-dom": "^19.1.0"
 	},
 	"devDependencies": {
 		"@nova/eslint-config": "workspace:^",
@@ -35,5 +39,5 @@
 		"tailwind-scrollbar": "^4.0.2",
 		"typescript": "^5.8.3"
 	},
-	"packageManager": "pnpm@10.12.4"
+	"packageManager": "pnpm@10.13.1"
 }
