@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import EmailList from "@/components/EmailList";
 import EmailContent from "@/components/EmailContent";
 import type { TRPCThreadResponse } from "@nova/server/types";
@@ -9,6 +9,7 @@ import { trpc } from "@/lib/client";
 
 export default function InboxPage() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const utils = trpc.useUtils();
 	const {
 		data: emails,
@@ -20,8 +21,27 @@ export default function InboxPage() {
 		TRPCThreadResponse | undefined
 	>(undefined);
 
+	// Initialize selected email from URL search params
+	useEffect(() => {
+		if (emails && emails.length > 0) {
+			const threadId = searchParams.get("threadId");
+			if (threadId) {
+				const emailFromParams = emails.find(
+					(email) => email.id === threadId
+				);
+				if (emailFromParams) {
+					setSelectedEmail(emailFromParams);
+				}
+			} else {
+				setSelectedEmail(undefined);
+			}
+		}
+	}, [emails, searchParams]);
+
 	const handleEmailSelect = (email: TRPCThreadResponse) => {
 		setSelectedEmail(email);
+
+		router.push(`/inbox?threadId=${email.id}`);
 
 		// If email is unread, mark it as read
 		if (email.isUnread) {
@@ -61,7 +81,7 @@ export default function InboxPage() {
 					setSelectedEmail={handleEmailSelect}
 				/>
 				{/* Email Content */}
-				<EmailContent threadId={selectedEmail?.id} />
+				<EmailContent />
 			</div>
 		</div>
 	);

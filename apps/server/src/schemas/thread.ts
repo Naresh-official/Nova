@@ -4,6 +4,7 @@ export const ThreadResponseSchema = z.object({
 	id: z.string().nullable().optional(),
 	snippet: z.string(),
 	isUnread: z.boolean(),
+	isImportant: z.boolean(),
 	messageCount: z.number(),
 	sender: z.string(),
 	subject: z.string(),

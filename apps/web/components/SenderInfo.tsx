@@ -7,6 +7,11 @@ import {
 } from "@/lib/utils";
 import { Button } from "@nova/ui/components/button";
 import Image from "next/image";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from "@nova/ui/components/dropdown-menu";
 
 interface SenderInfoProps {
 	sender: {
@@ -15,10 +20,16 @@ interface SenderInfoProps {
 		email: string;
 	};
 	recipient: string;
+	recipientEmail: string;
 	date: number;
 }
 
-function SenderInfo({ sender, recipient, date }: SenderInfoProps) {
+function SenderInfo({
+	sender,
+	recipient,
+	recipientEmail,
+	date,
+}: SenderInfoProps) {
 	return (
 		<div className="flex items-start justify-between p-4 rounded-lg">
 			<div className="flex items-center gap-3">
@@ -45,12 +56,36 @@ function SenderInfo({ sender, recipient, date }: SenderInfoProps) {
 						<span className="font-bold text-zinc-100">
 							{sender.name}
 						</span>
-						<a
-							href="#"
-							className="text-sm text-zinc-400 hover:underline"
-						>
-							Details
-						</a>
+						<DropdownMenu>
+							<DropdownMenuTrigger asChild>
+								<a className="text-xs text-muted-foreground hover:underline hover:underline-offset-4">
+									Details
+								</a>
+							</DropdownMenuTrigger>
+							<DropdownMenuContent className="flex items-center gap-2 p-2 bg-secondary">
+								<div className="flex flex-col items-end text-sm text-zinc-400">
+									<span>From : </span>
+									<span>To : </span>
+									<span>Reply to : </span>
+									<span>Date : </span>
+									<span>Mailed-BY : </span>
+									<span>Signed-BY : </span>
+								</div>
+								<div className="flex flex-col text-sm text-zinc-200">
+									<span>
+										<span className="font-bold">
+											{sender.name}{" "}
+										</span>
+										{sender.email}
+									</span>
+									<span>{recipientEmail}</span>
+									<span>{sender.email}</span>
+									<span>{formatDateString(date)}</span>
+									<span>{sender.email}</span>
+									<span>{sender.email}</span>
+								</div>
+							</DropdownMenuContent>
+						</DropdownMenu>
 					</div>
 					<span className="text-sm text-zinc-400">
 						To: {recipient}

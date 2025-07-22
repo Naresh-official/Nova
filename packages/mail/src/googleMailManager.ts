@@ -90,6 +90,8 @@ export class GoogleMailManager {
 				id: threadData.id || "",
 				snippet: firstMessage?.snippet || "",
 				isUnread: firstMessage?.labelIds?.includes("UNREAD") || false,
+				isImportant:
+					firstMessage?.labelIds?.includes("IMPORTANT") || false,
 				messageCount: threadData.messages?.length || 0,
 				sender: fromHeader,
 				subject: subjectHeader,
@@ -99,6 +101,17 @@ export class GoogleMailManager {
 		});
 
 		return threadsWithDetails;
+	}
+
+	async listThreadIds(): Promise<string[]> {
+		const res = await this.gmail.users.threads.list({
+			userId: "me",
+			labelIds: ["INBOX"],
+			maxResults: 20,
+		});
+
+		if (!res.data.threads) return [];
+		return res.data.threads.map((thread) => thread.id as string) || [];
 	}
 
 	async getThread(threadId: string) {

@@ -2,7 +2,12 @@ import React from "react";
 import { Badge } from "@nova/ui/components/badge";
 import { formatDate } from "date-fns";
 import type { TRPCThreadResponse } from "@nova/server/types";
-import { extractSenderName } from "@/lib/utils";
+import {
+	extractSenderEmail,
+	extractSenderName,
+	getDomainFromEmail,
+} from "@/lib/utils";
+import Image from "next/image";
 
 function EmailNode({
 	email,
@@ -24,9 +29,13 @@ function EmailNode({
 			}`}
 		>
 			<div className="flex items-start gap-3">
-				<div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
-					{extractSenderName(email.sender)[0].toUpperCase()}
-				</div>
+				<Image
+					src={`https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${getDomainFromEmail(extractSenderEmail(email.sender))}&size=48`}
+					alt={extractSenderName(email.sender)[0].toUpperCase()}
+					width={32}
+					height={32}
+					className="rounded-full flex-shrink-0 bg-white"
+				/>
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center justify-between mb-1">
 						<div className="text-sm flex items-center">
@@ -36,14 +45,14 @@ function EmailNode({
 								{extractSenderName(email.sender)}
 							</span>
 
-							{/* {email.important && (
-                  <Badge
-                    variant="secondary"
-                    className="text-xs ml-2 bg-orange-500/20 text-orange-400 border-orange-500/30"
-                  >
-                    Important
-                  </Badge>
-                )} */}
+							{email.isImportant && email.isUnread && (
+								<Badge
+									variant="secondary"
+									className="text-xs ml-2 bg-orange-500/20 text-orange-400 border-orange-500/30"
+								>
+									Important
+								</Badge>
+							)}
 						</div>
 						<span className="text-xs text-[#999]">
 							{formatDate(email.date, "MMM dd, yyyy")}{" "}

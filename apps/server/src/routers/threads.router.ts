@@ -11,6 +11,13 @@ export const threadsRouter = router({
 			return threads;
 		}),
 
+	listThreadIds: protectedProcedure
+		.output(z.array(z.string()))
+		.query(async ({ ctx }) => {
+			const threads = await ctx.mailManager.listThreadIds();
+			return threads;
+		}),
+
 	getThread: protectedProcedure
 		.input(z.string())
 		.query(async ({ ctx, input }) => {

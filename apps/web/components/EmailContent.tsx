@@ -1,6 +1,4 @@
 import { trpc } from "@/lib/client";
-import { formatDistanceToNow } from "date-fns";
-import Link from "next/link";
 import React from "react";
 import { ParseGmailApi } from "gmail-api-parse-message-ts";
 import EmailActionBar from "./EmailActionBar";
@@ -9,13 +7,15 @@ import SenderInfo from "./SenderInfo";
 import { useSession } from "next-auth/react";
 import { Button } from "@nova/ui/components/button";
 import { Forward, Reply, ReplyAll } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import EmptyState from "./EmptyState";
+import { Separator } from "@nova/ui/components/separator";
 
-interface EmailContentProps {
-	threadId: string | undefined;
-}
-
-function EmailContent({ threadId }: EmailContentProps) {
+function EmailContent() {
 	const { data: session } = useSession();
+	const searchParams = useSearchParams();
+	const threadId = searchParams.get("threadId");
+
 	const {
 		data: thread,
 		isLoading,
@@ -26,9 +26,7 @@ function EmailContent({ threadId }: EmailContentProps) {
 
 	const MessageParser = new ParseGmailApi();
 	const parsed = MessageParser.parseMessage(thread?.messages?.[0] || {});
-	console.log(parsed);
 
-	// Determine recipient display text
 	const getRecipientText = () => {
 		if (parsed.to?.[0]?.email === session?.user?.email) {
 			return "You";
@@ -43,6 +41,15 @@ function EmailContent({ threadId }: EmailContentProps) {
 			</div>
 		);
 	}
+
+	if (!threadId) {
+		return (
+			<div className="flex-1 bg-black flex flex-col rounded-lg scroll-container h-[calc(100vh-18px)]">
+				<EmptyState />
+			</div>
+		);
+	}
+
 	return (
 		<div className="flex-1 bg-black flex flex-col rounded-lg scroll-container h-[calc(100vh-18px)]">
 			<EmailActionBar />
@@ -59,6 +66,7 @@ function EmailContent({ threadId }: EmailContentProps) {
 				}
 				email={parsed.from?.email || ""}
 			/>
+			<Separator />
 			<SenderInfo
 				sender={{
 					name:
@@ -72,6 +80,7 @@ function EmailContent({ threadId }: EmailContentProps) {
 					email: parsed.from?.email || "",
 				}}
 				recipient={getRecipientText()}
+				recipientEmail={parsed.to?.[0]?.email || ""}
 				date={parsed.sentDate}
 			/>
 			<div className="rounded-lg p-4">
