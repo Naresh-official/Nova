@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { decode } from "next-auth/jwt";
-import { GoogleMailManager } from "./lib/googleMailManager";
+import { GoogleMailManager } from "@nova/mail";
 import type { Context } from "./context";
 
 export const t = initTRPC.context<Context>().create();

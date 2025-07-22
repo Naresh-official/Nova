@@ -41,7 +41,7 @@ export default function InboxPage() {
 					setSelectedEmail={setSelectedEmail}
 				/>
 				{/* Email Content */}
-				{/* <EmailContent selectedEmail={selectedEmail} /> */}
+				<EmailContent threadId={selectedEmail?.id} />
 			</div>
 		</div>
 	);

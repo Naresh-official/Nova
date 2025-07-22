@@ -26,6 +26,7 @@
 	"dependencies": {
 		"@googleapis/gmail": "^14.0.1",
 		"@jrmdayn/googleapis-batcher": "^0.8.0",
+		"@nova/mail": "workspace:*",
 		"@prisma/client": "6.11.1",
 		"@trpc/server": "^11.4.3",
 		"cookie-parser": "^1.4.7",

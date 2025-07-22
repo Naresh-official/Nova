@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { type gmail_v1, gmail } from "@googleapis/gmail";
 import { batchFetchImplementation } from "@jrmdayn/googleapis-batcher";
-import type { ManagerConfig, TRPCThreadResponse } from "src/types";
+import type { ManagerConfig, TRPCThreadResponse } from "./types";
 
 export class GoogleMailManager {
 	private auth;
@@ -105,10 +105,19 @@ export class GoogleMailManager {
 		const res = await this.gmail.users.threads.get({
 			userId: "me",
 			id: threadId,
-			format: "METADATA",
-			metadataHeaders: ["From", "Subject", "Date"],
 			access_token: await this.getAccessToken(),
 		});
 		return res.data as gmail_v1.Schema$Thread;
+	}
+
+	async markAsRead(threadId: string): Promise<void> {
+		const res = await this.gmail.users.messages.modify({
+			userId: "me",
+			id: threadId,
+			requestBody: {
+				removeLabelIds: ["UNREAD"],
+			},
+		});
+		console.log({ res: res.data.labelIds });
 	}
 }

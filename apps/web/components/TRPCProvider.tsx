@@ -2,7 +2,7 @@
 
 import { trpc } from "@/lib/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { httpBatchLink } from "@trpc/client";
+import { httpBatchLink, loggerLink } from "@trpc/client";
 import { useState } from "react";
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
@@ -11,6 +11,9 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 	const [trpcClient] = useState(() =>
 		trpc.createClient({
 			links: [
+				loggerLink({
+					enabled: (opts) => process.env.NODE_ENV === "development",
+				}),
 				httpBatchLink({
 					url:
 						process.env.NEXT_PUBLIC_BACKEND_URL ||
