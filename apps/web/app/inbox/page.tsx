@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import EmailList from "@/components/EmailList";
 import EmailContent from "@/components/EmailContent";
 import type { TRPCThreadResponse } from "@nova/server/types";
 import { trpc } from "@/lib/client";
 
 export default function InboxPage() {
+	const router = useRouter();
+	const utils = trpc.useUtils();
 	const {
 		data: emails,
 		isLoading,
@@ -17,11 +20,29 @@ export default function InboxPage() {
 		TRPCThreadResponse | undefined
 	>(undefined);
 
-	useEffect(() => {
-		if (emails && emails.length > 0 && !selectedEmail) {
-			setSelectedEmail(emails[0]);
+	const handleEmailSelect = (email: TRPCThreadResponse) => {
+		setSelectedEmail(email);
+
+		// If email is unread, mark it as read
+		if (email.isUnread) {
+			// update the local cache
+			utils.threads.listThreads.setData(undefined, (oldData) => {
+				if (!oldData) return oldData;
+				return oldData.map((thread) =>
+					thread.id === email.id
+						? { ...thread, isUnread: false }
+						: thread
+				);
+			});
 		}
-	}, [emails, selectedEmail]);
+	};
+
+	// Handle unauthorized errors by redirecting to login
+	useEffect(() => {
+		if (error && error.data?.code === "UNAUTHORIZED") {
+			router.push("/login");
+		}
+	}, [error, router]);
 
 	if (isLoading) {
 		return (
@@ -31,14 +52,13 @@ export default function InboxPage() {
 		);
 	}
 	return (
-		<div className="flex h-screen p-2 w-full">
-			<div className="flex-1 flex gap-2">
+		<div className="h-screen p-2 w-full">
+			<div className="flex gap-2">
 				{/* Email List */}
-
 				<EmailList
 					emails={emails || []}
 					selectedEmail={selectedEmail}
-					setSelectedEmail={setSelectedEmail}
+					setSelectedEmail={handleEmailSelect}
 				/>
 				{/* Email Content */}
 				<EmailContent threadId={selectedEmail?.id} />

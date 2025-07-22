@@ -14,7 +14,6 @@ export const threadsRouter = router({
 	getThread: protectedProcedure
 		.input(z.string())
 		.query(async ({ ctx, input }) => {
-			console.log("Fetching thread with ID:", input);
 			const thread = await ctx.mailManager.getThread(input);
 			if (!thread) {
 				new TRPCError({

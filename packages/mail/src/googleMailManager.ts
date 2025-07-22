@@ -118,6 +118,5 @@ export class GoogleMailManager {
 				removeLabelIds: ["UNREAD"],
 			},
 		});
-		console.log({ res: res.data.labelIds });
 	}
 }

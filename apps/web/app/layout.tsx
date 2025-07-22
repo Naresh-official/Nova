@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import "@nova/ui/globals.css";
 import { ConditionalLayout } from "@/components/ConditionalLayout";
 import { TRPCProvider } from "@/components/TRPCProvider";
+import NextAuthSessionProvider from "@/components/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +27,9 @@ export default function RootLayout({
 				className={`${inter.className} bg-[#101010] text-white antialiased`}
 			>
 				<TRPCProvider>
-					<ConditionalLayout>{children}</ConditionalLayout>
+					<NextAuthSessionProvider>
+						<ConditionalLayout>{children}</ConditionalLayout>
+					</NextAuthSessionProvider>
 				</TRPCProvider>
 			</body>
 		</html>
