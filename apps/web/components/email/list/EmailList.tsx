@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { NovaHeader } from "./Header";
 import EmailNode from "./EmailNode";
-import type { TRPCThreadResponse } from "@nova/server/types";
+import type { ThreadResponse } from "@nova/server/types";
 
 interface EmailListProps {
-	emails: TRPCThreadResponse[];
-	selectedEmail: TRPCThreadResponse | undefined;
-	setSelectedEmail: (email: TRPCThreadResponse) => void;
+	emails: ThreadResponse[];
+	selectedEmail: ThreadResponse | undefined;
+	setSelectedEmail: (email: ThreadResponse) => void;
 }
 
 function EmailList({

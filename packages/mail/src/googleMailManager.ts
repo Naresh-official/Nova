@@ -1,7 +1,7 @@
 import { OAuth2Client } from "google-auth-library";
 import { type gmail_v1, gmail } from "@googleapis/gmail";
 import { batchFetchImplementation } from "@jrmdayn/googleapis-batcher";
-import type { ManagerConfig, TRPCThreadResponse } from "./types";
+import type { ManagerConfig, ThreadResponse } from "./types";
 
 export class GoogleMailManager {
 	private auth;
@@ -50,7 +50,7 @@ export class GoogleMailManager {
 		return res.credentials.access_token || "";
 	}
 
-	async list(): Promise<TRPCThreadResponse[]> {
+	async list(): Promise<ThreadResponse[]> {
 		const res = await this.gmail.users.threads.list({
 			userId: "me",
 			labelIds: ["INBOX"],
@@ -92,6 +92,9 @@ export class GoogleMailManager {
 				isUnread: firstMessage?.labelIds?.includes("UNREAD") || false,
 				isImportant:
 					firstMessage?.labelIds?.includes("IMPORTANT") || false,
+				isPersonal:
+					firstMessage?.labelIds?.includes("CATEGORY_PERSONAL") ||
+					false,
 				messageCount: threadData.messages?.length || 0,
 				sender: fromHeader,
 				subject: subjectHeader,

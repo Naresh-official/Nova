@@ -82,6 +82,7 @@ function EmailContent() {
 				recipient={getRecipientText()}
 				recipientEmail={parsed.to?.[0]?.email || ""}
 				date={parsed.sentDate}
+				isPersonal={parsed.labelIds.includes("CATEGORY_PERSONAL")}
 			/>
 			<div className="rounded-lg p-4">
 				<div

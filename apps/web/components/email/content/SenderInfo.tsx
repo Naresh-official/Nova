@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import {
 	formatDateString,
@@ -22,6 +22,7 @@ interface SenderInfoProps {
 	recipient: string;
 	recipientEmail: string;
 	date: number;
+	isPersonal: boolean;
 }
 
 function SenderInfo({
@@ -29,24 +30,26 @@ function SenderInfo({
 	recipient,
 	recipientEmail,
 	date,
+	isPersonal = false,
 }: SenderInfoProps) {
+	const [imageError, setImageError] = useState(false);
+
 	return (
 		<div className="flex items-start justify-between p-4 rounded-lg">
 			<div className="flex items-center gap-3">
 				{/* Avatar */}
-				<div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-zinc-600 rounded-full">
-					{sender.email ? (
+				<div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-zinc-600 rounded-full overflow-hidden text-xl font-medium text-zinc-200">
+					{sender.email && !imageError && !isPersonal ? (
 						<Image
 							src={`https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${getDomainFromEmail(sender.email)}&size=48`}
 							alt={sender.name}
 							height={40}
 							width={40}
 							className="rounded-full"
+							onError={() => setImageError(true)}
 						/>
 					) : (
-						<span className="text-xl font-medium text-zinc-200">
-							{sender.initial}
-						</span>
+						<span>{sender.initial}</span>
 					)}
 				</div>
 

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Badge } from "@nova/ui/components/badge";
 import { formatDate } from "date-fns";
-import type { TRPCThreadResponse } from "@nova/server/types";
+import type { ThreadResponse } from "@nova/server/types";
 import {
 	extractSenderEmail,
 	extractSenderName,
@@ -14,10 +14,16 @@ function EmailNode({
 	selectedEmail,
 	setSelectedEmail,
 }: {
-	email: TRPCThreadResponse;
-	selectedEmail: TRPCThreadResponse | undefined;
-	setSelectedEmail: (email: TRPCThreadResponse) => void;
+	email: ThreadResponse;
+	selectedEmail: ThreadResponse | undefined;
+	setSelectedEmail: (email: ThreadResponse) => void;
 }) {
+	const [imageError, setImageError] = useState(false);
+
+	const senderName = extractSenderName(email.sender);
+	const senderInitial = senderName[0].toUpperCase();
+	const senderDomain = getDomainFromEmail(extractSenderEmail(email.sender));
+
 	return (
 		<div
 			key={email.id}
@@ -29,20 +35,34 @@ function EmailNode({
 			}`}
 		>
 			<div className="flex items-start gap-3">
-				<Image
-					src={`https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${getDomainFromEmail(extractSenderEmail(email.sender))}&size=48`}
-					alt={extractSenderName(email.sender)[0].toUpperCase()}
-					width={32}
-					height={32}
-					className="rounded-full flex-shrink-0 bg-white"
-				/>
+				<div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center flex-shrink-0 text-sm font-semibold overflow-hidden">
+					{!imageError && !email.isPersonal ? (
+						<Image
+							src={`https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${senderDomain}&size=48`}
+							alt={senderInitial}
+							width={32}
+							height={32}
+							className="rounded-full"
+							onError={() => setImageError(true)}
+						/>
+					) : (
+						<span className="text-muted-foreground">
+							{senderInitial}
+						</span>
+					)}
+				</div>
+
 				<div className="flex-1 min-w-0">
 					<div className="flex items-center justify-between mb-1">
 						<div className="text-sm flex items-center">
 							<span
-								className={`${email.isUnread ? "text-white font-extrabold" : "text-muted-foreground"}`}
+								className={`${
+									email.isUnread
+										? "text-white font-extrabold"
+										: "text-muted-foreground"
+								}`}
 							>
-								{extractSenderName(email.sender)}
+								{senderName}
 							</span>
 
 							{email.isImportant && email.isUnread && (
