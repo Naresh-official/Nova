@@ -6,7 +6,7 @@ import {
 	extractSenderEmail,
 	extractSenderName,
 	getDomainFromEmail,
-} from "@/lib/utils";
+} from "@/lib/parsers";
 import Image from "next/image";
 
 function EmailNode({

@@ -2,9 +2,9 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@nova/ui/globals.css";
-import { ConditionalLayout } from "@/components/ConditionalLayout";
-import { TRPCProvider } from "@/components/TRPCProvider";
-import NextAuthSessionProvider from "@/components/SessionProvider";
+import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
+import { TRPCProvider } from "@/components/providers/TRPCProvider";
+import NextAuthSessionProvider from "@/components/providers/SessionProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 

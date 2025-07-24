@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import EmailList from "@/components/EmailList";
-import EmailContent from "@/components/EmailContent";
 import type { TRPCThreadResponse } from "@nova/server/types";
 import { trpc } from "@/lib/client";
+import EmailList from "@/components/email/list/EmailList";
+import EmailContent from "@/components/email/content/EmailContent";
 
 export default function InboxPage() {
 	const router = useRouter();

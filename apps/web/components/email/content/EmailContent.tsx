@@ -95,6 +95,7 @@ function EmailContent() {
 						backgroundColor: "white",
 						overflow: "hidden",
 						borderRadius: "0.5rem",
+						padding: "1rem",
 					}}
 					dangerouslySetInnerHTML={{
 						__html: extractBodyContent(parsed.textHtml || ""),

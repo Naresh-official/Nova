@@ -3,7 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import { SidebarProvider } from "@nova/ui/components/sidebar";
-import { NovaSidebar } from "@/components/Sidebar";
+import { NovaSidebar } from "@/components/layout/Sidebar";
 
 interface ConditionalLayoutProps {
 	children: React.ReactNode;

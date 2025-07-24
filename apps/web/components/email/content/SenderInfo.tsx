@@ -4,7 +4,7 @@ import {
 	formatDateString,
 	formatTimeString,
 	getDomainFromEmail,
-} from "@/lib/utils";
+} from "@/lib/parsers";
 import { Button } from "@nova/ui/components/button";
 import Image from "next/image";
 import {
