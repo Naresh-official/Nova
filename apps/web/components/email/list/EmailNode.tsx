@@ -8,6 +8,7 @@ import {
 	getDomainFromEmail,
 } from "@/lib/parsers";
 import Image from "next/image";
+import { Star } from "lucide-react";
 
 function EmailNode({
 	email,
@@ -56,13 +57,20 @@ function EmailNode({
 					<div className="flex items-center justify-between mb-1">
 						<div className="text-sm flex items-center">
 							<span
-								className={`${
+								className={`flex ${
 									email.isUnread
 										? "text-white font-extrabold"
 										: "text-muted-foreground"
 								}`}
 							>
 								{senderName}
+								{email.isStarred && (
+									<Star
+										size={16}
+										className="ml-1 text-yellow-500"
+										fill="yellow"
+									/>
+								)}
 							</span>
 
 							{email.isImportant && email.isUnread && (

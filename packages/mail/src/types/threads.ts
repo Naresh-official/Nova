@@ -4,6 +4,7 @@ export interface ThreadResponse {
 	isUnread: boolean;
 	isImportant: boolean;
 	isPersonal: boolean;
+	isStarred: boolean;
 	messageCount: number;
 	sender: string;
 	subject: string;

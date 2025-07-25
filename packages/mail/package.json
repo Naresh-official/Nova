@@ -12,6 +12,7 @@
 	"dependencies": {
 		"@googleapis/gmail": "^14.0.1",
 		"@jrmdayn/googleapis-batcher": "^0.8.0",
+		"base64url": "^3.0.1",
 		"google-auth-library": "^10.1.0",
 		"zod": "^3.24.2"
 	},

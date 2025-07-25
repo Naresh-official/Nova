@@ -2,6 +2,13 @@ import { OAuth2Client } from "google-auth-library";
 import { type gmail_v1, gmail } from "@googleapis/gmail";
 import { batchFetchImplementation } from "@jrmdayn/googleapis-batcher";
 import type { ManagerConfig, ThreadResponse } from "./types";
+import base64url from "base64url";
+import {
+	extractUnsubscribeLinks,
+	getHeaderValue,
+	unsubscribeViaEmail,
+	unsubscribeViaHttp,
+} from "./utils/gmail-unsubscribe-helpers";
 
 export class GoogleMailManager {
 	private auth;
@@ -95,6 +102,7 @@ export class GoogleMailManager {
 				isPersonal:
 					firstMessage?.labelIds?.includes("CATEGORY_PERSONAL") ||
 					false,
+				isStarred: firstMessage?.labelIds?.includes("STARRED") || false,
 				messageCount: threadData.messages?.length || 0,
 				sender: fromHeader,
 				subject: subjectHeader,
@@ -134,5 +142,86 @@ export class GoogleMailManager {
 				removeLabelIds: ["UNREAD"],
 			},
 		});
+	}
+
+	async trashThread(threadId: string): Promise<void> {
+		await this.gmail.users.threads.trash({
+			userId: "me",
+			id: threadId,
+		});
+	}
+
+	async toggleStar(threadId: string): Promise<void> {
+		const thread = await this.getThread(threadId);
+		if (!thread) return Promise.reject("Thread not found");
+
+		const isStarred = thread.messages?.some((message) =>
+			message.labelIds?.includes("STARRED")
+		);
+		await this.gmail.users.messages.modify({
+			userId: "me",
+			id: threadId,
+			requestBody: {
+				addLabelIds: isStarred ? [] : ["STARRED"],
+				removeLabelIds: isStarred ? ["STARRED"] : [],
+			},
+		});
+	}
+
+	async moveToArchive(threadId: string): Promise<void> {
+		await this.gmail.users.threads.modify({
+			userId: "me",
+			id: threadId,
+			requestBody: {
+				removeLabelIds: ["INBOX"],
+			},
+		});
+	}
+
+	async moveToSpam(threadId: string): Promise<void> {
+		await this.gmail.users.threads.modify({
+			userId: "me",
+			id: threadId,
+			requestBody: {
+				addLabelIds: ["SPAM"],
+				removeLabelIds: ["INBOX"],
+			},
+		});
+	}
+
+	async unsubscribeFromThread(threadId: string): Promise<void> {
+		const thread = await this.gmail.users.threads.get({
+			userId: "me",
+			id: threadId,
+			format: "full",
+		});
+
+		const messages = thread.data.messages || [];
+
+		for (const message of messages) {
+			const headers = message.payload?.headers || [];
+
+			const unsubscribeHeader = getHeaderValue(
+				headers,
+				"list-unsubscribe"
+			);
+			const postHeader = getHeaderValue(headers, "list-unsubscribe-post");
+
+			if (!unsubscribeHeader) continue;
+
+			const links = extractUnsubscribeLinks(unsubscribeHeader);
+			const httpLink = links.find((l) => l.startsWith("http"));
+			const mailtoLink = links.find((l) => l.startsWith("mailto:"));
+
+			if (httpLink) {
+				await unsubscribeViaHttp(httpLink, postHeader || undefined);
+				return;
+			}
+
+			if (mailtoLink) {
+				await unsubscribeViaEmail(this.gmail, mailtoLink);
+				return;
+			}
+		}
 	}
 }

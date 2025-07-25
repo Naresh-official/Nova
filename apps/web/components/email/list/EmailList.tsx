@@ -14,6 +14,7 @@ function EmailList({
 	selectedEmail,
 	setSelectedEmail,
 }: EmailListProps) {
+	console.log(emails);
 	return (
 		<div className="w-[420px] bg-black rounded-lg">
 			<NovaHeader />

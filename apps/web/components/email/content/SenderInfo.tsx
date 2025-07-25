@@ -102,9 +102,6 @@ function SenderInfo({
 					<span>{formatDateString(date)}</span>
 					<span>{formatTimeString(date)}</span>
 				</div>
-				<Button variant="ghost">
-					<MoreHorizontal size={20} />
-				</Button>
 			</div>
 		</div>
 	);

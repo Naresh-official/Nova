@@ -33,4 +33,34 @@ export const threadsRouter = router({
 			}
 			return thread;
 		}),
+
+	trashThread: protectedProcedure
+		.input(z.object({ threadId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.trashThread(input.threadId);
+		}),
+
+	toggleStar: protectedProcedure
+		.input(z.object({ threadId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.toggleStar(input.threadId);
+		}),
+
+	moveToArchive: protectedProcedure
+		.input(z.object({ threadId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.moveToArchive(input.threadId);
+		}),
+
+	moveToSpam: protectedProcedure
+		.input(z.object({ threadId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.moveToSpam(input.threadId);
+		}),
+
+	unsubscribeFromThread: protectedProcedure
+		.input(z.object({ threadId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.unsubscribeFromThread(input.threadId);
+		}),
 });

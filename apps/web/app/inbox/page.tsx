@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { TRPCThreadResponse } from "@nova/server/types";
+import type { ThreadResponse } from "@nova/server/types";
 import { trpc } from "@/lib/client";
 import EmailList from "@/components/email/list/EmailList";
 import EmailContent from "@/components/email/content/EmailContent";
@@ -18,7 +18,7 @@ export default function InboxPage() {
 	} = trpc.threads.listThreads.useQuery();
 
 	const [selectedEmail, setSelectedEmail] = useState<
-		TRPCThreadResponse | undefined
+		ThreadResponse | undefined
 	>(undefined);
 
 	// Initialize selected email from URL search params
@@ -38,7 +38,7 @@ export default function InboxPage() {
 		}
 	}, [emails, searchParams]);
 
-	const handleEmailSelect = (email: TRPCThreadResponse) => {
+	const handleEmailSelect = (email: ThreadResponse) => {
 		setSelectedEmail(email);
 
 		router.push(`/inbox?threadId=${email.id}`);

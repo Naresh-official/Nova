@@ -16,7 +16,6 @@ import {
 } from "@nova/ui/components/tooltip";
 import Image from "next/image";
 import { getDomainFromEmail } from "@/lib/parsers";
-import { Separator } from "@nova/ui/components/separator";
 
 interface EmailMetaHeaderProps {
 	tags: string[];
