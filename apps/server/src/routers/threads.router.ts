@@ -63,4 +63,10 @@ export const threadsRouter = router({
 		.mutation(async ({ ctx, input }) => {
 			await ctx.mailManager.unsubscribeFromThread(input.threadId);
 		}),
+
+	markAsImportant: protectedProcedure
+		.input(z.object({ threadId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.markAsImportant(input.threadId);
+		}),
 });

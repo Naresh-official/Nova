@@ -1,6 +1,7 @@
 // components/email/useEmailActions.ts
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { trpc } from "@/lib/client";
+import type { ThreadResponse } from "@nova/server/types";
 
 export function useEmailActions() {
 	const router = useRouter();
@@ -23,18 +24,77 @@ export function useEmailActions() {
 
 	const toggleStar = trpc.threads.toggleStar.useMutation({
 		onMutate: async ({ threadId }) => {
-			// Optimistic update logic
+			await utils.threads.getThread.cancel(threadId);
+			utils.threads.getThread.setData(threadId, (oldData) => {
+				if (!oldData) return oldData;
+				const isCurrentlyStarred =
+					oldData.messages?.[0]?.labelIds?.includes("STARRED") || false;
+				return {
+					...oldData,
+					messages: oldData.messages?.map((msg) => ({
+						...msg,
+						labelIds: isCurrentlyStarred
+							? msg.labelIds?.filter((label) => label !== "STARRED")
+							: [...(msg.labelIds || []), "STARRED"],
+					})),
+				};
+			});
+
+			utils.threads.listThreads.setData(undefined, (oldThreads) => {
+				if (!oldThreads) return oldThreads;
+				return oldThreads.map((thread: ThreadResponse) => {
+					if (thread.id !== threadId) return thread;
+					const isCurrentlyStarred = thread.isStarred || false;
+					false;
+					return {
+						...thread,
+						isStarred: !isCurrentlyStarred,
+					};
+				});
+			});
 		},
 	});
 
 	const moveToArchive = trpc.threads.moveToArchive.useMutation({
 		onSuccess: () => {
-			/* ... */
+			utils.threads.listThreads.setData(undefined, (oldThreads) => {
+				if (!oldThreads) return oldThreads;
+				return oldThreads.filter(
+					(thread: ThreadResponse) => thread.id !== currentThreadId
+				);
+			});
+
+			utils.threads.listThreads.invalidate();
+			utils.threads.listThreadIds.invalidate();
 		},
 	});
 	const moveToSpam = trpc.threads.moveToSpam.useMutation({
 		onSuccess: () => {
-			/* ... */
+			utils.threads.listThreads.setData(undefined, (oldThreads) => {
+				if (!oldThreads) return oldThreads;
+				return oldThreads.filter(
+					(thread: ThreadResponse) => thread.id !== currentThreadId
+				);
+			});
+
+			utils.threads.listThreads.invalidate();
+			utils.threads.listThreadIds.invalidate();
+		},
+	});
+
+	const markAsImportant = trpc.threads.markAsImportant.useMutation({
+		onMutate: ({ threadId }) => {
+			utils.threads.getThread.cancel(threadId);
+			utils.threads.getThread.setData(threadId, (oldData) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					messages: oldData.messages?.map((msg) => ({
+						...msg,
+						labelIds: [...(msg.labelIds || []), "IMPORTANT"],
+					})),
+				};
+			});
 		},
 	});
 
@@ -46,8 +106,7 @@ export function useEmailActions() {
 				?.messages?.[0]?.labelIds?.includes("STARRED") || false,
 		disablePrev: !currentThreadId || emails.indexOf(currentThreadId) === 0,
 		disableNext:
-			!currentThreadId ||
-			emails.indexOf(currentThreadId) === emails.length - 1,
+			!currentThreadId || emails.indexOf(currentThreadId) === emails.length - 1,
 		actions: {
 			handleClose: () => router.push(pathname),
 			handlePrevious: () => {
@@ -69,20 +128,23 @@ export function useEmailActions() {
 				}
 			},
 			handleToggleStar: () => {
-				if (currentThreadId)
-					toggleStar.mutate({ threadId: currentThreadId });
+				if (currentThreadId) toggleStar.mutate({ threadId: currentThreadId });
 			},
 			handleArchive: () => {
 				if (currentThreadId)
 					moveToArchive.mutate({ threadId: currentThreadId });
 			},
 			handleMoveToSpam: () => {
-				if (currentThreadId)
-					moveToSpam.mutate({ threadId: currentThreadId });
+				if (currentThreadId) moveToSpam.mutate({ threadId: currentThreadId });
 			},
 			handleUnsubscribe: () => {
 				if (currentThreadId)
 					unsubscribeFromThread.mutate({ threadId: currentThreadId });
+			},
+			handleMarkAsImportant: () => {
+				if (currentThreadId) {
+					markAsImportant.mutate({ threadId: currentThreadId });
+				}
 			},
 		},
 	};

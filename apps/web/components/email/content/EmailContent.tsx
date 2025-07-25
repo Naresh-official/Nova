@@ -102,8 +102,7 @@ function EmailContent() {
 			</html>
 		`;
 
-		const iframeDoc =
-			iframe.contentDocument || iframe.contentWindow?.document;
+		const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
 		if (iframeDoc) {
 			iframeDoc.open();
 			iframeDoc.write(printContent);
@@ -143,22 +142,15 @@ function EmailContent() {
 				tags={parsed.labelIds}
 				subject={parsed.subject}
 				initial={
-					parsed.from?.name?.charAt(0) ||
-					parsed.from?.email?.charAt(0) ||
-					"U"
+					parsed.from?.name?.charAt(0) || parsed.from?.email?.charAt(0) || "U"
 				}
-				name={
-					parsed.from?.name || parsed.from?.email || "Unknown Sender"
-				}
+				name={parsed.from?.name || parsed.from?.email || "Unknown Sender"}
 				email={parsed.from?.email || ""}
 			/>
 			<Separator />
 			<SenderInfo
 				sender={{
-					name:
-						parsed.from?.name ||
-						parsed.from?.email ||
-						"Unknown Sender",
+					name: parsed.from?.name || parsed.from?.email || "Unknown Sender",
 					initial:
 						parsed.from?.name?.charAt(0) ||
 						parsed.from?.email?.charAt(0) ||

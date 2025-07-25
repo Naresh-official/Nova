@@ -29,9 +29,7 @@ export default function BinPage() {
 						<h2 className="text-xl font-semibold text-white mb-2">
 							Bin is empty
 						</h2>
-						<p className="text-[#999] mb-6">
-							Deleted emails will appear here
-						</p>
+						<p className="text-[#999] mb-6">Deleted emails will appear here</p>
 					</div>
 				</div>
 			</SidebarInset>

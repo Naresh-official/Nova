@@ -9,8 +9,8 @@ export function getHeaderValue(
 	key: string
 ): string | null {
 	return (
-		headers.find((h) => h.name?.toLowerCase() === key.toLowerCase())
-			?.value || null
+		headers.find((h) => h.name?.toLowerCase() === key.toLowerCase())?.value ||
+		null
 	);
 }
 
@@ -30,8 +30,7 @@ export async function unsubscribeViaHttp(
 	link: string,
 	postHeader?: string
 ): Promise<void> {
-	const isOneClick =
-		postHeader?.toLowerCase() === "list-unsubscribe=one-click";
+	const isOneClick = postHeader?.toLowerCase() === "list-unsubscribe=one-click";
 
 	const res = await fetch(link, {
 		method: isOneClick ? "POST" : "GET",

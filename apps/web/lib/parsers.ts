@@ -1,11 +1,11 @@
 export function extractSenderName(sender: string): string {
-  const match = sender.match(/^"?([^"<]+)"?\s*<.*>$/);
-  return match ? match[1].trim() : sender;
+	const match = sender.match(/^"?([^"<]+)"?\s*<.*>$/);
+	return match ? match[1].trim() : sender;
 }
 
 export function extractSenderEmail(sender: string): string {
-  const match = sender.match(/<([^>]+)>/);
-  return match ? match[1].trim() : sender;
+	const match = sender.match(/<([^>]+)>/);
+	return match ? match[1].trim() : sender;
 }
 
 export function formatDateString(dateNumber: number): string {

@@ -16,8 +16,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 				}),
 				httpBatchLink({
 					url:
-						process.env.NEXT_PUBLIC_BACKEND_URL ||
-						"http://localhost:8000/trpc",
+						process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8000/trpc",
 					fetch(url, options) {
 						return fetch(url, {
 							...options,
@@ -31,9 +30,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 
 	return (
 		<trpc.Provider client={trpcClient} queryClient={queryClient}>
-			<QueryClientProvider client={queryClient}>
-				{children}
-			</QueryClientProvider>
+			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 		</trpc.Provider>
 	);
 }

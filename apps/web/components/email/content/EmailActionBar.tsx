@@ -65,9 +65,7 @@ function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
 					</AlertDialogTrigger>
 					<AlertDialogContent>
 						<AlertDialogHeader>
-							<AlertDialogTitle>
-								Move Email Thread to Trash?
-							</AlertDialogTitle>
+							<AlertDialogTitle>Move Email Thread to Trash?</AlertDialogTitle>
 							<AlertDialogDescription>
 								This email thread will be moved to trash.
 							</AlertDialogDescription>
@@ -85,6 +83,7 @@ function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
 					onPrint={onPrint}
 					onSpam={actions.handleMoveToSpam}
 					onUnsubscribe={actions.handleUnsubscribe}
+					onMarkAsImportant={actions.handleMarkAsImportant}
 				/>
 			</div>
 		</div>

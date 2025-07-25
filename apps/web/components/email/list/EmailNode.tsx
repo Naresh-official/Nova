@@ -47,9 +47,7 @@ function EmailNode({
 							onError={() => setImageError(true)}
 						/>
 					) : (
-						<span className="text-muted-foreground">
-							{senderInitial}
-						</span>
+						<span className="text-muted-foreground">{senderInitial}</span>
 					)}
 				</div>
 

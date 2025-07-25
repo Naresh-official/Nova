@@ -1,12 +1,43 @@
-# shadcn/ui monorepo template
+# Nova - AI-Powered Email Client
 
-This template is for creating a monorepo with shadcn/ui.
+Nova is a TypeScript monorepo using Turborepo with Gmail integration and a modern web interface.
 
-## Usage
+## Development
 
 ```bash
-pnpm dlx shadcn@latest init
+# Install dependencies
+pnpm install
+
+# Start development servers
+pnpm dev
+
+# Build all packages
+pnpm build
 ```
+
+## Code Formatting
+
+This project uses Prettier for consistent code formatting across all packages.
+
+```bash
+# Format all files
+pnpm format
+
+# Check formatting without fixing
+pnpm format:check
+
+# Fix formatting issues
+pnpm format:fix
+```
+
+The Prettier configuration is set to:
+
+- 80 character line width
+- 2 space indentation
+- Semicolons enabled
+- Double quotes for strings
+- Trailing commas in multiline structures
+- Automatic formatting on save in VS Code
 
 ## Adding components
 

@@ -52,25 +52,20 @@ function EmailMetaHeader({
 
 			<div className="flex items-center gap-2">
 				<div className="flex items-center gap-2">
-					{Alltags.filter((tag) => tags.includes(tag.name)).map(
-						(tag) => (
-							<Tooltip key={tag.name}>
-								<TooltipTrigger>
-									<div
-										className={`flex items-center justify-center p-1.5 ${tag.color} rounded-md`}
-									>
-										<tag.icon
-											size={16}
-											className="text-white fill-white"
-										/>
-									</div>
-								</TooltipTrigger>
-								<TooltipContent>
-									<p>{tag.name}</p>
-								</TooltipContent>
-							</Tooltip>
-						)
-					)}
+					{Alltags.filter((tag) => tags.includes(tag.name)).map((tag) => (
+						<Tooltip key={tag.name}>
+							<TooltipTrigger>
+								<div
+									className={`flex items-center justify-center p-1.5 ${tag.color} rounded-md`}
+								>
+									<tag.icon size={16} className="text-white fill-white" />
+								</div>
+							</TooltipTrigger>
+							<TooltipContent>
+								<p>{tag.name}</p>
+							</TooltipContent>
+						</Tooltip>
+					))}
 					<div className="w-px h-6 bg-zinc-600 mx-1"></div>
 				</div>
 				<div className="flex items-center gap-2 p-2 pr-4 border border-zinc-600 rounded-full">

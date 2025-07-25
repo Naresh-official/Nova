@@ -26,9 +26,7 @@ export default function InboxPage() {
 		if (emails && emails.length > 0) {
 			const threadId = searchParams.get("threadId");
 			if (threadId) {
-				const emailFromParams = emails.find(
-					(email) => email.id === threadId
-				);
+				const emailFromParams = emails.find((email) => email.id === threadId);
 				if (emailFromParams) {
 					setSelectedEmail(emailFromParams);
 				}
@@ -49,9 +47,7 @@ export default function InboxPage() {
 			utils.threads.listThreads.setData(undefined, (oldData) => {
 				if (!oldData) return oldData;
 				return oldData.map((thread) =>
-					thread.id === email.id
-						? { ...thread, isUnread: false }
-						: thread
+					thread.id === email.id ? { ...thread, isUnread: false } : thread
 				);
 			});
 		}

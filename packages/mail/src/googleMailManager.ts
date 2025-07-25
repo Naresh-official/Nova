@@ -86,22 +86,18 @@ export class GoogleMailManager {
 			const firstMessage = threadData.messages?.[0];
 			const headers = firstMessage?.payload?.headers || [];
 
-			const fromHeader =
-				headers.find((h) => h.name === "From")?.value || "";
+			const fromHeader = headers.find((h) => h.name === "From")?.value || "";
 			const subjectHeader =
 				headers.find((h) => h.name === "Subject")?.value || "";
-			const dateHeader =
-				headers.find((h) => h.name === "Date")?.value || "";
+			const dateHeader = headers.find((h) => h.name === "Date")?.value || "";
 
 			return {
 				id: threadData.id || "",
 				snippet: firstMessage?.snippet || "",
 				isUnread: firstMessage?.labelIds?.includes("UNREAD") || false,
-				isImportant:
-					firstMessage?.labelIds?.includes("IMPORTANT") || false,
+				isImportant: firstMessage?.labelIds?.includes("IMPORTANT") || false,
 				isPersonal:
-					firstMessage?.labelIds?.includes("CATEGORY_PERSONAL") ||
-					false,
+					firstMessage?.labelIds?.includes("CATEGORY_PERSONAL") || false,
 				isStarred: firstMessage?.labelIds?.includes("STARRED") || false,
 				messageCount: threadData.messages?.length || 0,
 				sender: fromHeader,
@@ -201,10 +197,7 @@ export class GoogleMailManager {
 		for (const message of messages) {
 			const headers = message.payload?.headers || [];
 
-			const unsubscribeHeader = getHeaderValue(
-				headers,
-				"list-unsubscribe"
-			);
+			const unsubscribeHeader = getHeaderValue(headers, "list-unsubscribe");
 			const postHeader = getHeaderValue(headers, "list-unsubscribe-post");
 
 			if (!unsubscribeHeader) continue;
@@ -223,5 +216,15 @@ export class GoogleMailManager {
 				return;
 			}
 		}
+	}
+
+	async markAsImportant(threadId: string): Promise<void> {
+		await this.gmail.users.messages.modify({
+			userId: "me",
+			id: threadId,
+			requestBody: {
+				addLabelIds: ["IMPORTANT"],
+			},
+		});
 	}
 }

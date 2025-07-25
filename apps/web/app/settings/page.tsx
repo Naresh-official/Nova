@@ -25,9 +25,7 @@ export default function SettingsPage() {
 					<div className="max-w-2xl mx-auto space-y-8">
 						{/* General Settings */}
 						<div className="nova-card p-6">
-							<h2 className="text-lg font-semibold text-white mb-6">
-								General
-							</h2>
+							<h2 className="text-lg font-semibold text-white mb-6">General</h2>
 							<div className="space-y-6">
 								<div className="flex items-center justify-between">
 									<div>
@@ -57,8 +55,7 @@ export default function SettingsPage() {
 											Auto Label
 										</Label>
 										<p className="text-sm text-[#999] mt-1">
-											Automatically categorize emails with
-											AI
+											Automatically categorize emails with AI
 										</p>
 									</div>
 									<Switch
@@ -77,8 +74,7 @@ export default function SettingsPage() {
 											Read Receipts
 										</Label>
 										<p className="text-sm text-[#999] mt-1">
-											Send read receipts when you open
-											emails
+											Send read receipts when you open emails
 										</p>
 									</div>
 									<Switch
@@ -92,15 +88,10 @@ export default function SettingsPage() {
 
 						{/* Account Settings */}
 						<div className="nova-card p-6">
-							<h2 className="text-lg font-semibold text-white mb-6">
-								Account
-							</h2>
+							<h2 className="text-lg font-semibold text-white mb-6">Account</h2>
 							<div className="space-y-4">
 								<div>
-									<Label
-										htmlFor="name"
-										className="text-[#E0E0E0]"
-									>
+									<Label htmlFor="name" className="text-[#E0E0E0]">
 										Display Name
 									</Label>
 									<Input
@@ -110,10 +101,7 @@ export default function SettingsPage() {
 									/>
 								</div>
 								<div>
-									<Label
-										htmlFor="email"
-										className="text-[#E0E0E0]"
-									>
+									<Label htmlFor="email" className="text-[#E0E0E0]">
 										Email Address
 									</Label>
 									<Input
@@ -133,37 +121,23 @@ export default function SettingsPage() {
 							</h2>
 							<div className="space-y-4">
 								<div>
-									<Label
-										htmlFor="ai-model"
-										className="text-[#E0E0E0]"
-									>
+									<Label htmlFor="ai-model" className="text-[#E0E0E0]">
 										AI Model
 									</Label>
 									<select className="nova-input mt-2 w-full">
-										<option value="gpt-4">
-											GPT-4 (Recommended)
-										</option>
-										<option value="gpt-3.5">
-											GPT-3.5 Turbo
-										</option>
+										<option value="gpt-4">GPT-4 (Recommended)</option>
+										<option value="gpt-3.5">GPT-3.5 Turbo</option>
 										<option value="claude">Claude</option>
 									</select>
 								</div>
 								<div>
-									<Label
-										htmlFor="tone"
-										className="text-[#E0E0E0]"
-									>
+									<Label htmlFor="tone" className="text-[#E0E0E0]">
 										Default Tone
 									</Label>
 									<select className="nova-input mt-2 w-full">
-										<option value="professional">
-											Professional
-										</option>
+										<option value="professional">Professional</option>
 										<option value="casual">Casual</option>
-										<option value="friendly">
-											Friendly
-										</option>
+										<option value="friendly">Friendly</option>
 										<option value="formal">Formal</option>
 									</select>
 								</div>

@@ -8,7 +8,19 @@ import {
 import { Printer, AlertTriangle, UserX, Zap, MoreVertical } from "lucide-react";
 import { Button } from "@nova/ui/components/button";
 
-export function ActionMenu({ onPrint, onSpam, onUnsubscribe }: any) {
+interface ActionMenuProps {
+	onPrint: (() => void) | undefined;
+	onSpam: () => void;
+	onUnsubscribe: () => void;
+	onMarkAsImportant: () => void;
+}
+
+export function ActionMenu({
+	onPrint,
+	onSpam,
+	onUnsubscribe,
+	onMarkAsImportant,
+}: ActionMenuProps) {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
@@ -29,7 +41,7 @@ export function ActionMenu({ onPrint, onSpam, onUnsubscribe }: any) {
 					<UserX size={16} />
 					<span>Unsubscribe</span>
 				</DropdownMenuItem>
-				<DropdownMenuItem>
+				<DropdownMenuItem onClick={onMarkAsImportant}>
 					<Zap size={16} />
 					<span>Mark as Important</span>
 				</DropdownMenuItem>

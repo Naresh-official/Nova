@@ -36,9 +36,7 @@ export default function ComposePage() {
 							<div className="space-y-4">
 								{/* To Field */}
 								<div className="flex items-center gap-4">
-									<label className="text-[#999] text-sm w-16">
-										To:
-									</label>
+									<label className="text-[#999] text-sm w-16">To:</label>
 									<Input
 										placeholder="Enter email"
 										value={to}
@@ -64,15 +62,11 @@ export default function ComposePage() {
 								{/* Cc Field */}
 								{showCc && (
 									<div className="flex items-center gap-4 animate-slide-in">
-										<label className="text-[#999] text-sm w-16">
-											Cc:
-										</label>
+										<label className="text-[#999] text-sm w-16">Cc:</label>
 										<Input
 											placeholder="Enter email"
 											value={cc}
-											onChange={(e) =>
-												setCc(e.target.value)
-											}
+											onChange={(e) => setCc(e.target.value)}
 											className="nova-input flex-1"
 										/>
 									</div>
@@ -81,15 +75,11 @@ export default function ComposePage() {
 								{/* Bcc Field */}
 								{showBcc && (
 									<div className="flex items-center gap-4 animate-slide-in">
-										<label className="text-[#999] text-sm w-16">
-											Bcc:
-										</label>
+										<label className="text-[#999] text-sm w-16">Bcc:</label>
 										<Input
 											placeholder="Enter email"
 											value={bcc}
-											onChange={(e) =>
-												setBcc(e.target.value)
-											}
+											onChange={(e) => setBcc(e.target.value)}
 											className="nova-input flex-1"
 										/>
 									</div>
@@ -97,29 +87,21 @@ export default function ComposePage() {
 
 								{/* Subject Field */}
 								<div className="flex items-center gap-4">
-									<label className="text-[#999] text-sm w-16">
-										Subject:
-									</label>
+									<label className="text-[#999] text-sm w-16">Subject:</label>
 									<Input
 										placeholder="Re: Design review feedback"
 										value={subject}
-										onChange={(e) =>
-											setSubject(e.target.value)
-										}
+										onChange={(e) => setSubject(e.target.value)}
 										className="nova-input flex-1"
 									/>
 								</div>
 
 								{/* From Field */}
 								<div className="flex items-center gap-4">
-									<label className="text-[#999] text-sm w-16">
-										From:
-									</label>
+									<label className="text-[#999] text-sm w-16">From:</label>
 									<div className="flex items-center gap-2 text-[#E0E0E0]">
 										<span>nareshkumarg2501@gmail.com</span>
-										<span className="text-[#999] text-sm">
-											Primary
-										</span>
+										<span className="text-[#999] text-sm">Primary</span>
 									</div>
 								</div>
 							</div>

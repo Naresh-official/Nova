@@ -1,10 +1,5 @@
 {
 	"extends": "@nova/typescript-config/base.json",
-	"include": [
-		"**/*.ts",
-		"**/*.tsx"
-	],
-	"exclude": [
-		"node_modules"
-	]
+	"include": ["**/*.ts", "**/*.tsx"],
+	"exclude": ["node_modules"]
 }

@@ -56,9 +56,7 @@ function SenderInfo({
 				{/* Sender and Recipient Info */}
 				<div className="flex flex-col">
 					<div className="flex items-center gap-2">
-						<span className="font-bold text-zinc-100">
-							{sender.name}
-						</span>
+						<span className="font-bold text-zinc-100">{sender.name}</span>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<a className="text-xs text-muted-foreground hover:underline hover:underline-offset-4">
@@ -76,9 +74,7 @@ function SenderInfo({
 								</div>
 								<div className="flex flex-col text-sm text-zinc-200">
 									<span>
-										<span className="font-bold">
-											{sender.name}{" "}
-										</span>
+										<span className="font-bold">{sender.name} </span>
 										{sender.email}
 									</span>
 									<span>{recipientEmail}</span>
@@ -90,9 +86,7 @@ function SenderInfo({
 							</DropdownMenuContent>
 						</DropdownMenu>
 					</div>
-					<span className="text-sm text-zinc-400">
-						To: {recipient}
-					</span>
+					<span className="text-sm text-zinc-400">To: {recipient}</span>
 				</div>
 			</div>
 
