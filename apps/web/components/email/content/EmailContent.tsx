@@ -24,13 +24,8 @@ function EmailContent() {
 		enabled: !!threadId,
 	});
 
-	const { data: threads } = trpc.threads.listThreads.useQuery();
-
-	const currentThread = threads?.find((t) => t.id === threadId);
-
 	const MessageParser = new ParseGmailApi();
 	const parsed = MessageParser.parseMessage(thread?.messages?.[0] || {});
-	console.log({ parsed });
 
 	const getRecipientText = () => {
 		if (parsed.to?.[0]?.email === session?.user?.email) {

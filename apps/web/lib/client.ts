@@ -1,5 +1,7 @@
-// lib/trpc.ts
 import { createTRPCReact } from "@trpc/react-query";
-import type { AppRouter } from "@nova/server/trpc";
+import type { AppRouter } from "../../server/src/routers";
+import type { RouterInputs, RouterOutputs } from "../../server/src/routers";
 
 export const trpc = createTRPCReact<AppRouter>();
+
+export type { RouterInputs, RouterOutputs };

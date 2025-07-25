@@ -36,9 +36,5 @@
 		"google-auth-library": "^10.1.0",
 		"next-auth": "^4.24.11",
 		"zod": "^3.24.2"
-	},
-	"exports": {
-		"./trpc": "./src/routers/index.ts",
-		"./types": "./src/types/index.ts"
 	}
 }

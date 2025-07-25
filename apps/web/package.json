@@ -12,7 +12,6 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
-		"@nova/server": "workspace:*",
 		"@nova/ui": "workspace:*",
 		"@tanstack/react-query": "^5.83.0",
 		"@trpc/client": "^11.4.3",

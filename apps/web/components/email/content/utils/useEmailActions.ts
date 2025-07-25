@@ -10,7 +10,12 @@ export function useEmailActions() {
 	const currentThreadId = searchParams.get("threadId");
 	const utils = trpc.useUtils();
 
-	const emails = trpc.threads.listThreadIds.useQuery().data || [];
+	// Extract email IDs from the infinite query cache
+	const infiniteQueryData = utils.threads.listThreads.getInfiniteData({});
+	const emails =
+		infiniteQueryData?.pages.flatMap((page) =>
+			page.emails.map((email) => email.id)
+		) || [];
 
 	const trashThread = trpc.threads.trashThread.useMutation({
 		onSuccess: () => {
@@ -40,28 +45,39 @@ export function useEmailActions() {
 				};
 			});
 
-			utils.threads.listThreads.setData(undefined, (oldThreads) => {
-				if (!oldThreads) return oldThreads;
-				return oldThreads.map((thread: ThreadResponse) => {
-					if (thread.id !== threadId) return thread;
-					const isCurrentlyStarred = thread.isStarred || false;
-					false;
-					return {
-						...thread,
-						isStarred: !isCurrentlyStarred,
-					};
-				});
+			utils.threads.listThreads.setInfiniteData({}, (oldData) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					pages: oldData.pages.map((page) => ({
+						...page,
+						emails: page.emails.map((thread: ThreadResponse) => {
+							if (thread.id !== threadId) return thread;
+							const isCurrentlyStarred = thread.isStarred || false;
+							return {
+								...thread,
+								isStarred: !isCurrentlyStarred,
+							};
+						}),
+					})),
+				};
 			});
 		},
 	});
 
 	const moveToArchive = trpc.threads.moveToArchive.useMutation({
 		onSuccess: () => {
-			utils.threads.listThreads.setData(undefined, (oldThreads) => {
-				if (!oldThreads) return oldThreads;
-				return oldThreads.filter(
-					(thread: ThreadResponse) => thread.id !== currentThreadId
-				);
+			utils.threads.listThreads.setInfiniteData({}, (oldData) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					pages: oldData.pages.map((page) => ({
+						...page,
+						emails: page.emails.filter(
+							(thread: ThreadResponse) => thread.id !== currentThreadId
+						),
+					})),
+				};
 			});
 
 			utils.threads.listThreads.invalidate();
@@ -70,11 +86,17 @@ export function useEmailActions() {
 	});
 	const moveToSpam = trpc.threads.moveToSpam.useMutation({
 		onSuccess: () => {
-			utils.threads.listThreads.setData(undefined, (oldThreads) => {
-				if (!oldThreads) return oldThreads;
-				return oldThreads.filter(
-					(thread: ThreadResponse) => thread.id !== currentThreadId
-				);
+			utils.threads.listThreads.setInfiniteData({}, (oldData) => {
+				if (!oldData) return oldData;
+				return {
+					...oldData,
+					pages: oldData.pages.map((page) => ({
+						...page,
+						emails: page.emails.filter(
+							(thread: ThreadResponse) => thread.id !== currentThreadId
+						),
+					})),
+				};
 			});
 
 			utils.threads.listThreads.invalidate();

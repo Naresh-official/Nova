@@ -5,10 +5,24 @@ import { TRPCError } from "@trpc/server";
 
 export const threadsRouter = router({
 	listThreads: protectedProcedure
-		.output(z.array(ThreadResponseSchema))
-		.query(async ({ ctx }) => {
-			const threads = await ctx.mailManager.list();
-			return threads;
+		.input(
+			z.object({
+				cursor: z.string().optional(),
+			})
+		)
+		.output(
+			z.object({
+				emails: z.array(ThreadResponseSchema),
+				nextCursor: z.string().optional(),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			// Keep as .query()
+			const threads = await ctx.mailManager.list(input.cursor);
+			return {
+				emails: threads.emails,
+				nextCursor: threads.nextPageToken,
+			};
 		}),
 
 	listThreadIds: protectedProcedure

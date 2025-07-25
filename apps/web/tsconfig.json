@@ -4,14 +4,16 @@
 		"baseUrl": ".",
 		"paths": {
 			"@/*": ["./*"],
-			"@nova/ui/*": ["../../packages/ui/src/*"]
+			"@nova/ui/*": ["../../packages/ui/src/*"],
+			"@nova/server/*": ["../server/src/*"]
 		},
 		"plugins": [
 			{
 				"name": "next"
 			}
 		],
-		"lib": ["dom", "dom.iterable", "esnext"]
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"composite": true
 	},
 	"include": [
 		"next-env.d.ts",
@@ -20,5 +22,6 @@
 		"**/*.tsx",
 		".next/types/**/*.ts"
 	],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules"],
+	"references": [{ "path": "../server" }, { "path": "../../packages/ui" }]
 }

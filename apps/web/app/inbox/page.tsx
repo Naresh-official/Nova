@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ThreadResponse } from "@nova/server/types";
 import { trpc } from "@/lib/client";
@@ -11,15 +11,47 @@ export default function InboxPage() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const utils = trpc.useUtils();
+
 	const {
-		data: emails,
+		data,
 		isLoading,
 		error,
-	} = trpc.threads.listThreads.useQuery();
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = trpc.threads.listThreads.useInfiniteQuery(
+		{},
+		{
+			getNextPageParam: (lastPage) => lastPage.nextCursor,
+		}
+	);
+
+	const emails = data?.pages.flatMap((page) => page.emails) || [];
 
 	const [selectedEmail, setSelectedEmail] = useState<
 		ThreadResponse | undefined
 	>(undefined);
+
+	const observer = useRef<IntersectionObserver | null>(null);
+	const lastEmailRef = useCallback(
+		(node: HTMLDivElement | null) => {
+			if (isLoading || isFetchingNextPage || !node) return;
+
+			if (observer.current) {
+				observer.current.disconnect();
+			}
+
+			observer.current = new IntersectionObserver((entries) => {
+				if (entries[0].isIntersecting && hasNextPage) {
+					console.log("Loading next page...");
+					fetchNextPage();
+				}
+			});
+
+			observer.current.observe(node);
+		},
+		[isLoading, isFetchingNextPage, hasNextPage, fetchNextPage]
+	);
 
 	// Initialize selected email from URL search params
 	useEffect(() => {
@@ -41,19 +73,22 @@ export default function InboxPage() {
 
 		router.push(`/inbox?threadId=${email.id}`);
 
-		// If email is unread, mark it as read
 		if (email.isUnread) {
-			// update the local cache
-			utils.threads.listThreads.setData(undefined, (oldData) => {
+			utils.threads.listThreads.setInfiniteData({}, (oldData) => {
 				if (!oldData) return oldData;
-				return oldData.map((thread) =>
-					thread.id === email.id ? { ...thread, isUnread: false } : thread
-				);
+				return {
+					...oldData,
+					pages: oldData.pages.map((page) => ({
+						...page,
+						emails: page.emails.map((thread) =>
+							thread.id === email.id ? { ...thread, isUnread: false } : thread
+						),
+					})),
+				};
 			});
 		}
 	};
 
-	// Handle unauthorized errors by redirecting to login
 	useEffect(() => {
 		if (error && error.data?.code === "UNAUTHORIZED") {
 			router.push("/login");
@@ -75,6 +110,8 @@ export default function InboxPage() {
 					emails={emails || []}
 					selectedEmail={selectedEmail}
 					setSelectedEmail={handleEmailSelect}
+          lastEmailRef={lastEmailRef}
+          isFetchingNextPage={isFetchingNextPage}
 				/>
 				{/* Email Content */}
 				<EmailContent />

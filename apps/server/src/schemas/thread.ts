@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const ThreadResponseSchema = z.object({
-	id: z.string().nullable().optional(),
+	id: z.string(),
 	snippet: z.string(),
 	isUnread: z.boolean(),
 	isImportant: z.boolean(),
@@ -11,5 +11,5 @@ export const ThreadResponseSchema = z.object({
 	sender: z.string(),
 	subject: z.string(),
 	date: z.string(),
-	internalDate: z.string().nullable().optional(),
+	internalDate: z.string(),
 });

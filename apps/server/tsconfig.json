@@ -2,8 +2,14 @@
 	"extends": "@nova/typescript-config/base.json",
 	"compilerOptions": {
 		"baseUrl": ".",
-		"paths": {}
+		"paths": {},
+		"composite": true,
+		"declaration": true,
+		"declarationMap": true,
+		"noEmit": false,
+		"emitDeclarationOnly": true,
+		"allowImportingTsExtensions": true
 	},
 	// "references": [],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules", "generated"]
 }

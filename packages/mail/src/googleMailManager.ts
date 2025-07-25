@@ -57,14 +57,17 @@ export class GoogleMailManager {
 		return res.credentials.access_token || "";
 	}
 
-	async list(): Promise<ThreadResponse[]> {
+	async list(
+		pageToken = ""
+	): Promise<{ emails: ThreadResponse[]; nextPageToken?: string }> {
 		const res = await this.gmail.users.threads.list({
 			userId: "me",
 			labelIds: ["INBOX"],
 			maxResults: 20,
+			pageToken,
 		});
 
-		if (!res.data.threads) return [];
+		if (!res.data.threads) return { emails: [], nextPageToken: undefined };
 
 		const access_token = await this.getAccessToken();
 
@@ -107,7 +110,10 @@ export class GoogleMailManager {
 			};
 		});
 
-		return threadsWithDetails;
+		return {
+			emails: threadsWithDetails,
+			nextPageToken: res.data.nextPageToken || undefined,
+		};
 	}
 
 	async listThreadIds(): Promise<string[]> {

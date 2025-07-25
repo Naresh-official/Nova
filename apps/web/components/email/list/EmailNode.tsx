@@ -10,15 +10,16 @@ import {
 import Image from "next/image";
 import { Star } from "lucide-react";
 
-function EmailNode({
-	email,
-	selectedEmail,
-	setSelectedEmail,
-}: {
+interface EmailNodeProps {
 	email: ThreadResponse;
 	selectedEmail: ThreadResponse | undefined;
 	setSelectedEmail: (email: ThreadResponse) => void;
-}) {
+}
+
+function EmailNodeBase(
+	{ email, selectedEmail, setSelectedEmail }: EmailNodeProps,
+	ref: React.Ref<HTMLDivElement>
+) {
 	const [imageError, setImageError] = useState(false);
 
 	const senderName = extractSenderName(email.sender);
@@ -27,7 +28,7 @@ function EmailNode({
 
 	return (
 		<div
-			key={email.id}
+			ref={ref}
 			onClick={() => setSelectedEmail(email)}
 			className={`p-4 my-2 cursor-pointer transition-all duration-300 hover:bg-[#111111] border-2 rounded-xl ${
 				selectedEmail?.id === email.id
@@ -92,5 +93,7 @@ function EmailNode({
 		</div>
 	);
 }
+
+const EmailNode = React.forwardRef(EmailNodeBase);
 
 export default EmailNode;
