@@ -3,7 +3,10 @@ import { PrismaClient } from "generated/prisma";
 
 export const prisma = new PrismaClient();
 
-export function createContext({ req, res }: CreateExpressContextOptions) {
+export function createContext({
+	req,
+	res,
+}: CreateExpressContextOptions): Context {
 	return {
 		req,
 		res,

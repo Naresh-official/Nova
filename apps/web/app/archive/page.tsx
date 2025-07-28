@@ -1,5 +1,5 @@
 import { NovaSidebar } from "@/components/layout/Sidebar";
-import { NovaHeader } from "@/components/email/list/Header";
+import { NovaHeader } from "@/components/email/list/NovaHeader";
 import { SidebarInset } from "@nova/ui/components/sidebar";
 
 export default function ArchivePage() {
@@ -7,7 +7,7 @@ export default function ArchivePage() {
 		<div className="flex h-screen bg-[#0D0D0D]">
 			<NovaSidebar />
 			<SidebarInset className="flex-1 flex flex-col">
-				<NovaHeader title="Archive" />
+				<NovaHeader />
 
 				<div className="flex-1 flex items-center justify-center animate-fade-in">
 					<div className="text-center">

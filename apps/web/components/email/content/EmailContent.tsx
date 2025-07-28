@@ -1,5 +1,7 @@
+"use client";
+
 import { trpc } from "@/lib/client";
-import React from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ParseGmailApi } from "gmail-api-parse-message-ts";
 import EmailActionBar from "./EmailActionBar";
 import EmailMetaHeader from "./EmailMetaHeader";
@@ -10,111 +12,127 @@ import { Forward, Reply, ReplyAll } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import EmptyState from "./EmptyState";
 import { Separator } from "@nova/ui/components/separator";
+import {
+	preprocessEmailHtml,
+	processEmailHtml,
+} from "./utils/processEmailContent";
+import { printEmail } from "./printEmail";
 
 function EmailContent() {
 	const { data: session } = useSession();
 	const searchParams = useSearchParams();
 	const threadId = searchParams.get("threadId");
 
-	const {
-		data: thread,
-		isLoading,
-		error,
-	} = trpc.threads.getThread.useQuery(threadId!, {
-		enabled: !!threadId,
-	});
+	const { data: thread, isLoading } = trpc.threads.getThread.useQuery(
+		threadId!,
+		{
+			enabled: !!threadId,
+		}
+	);
 
 	const MessageParser = new ParseGmailApi();
 	const parsed = MessageParser.parseMessage(thread?.messages?.[0] || {});
+	console.log({ parsed });
+
+	const hostRef = useRef<HTMLDivElement>(null);
+	const shadowRootRef = useRef<ShadowRoot | null>(null);
+
+	const [isClient, setIsClient] = useState(false);
+	const [debugInfo, setDebugInfo] = useState({
+		hasHtml: false,
+		hasProcessedHtml: false,
+		hasShadowRoot: false,
+		injected: false,
+	});
+
+	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
+	// Process email HTML
+	const processedHtml = useMemo(() => {
+		if (!parsed.textHtml) return null;
+
+		try {
+			const rawHtml = preprocessEmailHtml(parsed.textHtml);
+
+			const { processedHtml: html } = processEmailHtml({
+				html: rawHtml,
+				theme: "dark",
+				shouldLoadImages: true,
+				inlineAttachments: parsed.attachments || [],
+				messageId: parsed.id || "",
+			});
+
+			return html;
+		} catch (error) {
+			console.error("Error processing email HTML:", error);
+			return null;
+		}
+	}, [parsed.textHtml, parsed.inline]);
+
+	useEffect(() => {
+		setDebugInfo((prev) => ({
+			...prev,
+			hasHtml: !!parsed.textHtml,
+			hasProcessedHtml: !!processedHtml,
+		}));
+	}, [parsed.textHtml, processedHtml]);
+
+	// Create and inject shadow DOM
+	useEffect(() => {
+		if (!isClient || !hostRef.current || !processedHtml) return;
+
+		try {
+			const shadowRoot =
+				hostRef.current.shadowRoot ||
+				hostRef.current.attachShadow({ mode: "open" });
+
+			shadowRootRef.current = shadowRoot;
+			setDebugInfo((prev) => ({ ...prev, hasShadowRoot: true }));
+
+			// Build style manually
+			const style = `
+			::selection {
+				background: #7f22fe !important;
+				color: white !important;
+			}
+
+			*::selection {
+				background: #7f22fe !important;
+				color: white !important;
+			}
+		`;
+
+			// Extract body content to avoid full HTML nesting
+			const htmlContent = extractBodyContent(processedHtml);
+
+			// Clear previous content
+			shadowRoot.innerHTML = `
+			<style>${style}</style>
+			<div class="email-wrapper">${htmlContent}</div>
+		`;
+
+			setDebugInfo((prev) => ({ ...prev, injected: true }));
+		} catch (error) {
+			console.error("Error with shadow DOM:", error);
+			setDebugInfo((prev) => ({ ...prev, injected: false }));
+		}
+	}, [isClient, processedHtml]);
 
 	const getRecipientText = () => {
-		if (parsed.to?.[0]?.email === session?.user?.email) {
-			return "You";
-		}
+		if (parsed.to?.[0]?.email === session?.user?.email) return "You";
 		return parsed.to?.[0]?.name || "Unknown Recipient";
 	};
 
 	const handlePrint = () => {
-		// Create a hidden iframe for printing
-		const iframe = document.createElement("iframe");
-		iframe.style.position = "absolute";
-		iframe.style.left = "-10000px";
-		iframe.style.top = "-10000px";
-		iframe.style.width = "0px";
-		iframe.style.height = "0px";
-		iframe.style.border = "none";
-
-		document.body.appendChild(iframe);
-
-		const printContent = `
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<title>Print Email - ${parsed.subject || "No Subject"}</title>
-				<style>
-					body {
-						font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-						line-height: 1.6;
-						color: #333;
-						max-width: 800px;
-						margin: 0 auto;
-						padding: 20px;
-					}
-					.email-header {
-						border-bottom: 2px solid #eee;
-						padding-bottom: 20px;
-						margin-bottom: 20px;
-					}
-					.subject {
-						font-size: 24px;
-						font-weight: bold;
-						margin-bottom: 10px;
-					}
-					.meta-info {
-						color: #666;
-						font-size: 14px;
-						margin-bottom: 5px;
-					}
-					.email-content {
-						margin-top: 20px;
-					}
-					@media print {
-						body { margin: 0; }
-					}
-				</style>
-			</head>
-			<body>
-				<div class="email-header">
-					<div class="subject">${parsed.subject || "No Subject"}</div>
-					<div class="meta-info"><strong>From:</strong> ${parsed.from?.name || parsed.from?.email || "Unknown Sender"} &lt;${parsed.from?.email || ""}&gt;</div>
-					<div class="meta-info"><strong>To:</strong> ${getRecipientText()} &lt;${parsed.to?.[0]?.email || ""}&gt;</div>
-					<div class="meta-info"><strong>Date:</strong> ${new Date(parsed.sentDate || "").toLocaleString()}</div>
-				</div>
-				<div class="email-content">
-					${extractBodyContent(parsed.textHtml || "")}
-				</div>
-			</body>
-			</html>
-		`;
-
-		const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-		if (iframeDoc) {
-			iframeDoc.open();
-			iframeDoc.write(printContent);
-			iframeDoc.close();
-
-			iframe.onload = () => {
-				iframe.contentWindow?.focus();
-				iframe.contentWindow?.print();
-				// Remove iframe after printing
-				setTimeout(() => {
-					document.body.removeChild(iframe);
-				}, 1000);
-			};
-		}
+		printEmail(
+			{ ...parsed, sentDate: String(parsed.sentDate) },
+			getRecipientText()
+		);
 	};
 
-	if (isLoading) {
+	if (!isClient || isLoading) {
 		return (
 			<div className="flex-1 flex items-center justify-center text-gray-500">
 				Loading...
@@ -157,25 +175,27 @@ function EmailContent() {
 				date={parsed.sentDate}
 				isPersonal={parsed.labelIds.includes("CATEGORY_PERSONAL")}
 			/>
-			<div className="rounded-lg p-4">
+			<div className="rounded-lg p-4 selectable-email-container">
 				<div
+					ref={hostRef}
 					style={{
-						all: "unset",
 						display: "block",
-						color: "initial",
-						fontFamily: "initial",
-						fontSize: "initial",
-						lineHeight: "initial",
-						backgroundColor: "white",
+						backgroundColor: "black",
 						overflow: "hidden",
 						borderRadius: "0.5rem",
 						padding: "1rem",
-					}}
-					dangerouslySetInnerHTML={{
-						__html: extractBodyContent(parsed.textHtml || ""),
+						minHeight: "200px",
 					}}
 				/>
+
+				{!debugInfo.injected && processedHtml && (
+					<div
+						className="mt-4 p-4 bg-black rounded-lg"
+						dangerouslySetInnerHTML={{ __html: processedHtml }}
+					/>
+				)}
 			</div>
+
 			<div className="flex items-center gap-2 p-4">
 				<Button variant="secondary">
 					<Reply size={20} />

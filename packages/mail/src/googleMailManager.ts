@@ -233,4 +233,31 @@ export class GoogleMailManager {
 			},
 		});
 	}
+
+	async getAttachmentBuffer(
+		messageId: string,
+		attachmentId: string
+	): Promise<{ buffer: Buffer }> {
+		try {
+			const res = await this.gmail.users.messages.attachments.get({
+				userId: "me",
+				id: attachmentId,
+				messageId: messageId,
+			});
+
+			if (!res.data.data) {
+				throw new Error("No attachment data found");
+			}
+
+			// Decode the base64url data to buffer
+			const buffer = Buffer.from(base64url.decode(res.data.data));
+
+			return {
+				buffer,
+			};
+		} catch (error) {
+			console.error("Error fetching attachment:", error);
+			throw error;
+		}
+	}
 }

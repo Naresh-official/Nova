@@ -83,4 +83,33 @@ export const threadsRouter = router({
 		.mutation(async ({ ctx, input }) => {
 			await ctx.mailManager.markAsImportant(input.threadId);
 		}),
+
+	getAttachment: protectedProcedure
+		.input(
+			z.object({
+				messageId: z.string(),
+				attachmentId: z.string(),
+			})
+		)
+		.query(async ({ ctx, input }) => {
+			try {
+				const { buffer } = await ctx.mailManager.getAttachmentBuffer(
+					input.messageId,
+					input.attachmentId
+				);
+
+				// Return as base64 data URL for direct use in img src
+				const base64Data = buffer.toString("base64");
+
+				return {
+					data: base64Data,
+					size: buffer.length,
+				};
+			} catch (error: any) {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: `Failed to fetch attachment: ${error.message}`,
+				});
+			}
+		}),
 });
