@@ -1,5 +1,5 @@
 import { NovaSidebar } from "@/components/layout/Sidebar";
-import { NovaHeader } from "@/components/email/list/NovaHeader";
+import { NovaHeader } from "@/features/email/list/NovaHeader";
 import { SidebarInset } from "@nova/ui/components/sidebar";
 
 export default function AttachmentsPage() {

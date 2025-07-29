@@ -8,7 +8,7 @@ import {
 	getDomainFromEmail,
 } from "@/lib/parsers";
 import Image from "next/image";
-import { Star } from "lucide-react";
+import { Dot, Star } from "lucide-react";
 
 interface EmailNodeProps {
 	email: ThreadResponse;
@@ -62,7 +62,7 @@ function EmailNodeBase(
 										: "text-muted-foreground"
 								}`}
 							>
-								{senderName}
+								<span className="max-w-56 truncate">{senderName}</span>
 								{email.isStarred && (
 									<Star
 										size={16}
@@ -73,12 +73,10 @@ function EmailNodeBase(
 							</span>
 
 							{email.isImportant && email.isUnread && (
-								<Badge
-									variant="secondary"
-									className="text-xs ml-2 bg-orange-500/20 text-orange-400 border-orange-500/30"
-								>
-									Important
-								</Badge>
+								<div
+									className="w-2 h-2 ml-2 rounded-full bg-blue-700"
+									title="Important"
+								/>
 							)}
 						</div>
 						<span className="text-xs text-[#999]">

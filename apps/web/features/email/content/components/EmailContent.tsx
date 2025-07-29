@@ -1,49 +1,40 @@
 "use client";
 
 import { trpc } from "@/lib/client";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ParseGmailApi } from "gmail-api-parse-message-ts";
-import EmailActionBar from "./EmailActionBar";
-import EmailMetaHeader from "./EmailMetaHeader";
-import SenderInfo from "./SenderInfo";
 import { useSession } from "next-auth/react";
 import { Button } from "@nova/ui/components/button";
 import { Forward, Reply, ReplyAll } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import EmptyState from "./EmptyState";
 import { Separator } from "@nova/ui/components/separator";
 import {
 	preprocessEmailHtml,
 	processEmailHtml,
-} from "./utils/processEmailContent";
-import { printEmail } from "./printEmail";
+} from "../utils/processEmailContent";
+import { printEmail } from "../utils/printEmail";
+import EmptyState from "./EmptyState";
+import EmailActionBar from "./EmailActionBar";
+import EmailMetaHeader from "./EmailMetaHeader";
+import SenderInfo from "./SenderInfo";
+import EmailAttachments from "./EmailAttachments";
+import EmailBodyDisplay from "./EmailBodyDisplay";
 
 function EmailContent() {
 	const { data: session } = useSession();
 	const searchParams = useSearchParams();
 	const threadId = searchParams.get("threadId");
 
-	const { data: thread, isLoading } = trpc.threads.getThread.useQuery(
-		threadId!,
-		{
-			enabled: !!threadId,
-		}
-	);
+	const { data, isLoading } = trpc.threads.getThread.useQuery(threadId!, {
+		enabled: !!threadId,
+	});
+
+	const { thread, attachments } = data || {};
 
 	const MessageParser = new ParseGmailApi();
 	const parsed = MessageParser.parseMessage(thread?.messages?.[0] || {});
-	console.log({ parsed });
-
-	const hostRef = useRef<HTMLDivElement>(null);
-	const shadowRootRef = useRef<ShadowRoot | null>(null);
 
 	const [isClient, setIsClient] = useState(false);
-	const [debugInfo, setDebugInfo] = useState({
-		hasHtml: false,
-		hasProcessedHtml: false,
-		hasShadowRoot: false,
-		injected: false,
-	});
 
 	useEffect(() => {
 		setIsClient(true);
@@ -60,7 +51,7 @@ function EmailContent() {
 				html: rawHtml,
 				theme: "dark",
 				shouldLoadImages: true,
-				inlineAttachments: parsed.attachments || [],
+				inlineAttachments: attachments || [],
 				messageId: parsed.id || "",
 			});
 
@@ -69,56 +60,7 @@ function EmailContent() {
 			console.error("Error processing email HTML:", error);
 			return null;
 		}
-	}, [parsed.textHtml, parsed.inline]);
-
-	useEffect(() => {
-		setDebugInfo((prev) => ({
-			...prev,
-			hasHtml: !!parsed.textHtml,
-			hasProcessedHtml: !!processedHtml,
-		}));
-	}, [parsed.textHtml, processedHtml]);
-
-	// Create and inject shadow DOM
-	useEffect(() => {
-		if (!isClient || !hostRef.current || !processedHtml) return;
-
-		try {
-			const shadowRoot =
-				hostRef.current.shadowRoot ||
-				hostRef.current.attachShadow({ mode: "open" });
-
-			shadowRootRef.current = shadowRoot;
-			setDebugInfo((prev) => ({ ...prev, hasShadowRoot: true }));
-
-			// Build style manually
-			const style = `
-			::selection {
-				background: #7f22fe !important;
-				color: white !important;
-			}
-
-			*::selection {
-				background: #7f22fe !important;
-				color: white !important;
-			}
-		`;
-
-			// Extract body content to avoid full HTML nesting
-			const htmlContent = extractBodyContent(processedHtml);
-
-			// Clear previous content
-			shadowRoot.innerHTML = `
-			<style>${style}</style>
-			<div class="email-wrapper">${htmlContent}</div>
-		`;
-
-			setDebugInfo((prev) => ({ ...prev, injected: true }));
-		} catch (error) {
-			console.error("Error with shadow DOM:", error);
-			setDebugInfo((prev) => ({ ...prev, injected: false }));
-		}
-	}, [isClient, processedHtml]);
+	}, [parsed.textHtml, attachments, parsed.id]); // Added attachments and parsed.id to dependency array
 
 	const getRecipientText = () => {
 		if (parsed.to?.[0]?.email === session?.user?.email) return "You";
@@ -175,26 +117,10 @@ function EmailContent() {
 				date={parsed.sentDate}
 				isPersonal={parsed.labelIds.includes("CATEGORY_PERSONAL")}
 			/>
-			<div className="rounded-lg p-4 selectable-email-container">
-				<div
-					ref={hostRef}
-					style={{
-						display: "block",
-						backgroundColor: "black",
-						overflow: "hidden",
-						borderRadius: "0.5rem",
-						padding: "1rem",
-						minHeight: "200px",
-					}}
-				/>
 
-				{!debugInfo.injected && processedHtml && (
-					<div
-						className="mt-4 p-4 bg-black rounded-lg"
-						dangerouslySetInnerHTML={{ __html: processedHtml }}
-					/>
-				)}
-			</div>
+			<EmailBodyDisplay processedHtml={processedHtml} />
+
+			<EmailAttachments attachments={attachments} />
 
 			<div className="flex items-center gap-2 p-4">
 				<Button variant="secondary">
@@ -215,8 +141,3 @@ function EmailContent() {
 }
 
 export default EmailContent;
-
-const extractBodyContent = (htmlString: string) => {
-	const bodyMatch = htmlString.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-	return bodyMatch ? bodyMatch[1] : htmlString;
-};

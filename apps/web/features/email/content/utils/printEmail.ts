@@ -1,3 +1,5 @@
+import { extractBodyContent } from "./extractBodyContent";
+
 interface EmailData {
 	subject?: string;
 	from?: {
@@ -11,11 +13,6 @@ interface EmailData {
 	sentDate?: string;
 	textHtml?: string;
 }
-
-const extractBodyContent = (htmlString: string) => {
-	const bodyMatch = htmlString.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-	return bodyMatch ? bodyMatch[1] : htmlString;
-};
 
 export const printEmail = (emailData: EmailData, recipientText: string) => {
 	const iframe = document.createElement("iframe");

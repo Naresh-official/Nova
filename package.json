@@ -7,8 +7,7 @@
 		"dev": "turbo dev",
 		"lint": "turbo lint",
 		"format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json,yaml,yml}\"",
-		"format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,md,json,yaml,yml}\"",
-		"format:fix": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json,yaml,yml}\""
+		"format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,md,json,yaml,yml}\""
 	},
 	"devDependencies": {
 		"@nova/eslint-config": "workspace:*",

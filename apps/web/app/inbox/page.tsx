@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ThreadResponse } from "@nova/server/types";
 import { trpc } from "@/lib/client";
-import EmailList from "@/components/email/list/EmailList";
-import EmailContent from "@/components/email/content/EmailContent";
+import EmailList from "@/features/email/list/EmailList";
+import EmailContent from "@/features/email/content/components/EmailContent";
 
 export default function InboxPage() {
 	const router = useRouter();
@@ -110,8 +110,8 @@ export default function InboxPage() {
 					emails={emails || []}
 					selectedEmail={selectedEmail}
 					setSelectedEmail={handleEmailSelect}
-          lastEmailRef={lastEmailRef}
-          isFetchingNextPage={isFetchingNextPage}
+					lastEmailRef={lastEmailRef}
+					isFetchingNextPage={isFetchingNextPage}
 				/>
 				{/* Email Content */}
 				<EmailContent />

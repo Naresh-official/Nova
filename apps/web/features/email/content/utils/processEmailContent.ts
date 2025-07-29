@@ -1,14 +1,19 @@
 import sanitizeHtml from "sanitize-html";
 import * as cheerio from "cheerio";
-import type { IAttachment } from "gmail-api-parse-message-ts";
-import { trpc } from "@/lib/client";
-import axios from "axios";
 
 interface ProcessEmailOptions {
 	html: string;
 	shouldLoadImages: boolean;
 	theme: "light" | "dark";
 	messageId?: string;
+}
+
+interface IAttachment {
+	filename: string;
+	mimeType: string;
+	data: string; // base64
+	size: number;
+	src: string; // X-Attachment-Id or similar
 }
 
 // Server-side: Heavy lifting, preference-independent processing
@@ -126,20 +131,20 @@ export function applyEmailPreferences(
 	const $ = cheerio.load(preprocessedHtml);
 
 	// Handle image blocking if needed
-	if (!shouldLoadImages) {
-		$("img").each((_, el) => {
-			const $img = $(el);
-			const src = $img.attr("src");
+	$("img").each((_, el) => {
+		const $img = $(el);
+		const src = $img.attr("src");
 
-			// Allow CID images (inline attachments)
-			if (src && !src.startsWith("cid:")) {
-				hasBlockedImages = true;
-				$img.replaceWith(
-					`<span style="display:none;"><!-- blocked image: ${src} --></span>`
-				);
-			}
-		});
-	}
+		$img.attr("onerror", "this.style.display='none';");
+
+		// Allow CID images (inline attachments)
+		if (!shouldLoadImages && src && !src.startsWith("cid:")) {
+			hasBlockedImages = true;
+			$img.replaceWith(
+				`<span style="display:none;"><!-- blocked image: ${src} --></span>`
+			);
+		}
+	});
 
 	const html = $.html();
 
@@ -209,41 +214,33 @@ export function applyEmailPreferences(
 	};
 }
 
-function injectInlineAttachments(
-	html: string,
-	inline: IAttachment[] = [],
-	messageId = ""
-) {
+function injectInlineAttachments(html: string, inline: IAttachment[] = []) {
 	const dom = new DOMParser().parseFromString(html, "text/html");
 
 	// loop through all <img> elements
 	const images = dom.querySelectorAll("img[src^='cid:']");
 
 	images.forEach(async (img) => {
-		const cid = img.getAttribute("src")?.replace("cid:", "")?.trim();
+		const cid = img.getAttribute("src")?.replace("cid:", "").trim();
 		if (!cid) return;
 
-		const matching = inline.find((att) =>
-			att.headers?.find?.(
-				(header: [string, string]) =>
-					header[0].toLowerCase() === "content-id" &&
-					header[1]?.replace(/[<>]/g, "") === cid
-			)
-		);
+		const matching = inline.find((att) => att.src === cid);
 
-		if (matching && matching.data) {
-			const dataUrl = `data:${matching.mimeType};base64,${matching.data}`;
-			img.setAttribute("src", dataUrl);
+		if (matching) {
+			img.setAttribute("src", matching.data);
+			img.setAttribute("alt", matching.filename);
+			img.setAttribute("width", "auto");
+			img.setAttribute("height", "auto");
+			img.setAttribute(
+				"style",
+				"max-width: 100%; height: auto;border-radius: 8px;"
+			);
+		} else {
+			img.setAttribute("src", ""); // Remove src if no match found
 		}
 	});
 
 	return dom.documentElement.innerHTML;
-}
-
-function getAttachmentId(attachments: IAttachment[], xAttachmentId: string) {
-	return attachments.find(
-		(att) => att.headers.get("x-attachment-id") === xAttachmentId
-	)?.attachmentId;
 }
 
 // Original function for backward compatibility
@@ -252,16 +249,13 @@ export function processEmailHtml({
 	shouldLoadImages,
 	theme,
 	inlineAttachments = [],
-	messageId = "",
-}: ProcessEmailOptions & { inlineAttachments?: IAttachment[] }): {
+}: ProcessEmailOptions & {
+	inlineAttachments?: IAttachment[];
+}): {
 	processedHtml: string;
 	hasBlockedImages: boolean;
 } {
 	const preprocessed = preprocessEmailHtml(html);
-	const withInlines = injectInlineAttachments(
-		preprocessed,
-		inlineAttachments,
-		messageId
-	);
+	const withInlines = injectInlineAttachments(preprocessed, inlineAttachments);
 	return applyEmailPreferences(withInlines, theme, shouldLoadImages);
 }

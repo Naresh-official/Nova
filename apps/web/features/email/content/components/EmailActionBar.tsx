@@ -13,7 +13,7 @@ import {
 	AlertDialogAction,
 } from "@nova/ui/components/alert-dialog";
 import { ReplyAll, Archive, Star, Trash2 } from "lucide-react";
-import { useEmailActions } from "./utils/useEmailActions";
+import { useEmailActions } from "../utils/useEmailActions";
 
 function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
 	const { currentThreadId, actions, isStarred, disableNext, disablePrev } =

@@ -35,6 +35,7 @@ export class GoogleMailManager {
 			fetchImplementation: fetchImpl,
 		});
 	}
+
 	getScope(): string {
 		return [
 			"openid",
@@ -249,15 +250,84 @@ export class GoogleMailManager {
 				throw new Error("No attachment data found");
 			}
 
-			// Decode the base64url data to buffer
-			const buffer = Buffer.from(base64url.decode(res.data.data));
+			// Gmail API returns base64url encoded data, decode it properly
+			const buffer = base64url.toBuffer(res.data.data);
 
-			return {
-				buffer,
-			};
+			return { buffer };
 		} catch (error) {
 			console.error("Error fetching attachment:", error);
 			throw error;
 		}
+	}
+
+	async getAttachments(thread: gmail_v1.Schema$Thread): Promise<
+		{
+			filename: string;
+			mimeType: string;
+			data: string; // base64
+			size: number;
+			src: string; // X-Attachment-Id or similar
+		}[]
+	> {
+		const attachments: {
+			filename: string;
+			mimeType: string;
+			data: string;
+			size: number;
+			src: string;
+		}[] = [];
+
+		for (const message of thread.messages ?? []) {
+			const parts = message.payload?.parts ?? [];
+
+			const traverseParts = (
+				parts: gmail_v1.Schema$MessagePart[] = []
+			): gmail_v1.Schema$MessagePart[] => {
+				const result: gmail_v1.Schema$MessagePart[] = [];
+				for (const part of parts) {
+					if (part.parts) {
+						result.push(...traverseParts(part.parts));
+					} else {
+						result.push(part);
+					}
+				}
+				return result;
+			};
+
+			const flatParts = traverseParts(parts);
+
+			for (const part of flatParts) {
+				if (part.filename && part.body?.attachmentId && message.id) {
+					try {
+						const { buffer } = await this.getAttachmentBuffer(
+							message.id,
+							part.body.attachmentId
+						);
+
+						// Convert buffer to base64 for data URL
+						const base64Data = buffer.toString("base64");
+						const dataUrl = `data:${part.mimeType};base64,${base64Data}`;
+
+						attachments.push({
+							filename: part.filename,
+							mimeType: part.mimeType ?? "application/octet-stream",
+							data: dataUrl,
+							size: buffer.length,
+							src:
+								part.headers
+									?.filter((header) => header.name === "X-Attachment-Id")
+									.map((header) => header.value)[0] || "",
+						});
+					} catch (error) {
+						console.warn(
+							`Failed to load attachment ${part.filename} from message ${message.id}:`,
+							error
+						);
+					}
+				}
+			}
+		}
+
+		return attachments;
 	}
 }

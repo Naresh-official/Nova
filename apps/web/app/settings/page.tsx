@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { NovaSidebar } from "@/components/layout/Sidebar";
-import { NovaHeader } from "@/components/email/list/NovaHeader";
+import { NovaHeader } from "@/features/email/list/NovaHeader";
 import { SidebarInset } from "@nova/ui/components/sidebar";
 import { Switch } from "@nova/ui/components/switch";
 import { Label } from "@nova/ui/components/label";

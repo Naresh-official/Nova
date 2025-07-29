@@ -45,7 +45,8 @@ export const threadsRouter = router({
 			if (thread.messages?.[0]?.labelIds?.includes("UNREAD")) {
 				await ctx.mailManager.markAsRead(input);
 			}
-			return thread;
+			const attachments = await ctx.mailManager.getAttachments(thread);
+			return { thread, attachments };
 		}),
 
 	trashThread: protectedProcedure
