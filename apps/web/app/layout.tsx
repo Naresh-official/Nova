@@ -5,6 +5,7 @@ import "@nova/ui/globals.css";
 import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 import { TRPCProvider } from "@/components/providers/TRPCProvider";
 import NextAuthSessionProvider from "@/components/providers/SessionProvider";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,6 +30,7 @@ export default function RootLayout({
 				<TRPCProvider>
 					<NextAuthSessionProvider>
 						<ConditionalLayout>{children}</ConditionalLayout>
+						<ReactQueryDevtools initialIsOpen={false} />
 					</NextAuthSessionProvider>
 				</TRPCProvider>
 			</body>

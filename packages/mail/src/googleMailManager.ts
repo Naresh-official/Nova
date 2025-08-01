@@ -59,13 +59,15 @@ export class GoogleMailManager {
 	}
 
 	async list(
-		pageToken = ""
+		pageToken = "",
+		q = ""
 	): Promise<{ emails: ThreadResponse[]; nextPageToken?: string }> {
 		const res = await this.gmail.users.threads.list({
 			userId: "me",
 			labelIds: ["INBOX"],
 			maxResults: 20,
 			pageToken,
+			q,
 		});
 
 		if (!res.data.threads) return { emails: [], nextPageToken: undefined };
@@ -84,32 +86,37 @@ export class GoogleMailManager {
 			)
 		);
 
-		const threadsWithDetails = threadDetails.map((response) => {
-			const threadData = response.data;
+		const threadsWithDetails = threadDetails
+			.filter((response) => {
+				const labelIds = response?.data?.messages?.[0]?.labelIds || [];
+				return labelIds.includes("INBOX") && !labelIds.includes("SENT");
+			})
+			.map((response) => {
+				const threadData = response.data;
 
-			const firstMessage = threadData.messages?.[0];
-			const headers = firstMessage?.payload?.headers || [];
+				const firstMessage = threadData.messages?.[0];
+				const headers = firstMessage?.payload?.headers || [];
 
-			const fromHeader = headers.find((h) => h.name === "From")?.value || "";
-			const subjectHeader =
-				headers.find((h) => h.name === "Subject")?.value || "";
-			const dateHeader = headers.find((h) => h.name === "Date")?.value || "";
+				const fromHeader = headers.find((h) => h.name === "From")?.value || "";
+				const subjectHeader =
+					headers.find((h) => h.name === "Subject")?.value || "";
+				const dateHeader = headers.find((h) => h.name === "Date")?.value || "";
 
-			return {
-				id: threadData.id || "",
-				snippet: firstMessage?.snippet || "",
-				isUnread: firstMessage?.labelIds?.includes("UNREAD") || false,
-				isImportant: firstMessage?.labelIds?.includes("IMPORTANT") || false,
-				isPersonal:
-					firstMessage?.labelIds?.includes("CATEGORY_PERSONAL") || false,
-				isStarred: firstMessage?.labelIds?.includes("STARRED") || false,
-				messageCount: threadData.messages?.length || 0,
-				sender: fromHeader,
-				subject: subjectHeader,
-				date: dateHeader,
-				internalDate: firstMessage?.internalDate || "",
-			};
-		});
+				return {
+					id: threadData.id || "",
+					snippet: firstMessage?.snippet || "",
+					isUnread: firstMessage?.labelIds?.includes("UNREAD") || false,
+					isImportant: firstMessage?.labelIds?.includes("IMPORTANT") || false,
+					isPersonal:
+						firstMessage?.labelIds?.includes("CATEGORY_PERSONAL") || false,
+					isStarred: firstMessage?.labelIds?.includes("STARRED") || false,
+					messageCount: threadData.messages?.length || 0,
+					sender: fromHeader,
+					subject: subjectHeader,
+					date: dateHeader,
+					internalDate: firstMessage?.internalDate || "",
+				};
+			});
 
 		return {
 			emails: threadsWithDetails,

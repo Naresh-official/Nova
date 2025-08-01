@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ThreadResponse } from "@nova/server/types";
 import { trpc } from "@/lib/client";
-import EmailList from "@/features/email/list/EmailList";
-import EmailContent from "@/features/email/content/components/EmailContent";
+import EmailList from "@/components/list/EmailList";
+import EmailContent from "@/components/email/content/components/EmailContent";
 
 export default function InboxPage() {
 	const router = useRouter();
@@ -20,7 +20,7 @@ export default function InboxPage() {
 		hasNextPage,
 		isFetchingNextPage,
 	} = trpc.threads.listThreads.useInfiniteQuery(
-		{},
+		{ q: undefined },
 		{
 			getNextPageParam: (lastPage) => lastPage.nextCursor,
 		}
@@ -74,7 +74,7 @@ export default function InboxPage() {
 		router.push(`/inbox?threadId=${email.id}`);
 
 		if (email.isUnread) {
-			utils.threads.listThreads.setInfiniteData({}, (oldData) => {
+			utils.threads.listThreads.setInfiniteData({ q: undefined }, (oldData) => {
 				if (!oldData) return oldData;
 				return {
 					...oldData,
@@ -97,7 +97,7 @@ export default function InboxPage() {
 
 	if (isLoading) {
 		return (
-			<div className="flex h-screen w-96 flex-1 items-center justify-center">
+			<div className="flex bg-red-500 h-screen w-96 flex-1 items-center justify-center">
 				<div className="text-white">Loading emails...</div>
 			</div>
 		);

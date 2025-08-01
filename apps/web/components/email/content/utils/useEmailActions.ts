@@ -33,10 +33,10 @@ export function useEmailActions() {
 			utils.threads.getThread.setData(threadId, (oldData) => {
 				if (!oldData) return oldData;
 				const isCurrentlyStarred =
-					oldData.messages?.[0]?.labelIds?.includes("STARRED") || false;
+					oldData.thread.messages?.[0]?.labelIds?.includes("STARRED") || false;
 				return {
 					...oldData,
-					messages: oldData.messages?.map((msg) => ({
+					messages: oldData.thread.messages?.map((msg) => ({
 						...msg,
 						labelIds: isCurrentlyStarred
 							? msg.labelIds?.filter((label) => label !== "STARRED")
@@ -111,7 +111,7 @@ export function useEmailActions() {
 				if (!oldData) return oldData;
 				return {
 					...oldData,
-					messages: oldData.messages?.map((msg) => ({
+					messages: oldData.thread.messages?.map((msg) => ({
 						...msg,
 						labelIds: [...(msg.labelIds || []), "IMPORTANT"],
 					})),
@@ -125,7 +125,7 @@ export function useEmailActions() {
 		isStarred:
 			utils.threads.getThread
 				.getData(currentThreadId as string)
-				?.messages?.[0]?.labelIds?.includes("STARRED") || false,
+				?.thread.messages?.[0]?.labelIds?.includes("STARRED") || false,
 		disablePrev: !currentThreadId || emails.indexOf(currentThreadId) === 0,
 		disableNext:
 			!currentThreadId || emails.indexOf(currentThreadId) === emails.length - 1,

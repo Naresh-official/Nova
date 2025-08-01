@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NovaHeader } from "./NovaHeader";
+import { NovaHeader } from "../header/NovaHeader";
 import EmailNode from "./EmailNode";
 import type { ThreadResponse } from "@nova/server/types";
 import { LoaderCircle } from "lucide-react";

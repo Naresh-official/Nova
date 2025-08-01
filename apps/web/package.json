@@ -14,6 +14,7 @@
 	"dependencies": {
 		"@nova/ui": "workspace:*",
 		"@tanstack/react-query": "^5.83.0",
+		"@tanstack/react-query-devtools": "^5.84.0",
 		"@trpc/client": "^11.4.3",
 		"@trpc/next": "^11.4.3",
 		"@trpc/react-query": "^11.4.3",

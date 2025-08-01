@@ -8,6 +8,7 @@ export const threadsRouter = router({
 		.input(
 			z.object({
 				cursor: z.string().optional(),
+				q: z.string().optional(),
 			})
 		)
 		.output(
@@ -17,8 +18,7 @@ export const threadsRouter = router({
 			})
 		)
 		.query(async ({ ctx, input }) => {
-			// Keep as .query()
-			const threads = await ctx.mailManager.list(input.cursor);
+			const threads = await ctx.mailManager.list(input.cursor, input.q);
 			return {
 				emails: threads.emails,
 				nextCursor: threads.nextPageToken,
