@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
-			"@/*": ["./*"],
+			"@/*": ["./src/*"],
 			"@nova/ui/*": ["../../packages/ui/src/*"],
 			"@nova/server/*": ["../server/src/*"]
 		},
@@ -18,8 +18,8 @@
 	"include": [
 		"next-env.d.ts",
 		"next.config.ts",
-		"**/*.ts",
-		"**/*.tsx",
+		"src/**/*.ts",
+		"src/**/*.tsx",
 		".next/types/**/*.ts"
 	],
 	"exclude": ["node_modules"],

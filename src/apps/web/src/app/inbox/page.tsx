@@ -97,7 +97,7 @@ export default function InboxPage() {
 
 	if (isLoading) {
 		return (
-			<div className="flex bg-red-500 h-screen w-96 flex-1 items-center justify-center">
+			<div className="flex h-screen w-96 flex-1 items-center justify-center">
 				<div className="text-white">Loading emails...</div>
 			</div>
 		);
