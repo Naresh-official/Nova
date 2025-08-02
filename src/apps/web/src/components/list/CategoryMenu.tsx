@@ -10,6 +10,7 @@ import {
 import { ChevronDown, Check } from "lucide-react";
 import React, { useState } from "react";
 import { useQueryStore } from "../providers/QueryStoreProvider";
+import type { AllowedLabelId } from "@/stores/search-store";
 
 function CategoryMenu() {
 	const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +18,7 @@ function CategoryMenu() {
 	const addLabelId = useQueryStore((state) => state.addLabelId);
 	const removeLabelId = useQueryStore((state) => state.removeLabelId);
 
-	const categories = [
+	const categories: { name: string; labelId: AllowedLabelId }[] = [
 		{ name: "Important", labelId: "IMPORTANT" },
 		{ name: "Starred", labelId: "STARRED" },
 		{ name: "Unread", labelId: "UNREAD" },
@@ -28,7 +29,10 @@ function CategoryMenu() {
 		{ name: "Promotions", labelId: "CATEGORY_PROMOTIONS" },
 	];
 
-	const handleCategoryClick = (event: React.MouseEvent, labelId: string) => {
+	const handleCategoryClick = (
+		event: React.MouseEvent,
+		labelId: AllowedLabelId
+	) => {
 		event.preventDefault();
 		event.stopPropagation();
 
