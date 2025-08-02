@@ -6,7 +6,9 @@
 			"@nova/ui/*": ["./src/*"]
 		},
 		"composite": true,
-		"noEmit": false
+		"noEmit": false,
+		"emitDeclarationOnly": true,
+		"allowImportingTsExtensions": true
 	},
 	"include": ["."],
 	"exclude": ["node_modules", "dist"]

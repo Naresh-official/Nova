@@ -6,6 +6,8 @@ import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 import { TRPCProvider } from "@/components/providers/TRPCProvider";
 import NextAuthSessionProvider from "@/components/providers/SessionProvider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { QueryStoreProvider } from "@/components/providers/QueryStoreProvider";
+import { RefreshStoreProvider } from "@/components/providers/RefreshStoreProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,8 +31,12 @@ export default function RootLayout({
 			>
 				<TRPCProvider>
 					<NextAuthSessionProvider>
-						<ConditionalLayout>{children}</ConditionalLayout>
-						<ReactQueryDevtools initialIsOpen={false} />
+						<QueryStoreProvider>
+							<RefreshStoreProvider>
+								<ConditionalLayout>{children}</ConditionalLayout>
+							</RefreshStoreProvider>
+							<ReactQueryDevtools initialIsOpen={false} />
+						</QueryStoreProvider>
 					</NextAuthSessionProvider>
 				</TRPCProvider>
 			</body>

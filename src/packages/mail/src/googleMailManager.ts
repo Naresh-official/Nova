@@ -36,6 +36,23 @@ export class GoogleMailManager {
 		});
 	}
 
+	private readonly systemLabelIds: string[] = [
+		"INBOX",
+		"TRASH",
+		"SPAM",
+		"DRAFT",
+		"SENT",
+		"STARRED",
+		"UNREAD",
+		"IMPORTANT",
+		"CATEGORY_PERSONAL",
+		"CATEGORY_SOCIAL",
+		"CATEGORY_UPDATES",
+		"CATEGORY_FORUMS",
+		"CATEGORY_PROMOTIONS",
+		"MUTED",
+	];
+
 	getScope(): string {
 		return [
 			"openid",
@@ -60,11 +77,12 @@ export class GoogleMailManager {
 
 	async list(
 		pageToken = "",
-		q = ""
+		q = "",
+		labelIds: string[] = ["INBOX"]
 	): Promise<{ emails: ThreadResponse[]; nextPageToken?: string }> {
 		const res = await this.gmail.users.threads.list({
 			userId: "me",
-			labelIds: ["INBOX"],
+			labelIds: labelIds,
 			maxResults: 20,
 			pageToken,
 			q,

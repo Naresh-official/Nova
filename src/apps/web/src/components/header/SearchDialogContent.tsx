@@ -1,14 +1,15 @@
-import React, { type Dispatch, type SetStateAction } from "react";
+import React, { useState, type Dispatch, type SetStateAction } from "react";
 import DialogItem from "./DialogItem";
 import { Input } from "@nova/ui/components/input";
-import { useEmailSearch } from "./hooks/useEmailSearch";
+import { useQueryStore } from "../providers/QueryStoreProvider";
 
 interface SearchDialogContentProps {
 	setDialogOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 function SearchDialogContent({ setDialogOpen }: SearchDialogContentProps) {
-	const { searchQuery, setSearchQuery, handleSearchEmails } = useEmailSearch();
+	const { query, setQuery } = useQueryStore((state) => state);
+	const [searchQuery, setSearchQuery] = useState<string>(query);
 	return (
 		<div className="space-y-1">
 			<Input
@@ -17,7 +18,7 @@ function SearchDialogContent({ setDialogOpen }: SearchDialogContentProps) {
 				onChange={(e) => setSearchQuery(e.target.value)}
 				onKeyDown={(e) => {
 					if (e.key === "Enter") {
-						handleSearchEmails(searchQuery);
+						setQuery(searchQuery);
 						setDialogOpen(false);
 					}
 				}}

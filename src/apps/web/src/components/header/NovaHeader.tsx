@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowLeft, PanelLeft, RefreshCcw, Search } from "lucide-react";
-import { Input } from "@nova/ui/components/input";
 import CategoryMenu from "../list/CategoryMenu";
 import { Button } from "@nova/ui/components/button";
 import {
@@ -14,27 +13,50 @@ import {
 import { useEffect, useState } from "react";
 import DefaultDialogContent from "./DefaultDialogContent";
 import SearchDialogContent from "./SearchDialogContent";
-import { useEmailSearch } from "./hooks/useEmailSearch";
+import { useQueryStore } from "../providers/QueryStoreProvider";
+import { trpc } from "@/lib/client";
+import { useRefreshStore } from "../providers/RefreshStoreProvider";
 
 export function NovaHeader() {
+	const utils = trpc.useUtils();
+	const { query, setQuery, clearQuery, clearLabelIds } = useQueryStore(
+		(state) => state
+	);
+	const { isRefreshing, setRefreshing } = useRefreshStore((state) => state);
+
 	const [commandView, setCommandView] = useState<
 		"default" | "search" | "filterOptions"
-	>("default");
+	>(!query ? "default" : "search");
 	const [dialogOpen, setDialogOpen] = useState(false);
 
+	const handleRefresh = async () => {
+		setRefreshing(true);
+		utils.threads.listThreads.setInfiniteData({ q: query }, () => ({
+			pages: [],
+			pageParams: [],
+		}));
+
+		clearQuery();
+		clearLabelIds();
+		await utils.threads.listThreads.invalidate({ q: undefined });
+		setRefreshing(false);
+	};
+	const handleBack = () => {
+		setCommandView("default");
+		setQuery("");
+	};
+
 	useEffect(() => {
-		if (!dialogOpen) {
+		if (!dialogOpen && !query) {
 			setCommandView("default");
 		}
-	}, [dialogOpen]);
-
-	const { handleRefresh } = useEmailSearch();
+	}, [dialogOpen, query]);
 
 	return (
 		<header className="border-b border-[#2A2A2A] p-3">
 			<div className="flex items-center gap-1 max-w-md text-sm">
 				<Button variant="ghost" size="sm">
-					<PanelLeft className="text-muted-foreground cursor-pointer" />
+					<PanelLeft className="text-muted-foreground cursor-pointer focus:border-0 focus:outline-nonek" />
 				</Button>
 				<Dialog
 					open={dialogOpen}
@@ -42,25 +64,28 @@ export function NovaHeader() {
 						setDialogOpen(open);
 					}}
 				>
-					<DialogTrigger asChild>
-						<div className="relative flex-1 bg-black rounded-md overflow-hidden">
-							<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#666]" />
-							<Input
-								placeholder="Search & Filter"
-								readOnly
-								className="pl-10 focus-visible:ring-0 focus-visible:outline-0"
-							/>
-						</div>
+					<DialogTrigger
+						asChild
+						className="focus-visible:ring-0 focus-visible:outline-0 focus-visible:border-input"
+						disabled={isRefreshing}
+					>
+						<Button
+							variant="outline"
+							className="flex-1 flex items-center justify-start bg-black rounded-md text-muted-foreground cursor-pointer"
+						>
+							<Search className="w-4 h-4" />
+							<div className="text-sm bg-transparent w-full rounded-md">
+								<p className="w-36 truncate text-start">
+									{query || "Search & Filter"}
+								</p>
+							</div>
+						</Button>
 					</DialogTrigger>
 					<DialogContent className="sm:max-w-md">
 						<DialogHeader>
 							<DialogTitle className="flex items-center gap-1">
 								{commandView !== "default" && (
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => setCommandView("default")}
-									>
+									<Button variant="ghost" size="sm" onClick={handleBack}>
 										<ArrowLeft className="cursor-pointer" />
 									</Button>
 								)}
