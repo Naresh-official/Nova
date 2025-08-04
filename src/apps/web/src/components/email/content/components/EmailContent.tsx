@@ -49,7 +49,6 @@ function EmailContent() {
 
 			const { processedHtml: html } = processEmailHtml({
 				html: rawHtml,
-				theme: "dark",
 				shouldLoadImages: true,
 				inlineAttachments: attachments || [],
 				messageId: parsed.id || "",

@@ -4,7 +4,6 @@ import * as cheerio from "cheerio";
 interface ProcessEmailOptions {
 	html: string;
 	shouldLoadImages: boolean;
-	theme: "light" | "dark";
 	messageId?: string;
 }
 
@@ -52,15 +51,19 @@ export function preprocessEmailHtml(html: string): string {
 		},
 
 		transformTags: {
+			"*": (tagName, attribs) => {
+				if (attribs.style) {
+					attribs.style = attribs.style.replace(
+						/(^|\s)color\s*:\s*[^;]+;?/gi,
+						""
+					);
+				}
+				return { tagName, attribs };
+			},
 			a: (tagName, attribs) => {
-				return {
-					tagName,
-					attribs: {
-						...attribs,
-						target: attribs.target || "_blank",
-						rel: "noopener noreferrer",
-					},
-				};
+				attribs.target = attribs.target || "_blank";
+				attribs.rel = "noopener noreferrer";
+				return { tagName, attribs };
 			},
 		},
 	};
@@ -122,11 +125,9 @@ export function preprocessEmailHtml(html: string): string {
 // Client-side: Light styling + image preferences
 export function applyEmailPreferences(
 	preprocessedHtml: string,
-	theme: "light" | "dark",
 	shouldLoadImages: boolean
 ): { processedHtml: string; hasBlockedImages: boolean } {
 	let hasBlockedImages = false;
-	const isDarkTheme = theme === "dark";
 
 	const $ = cheerio.load(preprocessedHtml);
 
@@ -154,8 +155,7 @@ export function applyEmailPreferences(
       :host {
         display: block;
         line-height: 1.5;
-        background-color: ${isDarkTheme ? "#1A1A1A" : "#ffffff"};
-        color: ${isDarkTheme ? "#ffffff" : "#000000"};
+        color: yellow !important;
       }
 
       *, *::before, *::after {
@@ -165,48 +165,57 @@ export function applyEmailPreferences(
       body {
         margin: 0;
         padding: 0;
+        background-color: red !important;
       }
 
       a {
         cursor: pointer;
-        color: ${isDarkTheme ? "#60a5fa" : "#2563eb"};
+        color: #60a5fa;
         text-decoration: underline;
       }
 
-      table {
-        border-collapse: collapse;
-      }
+    table {
+      border-collapse: collapse !important;
+    }
 
-      ::selection {
-        background: #7f22fe;
-        text-shadow: none;
-      }
+    ::selection {
+      background: #7f22fe !important;
+      text-shadow: none !important;
+    }
 
-      /* Styling for collapsed quoted text */
-      details.quoted-toggle {
-        border-left: 2px solid ${isDarkTheme ? "#374151" : "#d1d5db"};
-        padding-left: 8px;
-        margin-top: 0.75rem;
-      }
+    details.quoted-toggle {
+      border-left: 2px solid #374151 !important;
+      padding-left: 8px !important;
+      margin-top: 0.75rem !important;
+    }
 
-      details.quoted-toggle summary {
-        cursor: pointer;
-        color: ${isDarkTheme ? "#9CA3AF" : "#6B7280"};
-        list-style: none;
-        user-select: none;
-      }
+    details.quoted-toggle summary {
+      cursor: pointer !important;
+      color: #9CA3AF !important;
+      list-style: none !important;
+      user-select: none !important;
+    }
 
-      details.quoted-toggle summary::-webkit-details-marker {
-        display: none;
-      }
+    details.quoted-toggle summary::-webkit-details-marker {
+      display: none !important;
+    }
 
-      [data-theme-color="muted"] {
-        color: ${isDarkTheme ? "#9CA3AF" : "#6B7280"};
-      }
-    </style>
-  `;
+    [data-theme-color="muted"] {
+      color: #9CA3AF !important;
+    }
 
-	const finalHtml = `${themeStyles}${html}`;
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+      border-radius: 8px !important;
+      display: block !important;
+    }
+  </style>
+`;
+
+	const finalHtml = html.includes("<head")
+		? html.replace(/<head[^>]*>/i, (match) => `${match}\n${themeStyles}`)
+		: `${themeStyles}${html}`;
 
 	return {
 		processedHtml: finalHtml,
@@ -247,7 +256,6 @@ function injectInlineAttachments(html: string, inline: IAttachment[] = []) {
 export function processEmailHtml({
 	html,
 	shouldLoadImages,
-	theme,
 	inlineAttachments = [],
 }: ProcessEmailOptions & {
 	inlineAttachments?: IAttachment[];
@@ -257,5 +265,5 @@ export function processEmailHtml({
 } {
 	const preprocessed = preprocessEmailHtml(html);
 	const withInlines = injectInlineAttachments(preprocessed, inlineAttachments);
-	return applyEmailPreferences(withInlines, theme, shouldLoadImages);
+	return applyEmailPreferences(withInlines, shouldLoadImages);
 }

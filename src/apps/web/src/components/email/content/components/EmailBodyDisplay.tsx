@@ -24,25 +24,11 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 
 			shadowRootRef.current = shadowRoot;
 
-			// Build style manually
-			const style = `
-      ::selection {
-        background: #7f22fe !important;
-        color: white !important;
-      }
-
-      *::selection {
-        background: #7f22fe !important;
-        color: white !important;
-      }
-    `;
-
 			// Extract body content to avoid full HTML nesting
 			const htmlContent = extractBodyContent(processedHtml);
 
 			// Clear previous content
 			shadowRoot.innerHTML = `
-      <style>${style}</style>
       <div class="email-wrapper">${htmlContent}</div>
     `;
 
