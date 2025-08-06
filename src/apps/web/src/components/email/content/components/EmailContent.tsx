@@ -59,7 +59,7 @@ function EmailContent() {
 			console.error("Error processing email HTML:", error);
 			return null;
 		}
-	}, [parsed.textHtml, attachments, parsed.id]); // Added attachments and parsed.id to dependency array
+	}, [parsed.textHtml, attachments, parsed.id]);
 
 	const getRecipientText = () => {
 		if (parsed.to?.[0]?.email === session?.user?.email) return "You";
@@ -117,7 +117,10 @@ function EmailContent() {
 				isPersonal={parsed.labelIds.includes("CATEGORY_PERSONAL")}
 			/>
 
-			<EmailBodyDisplay processedHtml={processedHtml} />
+			<EmailBodyDisplay
+				processedHtml={processedHtml}
+				plainText={parsed.textPlain}
+			/>
 
 			<EmailAttachments attachments={attachments} />
 

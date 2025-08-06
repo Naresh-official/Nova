@@ -5,6 +5,7 @@
 		"paths": {
 			"@nova/ui/*": ["./src/*"]
 		},
+		"lib": ["dom", "dom.iterable", "esnext"],
 		"composite": true,
 		"noEmit": false,
 		"emitDeclarationOnly": true,

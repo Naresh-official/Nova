@@ -5,10 +5,12 @@ import { extractBodyContent } from "../utils/extractBodyContent";
 
 interface EmailBodyDisplayProps {
 	processedHtml: string | null;
+	plainText: string | null;
 }
 
 const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 	processedHtml,
+	plainText,
 }) => {
 	const hostRef = useRef<HTMLDivElement>(null);
 	const shadowRootRef = useRef<ShadowRoot | null>(null);
@@ -41,22 +43,29 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 
 	return (
 		<div className="rounded-lg p-4 selectable-email-container">
-			<div
-				ref={hostRef}
-				style={{
-					display: "block",
-					overflow: "hidden",
-					borderRadius: "0.5rem",
-					margin: "2rem",
-					minHeight: "200px",
-				}}
-			/>
+			{processedHtml && (
+				<div
+					ref={hostRef}
+					style={{
+						display: "block",
+						overflow: "hidden",
+						borderRadius: "0.5rem",
+						margin: "2rem",
+						minHeight: "200px",
+					}}
+				/>
+			)}
 
 			{!injected && processedHtml && (
 				<div
 					className="mt-4 p-4 bg-black rounded-lg"
 					dangerouslySetInnerHTML={{ __html: processedHtml }}
 				/>
+			)}
+			{!processedHtml && plainText && (
+				<div className="mt-4 p-4 rounded-lg">
+					<pre className="whitespace-pre-wrap break-words">{plainText}</pre>
+				</div>
 			)}
 		</div>
 	);

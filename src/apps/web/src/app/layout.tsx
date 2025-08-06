@@ -8,6 +8,7 @@ import NextAuthSessionProvider from "@/components/providers/SessionProvider";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryStoreProvider } from "@/components/providers/QueryStoreProvider";
 import { RefreshStoreProvider } from "@/components/providers/RefreshStoreProvider";
+import { Toaster } from "@nova/ui/components/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,6 +35,7 @@ export default function RootLayout({
 						<QueryStoreProvider>
 							<RefreshStoreProvider>
 								<ConditionalLayout>{children}</ConditionalLayout>
+								<Toaster />
 							</RefreshStoreProvider>
 							<ReactQueryDevtools initialIsOpen={false} />
 						</QueryStoreProvider>

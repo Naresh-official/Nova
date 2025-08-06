@@ -165,7 +165,6 @@ export function applyEmailPreferences(
       body {
         margin: 0;
         padding: 0;
-        background-color: red !important;
       }
 
       a {
@@ -174,42 +173,46 @@ export function applyEmailPreferences(
         text-decoration: underline;
       }
 
-    table {
-      border-collapse: collapse !important;
-    }
+      p {
+        color: white !important;
+      }
 
-    ::selection {
-      background: #7f22fe !important;
-      text-shadow: none !important;
-    }
+      table {
+        border-collapse: collapse !important;
+      }
 
-    details.quoted-toggle {
-      border-left: 2px solid #374151 !important;
-      padding-left: 8px !important;
-      margin-top: 0.75rem !important;
-    }
+      ::selection {
+        background: #7f22fe !important;
+        text-shadow: none !important;
+      }
 
-    details.quoted-toggle summary {
-      cursor: pointer !important;
-      color: #9CA3AF !important;
-      list-style: none !important;
-      user-select: none !important;
-    }
+      details.quoted-toggle {
+        border-left: 2px solid #374151 !important;
+        padding-left: 8px !important;
+        margin-top: 0.75rem !important;
+      }
 
-    details.quoted-toggle summary::-webkit-details-marker {
-      display: none !important;
-    }
+      details.quoted-toggle summary {
+        cursor: pointer !important;
+        color: #9CA3AF !important;
+        list-style: none !important;
+        user-select: none !important;
+      }
 
-    [data-theme-color="muted"] {
-      color: #9CA3AF !important;
-    }
+      details.quoted-toggle summary::-webkit-details-marker {
+        display: none !important;
+      }
 
-    img {
-      max-width: 100% !important;
-      height: auto !important;
-      border-radius: 8px !important;
-      display: block !important;
-    }
+      [data-theme-color="muted"] {
+        color: #9CA3AF !important;
+      }
+
+      img {
+        max-width: 100% !important;
+        height: auto !important;
+        border-radius: 8px !important;
+        display: block !important;
+      }
   </style>
 `;
 

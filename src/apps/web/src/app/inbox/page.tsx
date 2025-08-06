@@ -1,5 +1,5 @@
-import EmailList from "@/components/list/EmailList";
 import EmailContent from "@/components/email/content/components/EmailContent";
+import EmailList from "@/components/email/list/EmailList";
 
 export default function InboxPage() {
 	return (

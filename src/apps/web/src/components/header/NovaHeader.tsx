@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowLeft, PanelLeft, RefreshCcw, Search } from "lucide-react";
-import CategoryMenu from "../list/CategoryMenu";
 import { Button } from "@nova/ui/components/button";
 import {
 	Dialog,
@@ -16,6 +15,8 @@ import SearchDialogContent from "./SearchDialogContent";
 import { useQueryStore } from "../providers/QueryStoreProvider";
 import { trpc } from "@/lib/client";
 import { useRefreshStore } from "../providers/RefreshStoreProvider";
+import { SidebarTrigger } from "@nova/ui/components/sidebar";
+import CategoryMenu from "./CategoryMenu";
 
 export function NovaHeader() {
 	const utils = trpc.useUtils();
@@ -55,9 +56,7 @@ export function NovaHeader() {
 	return (
 		<header className="border-b border-[#2A2A2A] p-3">
 			<div className="flex items-center gap-1 max-w-md text-sm">
-				<Button variant="ghost" size="sm">
-					<PanelLeft className="text-muted-foreground cursor-pointer focus:border-0 focus:outline-nonek" />
-				</Button>
+				<SidebarTrigger />
 				<Dialog
 					open={dialogOpen}
 					onOpenChange={(open) => {

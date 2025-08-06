@@ -4,12 +4,12 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ThreadResponse } from "@nova/server/types";
 import { trpc } from "@/lib/client";
-import { NovaHeader } from "../header/NovaHeader";
 import EmailNode from "./EmailNode";
 import { LoaderCircle } from "lucide-react";
 import { Skeleton } from "@nova/ui/components/skeleton";
 import { useQueryStore } from "@/components/providers/QueryStoreProvider";
 import { useRefreshStore } from "@/components/providers/RefreshStoreProvider";
+import { NovaHeader } from "@/components/header/NovaHeader";
 
 function EmailList() {
 	const router = useRouter();
@@ -80,22 +80,30 @@ function EmailList() {
 
 	const handleEmailSelect = (email: ThreadResponse) => {
 		setSelectedEmail(email);
-
 		router.push(`/inbox?threadId=${email.id}`);
 
 		if (email.isUnread) {
-			utils.threads.listThreads.setInfiniteData({ q: undefined }, (oldData) => {
-				if (!oldData) return oldData;
-				return {
-					...oldData,
-					pages: oldData.pages.map((page) => ({
-						...page,
-						emails: page.emails.map((thread) =>
-							thread.id === email.id ? { ...thread, isUnread: false } : thread
-						),
-					})),
-				};
-			});
+			utils.threads.listThreads.setInfiniteData(
+				{ q: query || undefined, labelIds },
+				(oldData) => {
+					if (!oldData) return oldData;
+
+					return {
+						...oldData,
+						pages: oldData.pages.map((page) => ({
+							...page,
+							emails: page.emails.map((thread) =>
+								thread.id === email.id
+									? {
+											...thread,
+											isUnread: false,
+										}
+									: thread
+							),
+						})),
+					};
+				}
+			);
 		}
 	};
 

@@ -92,6 +92,12 @@ export class GoogleMailManager {
 
 		const access_token = await this.getAccessToken();
 
+		// Get user's email address to identify sent emails
+		const profile = await this.gmail.users.getProfile({
+			userId: "me",
+		});
+		const userEmail = profile.data.emailAddress;
+
 		const threadDetails = await Promise.all(
 			res.data.threads.map((thread) =>
 				this.gmail.users.threads.get({
@@ -107,7 +113,16 @@ export class GoogleMailManager {
 		const threadsWithDetails = threadDetails
 			.filter((response) => {
 				const labelIds = response?.data?.messages?.[0]?.labelIds || [];
-				return labelIds.includes("INBOX") && !labelIds.includes("SENT");
+				const headers = response?.data?.messages?.[0]?.payload?.headers || [];
+				const fromHeader = headers.find((h) => h.name === "From")?.value || "";
+
+				const isInboxNotSent =
+					labelIds.includes("INBOX") && !labelIds.includes("SENT");
+
+				const isSentByUser =
+					labelIds.includes("SENT") && fromHeader.includes(userEmail || "");
+
+				return isInboxNotSent || isSentByUser;
 			})
 			.map((response) => {
 				const threadData = response.data;
@@ -354,5 +369,86 @@ export class GoogleMailManager {
 		}
 
 		return attachments;
+	}
+
+	async sendEmail(
+		senderName: string,
+		to: string[],
+		subject: string,
+		body: string,
+		cc: string[] = [],
+		bcc: string[] = [],
+		attachments: { filename: string; mimeType: string; data: string }[] = []
+	): Promise<void> {
+		const rawMessage = await this.createRawMessage(
+			senderName,
+			to,
+			subject,
+			body,
+			cc,
+			bcc,
+			attachments
+		);
+
+		await this.gmail.users.messages.send({
+			userId: "me",
+			requestBody: {
+				raw: base64url.encode(rawMessage),
+			},
+		});
+	}
+
+	private async createRawMessage(
+		senderName: string,
+		to: string[],
+		subject: string,
+		body: string,
+		cc: string[] = [],
+		bcc: string[] = [],
+		attachments: { filename: string; mimeType: string; data: string }[] = []
+	): Promise<string> {
+		const boundaryMixed = `mixed_${Date.now()}`;
+		const boundaryAlt = `alt_${Date.now()}`;
+
+		const profile = await this.gmail.users.getProfile({ userId: "me" });
+
+		const senderEmail = profile.data.emailAddress;
+
+		let message = `From: ${senderName} <${senderEmail}>\r\n`;
+		message += `To: ${to.join(", ")}\r\n`;
+		if (cc.length > 0) message += `Cc: ${cc.join(", ")}\r\n`;
+		if (bcc.length > 0) message += `Bcc: ${bcc.join(", ")}\r\n`;
+		message += `Subject: ${subject}\r\n`;
+		message += `MIME-Version: 1.0\r\n`;
+		message += `Content-Type: multipart/mixed; boundary="${boundaryMixed}"\r\n\r\n`;
+
+		// Start alternative section (plain text + HTML)
+		message += `--${boundaryMixed}\r\n`;
+		message += `Content-Type: multipart/alternative; boundary="${boundaryAlt}"\r\n\r\n`;
+
+		// Optional plain-text version (fallback)
+		message += `--${boundaryAlt}\r\n`;
+		message += `Content-Type: text/plain; charset="UTF-8"\r\n\r\n`;
+		message += `This is an HTML email. Please view in an HTML-compatible email client.\r\n\r\n`;
+
+		// HTML version
+		message += `--${boundaryAlt}\r\n`;
+		message += `Content-Type: text/html; charset="UTF-8"\r\n\r\n`;
+		message += `${body}\r\n\r\n`;
+
+		message += `--${boundaryAlt}--\r\n`;
+
+		// Attachments (if any)
+		for (const attachment of attachments) {
+			message += `--${boundaryMixed}\r\n`;
+			message += `Content-Type: ${attachment.mimeType}; name="${attachment.filename}"\r\n`;
+			message += `Content-Disposition: attachment; filename="${attachment.filename}"\r\n`;
+			message += `Content-Transfer-Encoding: base64\r\n\r\n`;
+			message += `${attachment.data}\r\n\r\n`;
+		}
+
+		message += `--${boundaryMixed}--`;
+
+		return message;
 	}
 }

@@ -15,6 +15,9 @@
 		"@nova/ui": "workspace:*",
 		"@tanstack/react-query": "^5.83.0",
 		"@tanstack/react-query-devtools": "^5.84.0",
+		"@tiptap/extension-image": "^3.0.9",
+		"@tiptap/react": "^3.0.9",
+		"@tiptap/starter-kit": "^3.0.9",
 		"@trpc/client": "^11.4.3",
 		"@trpc/next": "^11.4.3",
 		"@trpc/react-query": "^11.4.3",
@@ -33,6 +36,7 @@
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0",
 		"sanitize-html": "^2.17.0",
+		"sonner": "^2.0.7",
 		"zod": "^3.24.2",
 		"zustand": "^5.0.7"
 	},

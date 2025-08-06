@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { usePathname } from "next/navigation";
-import { SidebarProvider } from "@nova/ui/components/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@nova/ui/components/sidebar";
 import { NovaSidebar } from "@/components/layout/Sidebar";
+import { ComposeMail } from "../compose/components/ComposeMail";
 
 interface ConditionalLayoutProps {
 	children: React.ReactNode;
@@ -11,6 +12,8 @@ interface ConditionalLayoutProps {
 
 export function ConditionalLayout({ children }: ConditionalLayoutProps) {
 	const pathname = usePathname();
+	const [isComposeOpen, setIsComposeOpen] = useState(false);
+
 	const isLoginPage = pathname === "/login";
 
 	if (isLoginPage) {
@@ -22,9 +25,14 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
 	}
 
 	return (
-		<SidebarProvider defaultOpen={true}>
-			<NovaSidebar />
-			<main className="w-full">{children}</main>
-		</SidebarProvider>
+		<div className="h-screen w-full ">
+			<SidebarProvider defaultOpen={true}>
+				<NovaSidebar setIsComposeOpenAction={setIsComposeOpen} />
+				<main className="flex-1 overflow-auto">{children}</main>
+			</SidebarProvider>
+			{isComposeOpen && (
+				<ComposeMail onCloseAction={() => setIsComposeOpen(false)} />
+			)}
+		</div>
 	);
 }
