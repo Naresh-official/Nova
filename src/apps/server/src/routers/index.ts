@@ -3,11 +3,13 @@ import { router } from "../trpc";
 import { threadsRouter } from "./threads.router";
 import { userRouter } from "./user.router";
 import { messagesRouter } from "./messages.router";
+import { labelsRouter } from "./labels.router";
 
 export const appRouter = router({
 	threads: threadsRouter,
 	user: userRouter,
 	messages: messagesRouter,
+	labels: labelsRouter,
 });
 
 export type AppRouter = typeof appRouter;

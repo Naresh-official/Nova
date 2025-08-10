@@ -12,4 +12,5 @@ export const ThreadResponseSchema = z.object({
 	subject: z.string(),
 	date: z.string(),
 	internalDate: z.string(),
+	customLabels: z.array(z.string()),
 });

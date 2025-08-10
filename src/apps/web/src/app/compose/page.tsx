@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { NovaSidebar } from "@/components/layout/Sidebar";
+import { NovaSidebar } from "@/components/sidebar/Sidebar";
 import { SidebarInset } from "@nova/ui/components/sidebar";
 import { Button } from "@nova/ui/components/button";
 import { Input } from "@nova/ui/components/input";

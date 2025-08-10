@@ -1,4 +1,4 @@
-import { NovaSidebar } from "@/components/layout/Sidebar";
+import { NovaSidebar } from "@/components/sidebar/Sidebar";
 import { NovaHeader } from "@/components/header/NovaHeader";
 import { SidebarInset } from "@nova/ui/components/sidebar";
 

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { Badge } from "@nova/ui/components/badge";
 import { formatDate } from "date-fns";
 import type { ThreadResponse } from "@nova/server/types";
 import {
@@ -9,6 +8,7 @@ import {
 } from "@/lib/parsers";
 import Image from "next/image";
 import { Star } from "lucide-react";
+import { trpc } from "@/lib/client";
 
 interface EmailNodeProps {
 	email: ThreadResponse;
@@ -20,6 +20,9 @@ function EmailNodeBase(
 	{ email, selectedEmail, setSelectedEmail }: EmailNodeProps,
 	ref: React.Ref<HTMLDivElement>
 ) {
+	const utils = trpc.useUtils();
+	const labels = utils.labels.getLabels.getData()?.customLabels;
+
 	const [imageError, setImageError] = useState(false);
 
 	const senderName = extractSenderName(email.sender);
@@ -83,9 +86,31 @@ function EmailNodeBase(
 							{formatDate(email.date, "MMM dd, yyyy")}{" "}
 						</span>
 					</div>
-					<h3 className="text-sm mb-1 line-clamp-1 text-muted-foreground">
-						{email.subject}
-					</h3>
+					<div className="flex items-center justify-between">
+						<h3 className="flex-1 text-sm mb-1 line-clamp-1 text-muted-foreground">
+							{email.subject}
+						</h3>
+						{email.customLabels?.length > 0 && (
+							<div className="flex flex-wrap gap-1">
+								{email.customLabels.map((label) => {
+									const customLabel = labels?.find((l) => l.id === label);
+									return (
+										<span
+											key={label}
+											className="text-xs px-2 py-1 rounded-full"
+											style={{
+												backgroundColor:
+													customLabel?.color?.backgroundColor || "#333",
+												color: customLabel?.color?.textColor || "#fff",
+											}}
+										>
+											{customLabel?.name || "Custom Label"}
+										</span>
+									);
+								})}
+							</div>
+						)}
+					</div>
 				</div>
 			</div>
 		</div>

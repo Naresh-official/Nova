@@ -10,4 +10,5 @@ export interface ThreadResponse {
 	subject: string;
 	date: string;
 	internalDate: string;
+	customLabels: string[];
 }

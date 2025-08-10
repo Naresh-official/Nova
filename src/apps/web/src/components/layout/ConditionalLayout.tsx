@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
-import { SidebarProvider, SidebarTrigger } from "@nova/ui/components/sidebar";
-import { NovaSidebar } from "@/components/layout/Sidebar";
+import { SidebarProvider } from "@nova/ui/components/sidebar";
+import { NovaSidebar } from "@/components/sidebar/Sidebar";
 import { ComposeMail } from "../compose/components/ComposeMail";
 
 interface ConditionalLayoutProps {
