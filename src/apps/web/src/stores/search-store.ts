@@ -2,7 +2,6 @@ import { createStore } from "zustand";
 import { z } from "zod";
 
 const allowedLabelIds = z.enum([
-	"INBOX",
 	"STARRED",
 	"UNREAD",
 	"IMPORTANT",
@@ -33,7 +32,7 @@ export type searchQueryStore = searchQueryState & searchQueryActions;
 
 export const defaultInitState: searchQueryState = {
 	query: "",
-	labelIds: ["INBOX"],
+	labelIds: [],
 };
 
 export const createSearchQueryStore = (
@@ -62,6 +61,6 @@ export const createSearchQueryStore = (
 			set((state) => ({
 				labelIds: state.labelIds.filter((id) => id !== labelId),
 			})),
-		clearLabelIds: () => set({ labelIds: ["INBOX"] }),
+		clearLabelIds: () => set({ labelIds: [] }),
 	}));
 };

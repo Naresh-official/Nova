@@ -21,20 +21,20 @@ export function CoreItems({ labels }: CoreItemsProps) {
 	const coreItems = [
 		{
 			title: "Inbox",
-			url: "/inbox",
+			url: "/mail/inbox",
 			icon: Inbox,
 			count:
 				labels?.find((label) => label.name === "INBOX")?.threadsUnread || 0,
 		},
 		{
 			title: "Drafts",
-			url: "/drafts",
+			url: "/mail/drafts",
 			icon: FileText,
 			count: labels?.find((label) => label.name === "DRAFT")?.threadsTotal || 0,
 		},
 		{
 			title: "Sent",
-			url: "/sent",
+			url: "/mail/sent",
 			icon: Send,
 			count: labels?.find((label) => label.name === "SENT")?.threadsTotal || 0,
 		},

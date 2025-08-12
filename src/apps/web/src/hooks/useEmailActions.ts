@@ -3,19 +3,23 @@ import { trpc } from "@/lib/client";
 import type { ThreadResponse } from "@nova/server/types";
 import { useQueryStore } from "@/components/providers/QueryStoreProvider";
 
-export function useEmailActions() {
+export function useEmailActions(specificThreadId?: string) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
-	const currentThreadId = searchParams.get("threadId") ?? "";
+	const urlThreadId = searchParams.get("threadId") ?? "";
+	const currentThreadId = specificThreadId || urlThreadId;
 	const utils = trpc.useUtils();
 	const query = useQueryStore((s) => s.query);
 	const labelIds = useQueryStore((s) => s.labelIds);
+
+	const folder = pathname.split("/").pop() || "";
 
 	// Pull current emails list from cache
 	const infiniteQueryData = utils.threads.listThreads.getInfiniteData({
 		q: query || undefined,
 		labelIds,
+		folder,
 	});
 	const emails: string[] =
 		infiniteQueryData?.pages.flatMap((page) =>
@@ -25,6 +29,14 @@ export function useEmailActions() {
 	const threadData = utils.threads.getThread.getData(currentThreadId);
 	const isStarred =
 		threadData?.thread.messages?.[0]?.labelIds?.includes("STARRED") ?? false;
+
+	// Get email data from the list for additional properties
+	const emailData =
+		emails.length > 0
+			? infiniteQueryData?.pages
+					.flatMap((page) => page.emails)
+					.find((email) => email.id === currentThreadId)
+			: undefined;
 
 	const disablePrev = !currentThreadId || emails.indexOf(currentThreadId) <= 0;
 	const disableNext =
@@ -77,7 +89,7 @@ export function useEmailActions() {
 							...page,
 							emails: page.emails.map((thread) =>
 								thread.id === currentThreadId
-									? { ...thread, isUnread: false }
+									? { ...thread, isStarred: !thread.isStarred }
 									: thread
 							),
 						})),
@@ -90,7 +102,7 @@ export function useEmailActions() {
 	const moveToArchive = trpc.threads.moveToArchive.useMutation({
 		onSuccess: () => {
 			utils.threads.listThreads.setInfiniteData(
-				{ q: query || undefined, labelIds },
+				{ q: query || undefined, labelIds, folder },
 				(oldData) => {
 					if (!oldData) return oldData;
 					return {
@@ -112,7 +124,7 @@ export function useEmailActions() {
 	const moveToSpam = trpc.threads.moveToSpam.useMutation({
 		onSuccess: () => {
 			utils.threads.listThreads.setInfiniteData(
-				{ q: query || undefined, labelIds },
+				{ q: query || undefined, labelIds, folder },
 				(oldData) => {
 					if (!oldData) return oldData;
 					return {
@@ -132,8 +144,10 @@ export function useEmailActions() {
 	});
 
 	const markAsImportant = trpc.threads.markAsImportant.useMutation({
-		onMutate: ({ threadId }) => {
-			utils.threads.getThread.cancel(threadId);
+		onMutate: async ({ threadId }) => {
+			await utils.threads.getThread.cancel(threadId);
+			await utils.threads.listThreads.cancel();
+
 			utils.threads.getThread.setData(threadId, (oldData) => {
 				if (!oldData) return oldData;
 				return {
@@ -144,10 +158,105 @@ export function useEmailActions() {
 					})),
 				};
 			});
+
+			utils.threads.listThreads.setInfiniteData(
+				{ q: query || undefined, labelIds, folder },
+				(oldData) => {
+					if (!oldData) return oldData;
+					return {
+						...oldData,
+						pages: oldData.pages.map((page) => ({
+							...page,
+							emails: page.emails.map((thread) =>
+								thread.id === threadId
+									? { ...thread, isImportant: true }
+									: thread
+							),
+						})),
+					};
+				}
+			);
+		},
+		onSuccess: () => {
+			utils.threads.listThreads.invalidate();
 		},
 	});
 
-	// Actions
+	const markAsRead = trpc.threads.markAsRead.useMutation({
+		onMutate: async (threadId) => {
+			await utils.threads.listThreads.cancel();
+
+			utils.threads.listThreads.setInfiniteData(
+				{ q: query || undefined, labelIds, folder },
+				(oldData) => {
+					if (!oldData) return oldData;
+					return {
+						...oldData,
+						pages: oldData.pages.map((page) => ({
+							...page,
+							emails: page.emails.map((thread) =>
+								thread.id === threadId ? { ...thread, isUnread: false } : thread
+							),
+						})),
+					};
+				}
+			);
+		},
+		onSuccess: () => {
+			utils.threads.listThreads.invalidate();
+		},
+	});
+
+	const markAsUnread = trpc.threads.markAsUnread.useMutation({
+		onMutate: async (threadId) => {
+			await utils.threads.listThreads.cancel();
+
+			utils.threads.listThreads.setInfiniteData(
+				{ q: query || undefined, labelIds, folder },
+				(oldData) => {
+					if (!oldData) return oldData;
+					return {
+						...oldData,
+						pages: oldData.pages.map((page) => ({
+							...page,
+							emails: page.emails.map((thread) =>
+								thread.id === threadId ? { ...thread, isUnread: true } : thread
+							),
+						})),
+					};
+				}
+			);
+		},
+		onSuccess: () => {
+			utils.threads.listThreads.invalidate();
+		},
+	});
+
+	const restoreThread = trpc.threads.restoreThread.useMutation({
+		onMutate: async ({ threadId }) => {
+			await utils.threads.listThreads.cancel();
+
+			// Remove thread from trash view
+			utils.threads.listThreads.setInfiniteData(
+				{ q: query || undefined, labelIds, folder },
+				(oldData) => {
+					if (!oldData) return oldData;
+					return {
+						...oldData,
+						pages: oldData.pages.map((page) => ({
+							...page,
+							emails: page.emails.filter((thread) => thread.id !== threadId),
+						})),
+					};
+				}
+			);
+		},
+		onSuccess: () => {
+			utils.threads.listThreads.invalidate();
+			utils.threads.listThreadIds.invalidate();
+		},
+	});
+
 	const actions = {
 		handleClose: () => router.push(pathname),
 		handlePrevious: () => {
@@ -169,7 +278,7 @@ export function useEmailActions() {
 
 				// Optimistically remove the thread from the list
 				utils.threads.listThreads.setInfiniteData(
-					{ q: query || undefined, labelIds },
+					{ q: query || undefined, labelIds, folder },
 					(oldData) => {
 						if (!oldData) return oldData;
 						return {
@@ -184,9 +293,6 @@ export function useEmailActions() {
 					}
 				);
 
-				// Optionally mark the thread as trashed in getThread (if needed)
-				utils.threads.getThread.setData(currentThreadId, undefined);
-
 				// Now perform the mutation
 				trashThread.mutate({ threadId: currentThreadId });
 
@@ -195,24 +301,6 @@ export function useEmailActions() {
 		},
 		handleToggleStar: () => {
 			if (currentThreadId) {
-				// Optimistic update: toggle star in cache immediately
-				utils.threads.listThreads.setInfiniteData(
-					{ q: query || undefined, labelIds },
-					(oldData) => {
-						if (!oldData) return oldData;
-						return {
-							...oldData,
-							pages: oldData.pages.map((page) => ({
-								...page,
-								emails: page.emails.map((email) =>
-									email.id === currentThreadId
-										? { ...email, isStarred: !email.isStarred }
-										: email
-								),
-							})),
-						};
-					}
-				);
 				toggleStar.mutate({ threadId: currentThreadId });
 			}
 		},
@@ -230,11 +318,31 @@ export function useEmailActions() {
 			if (currentThreadId)
 				markAsImportant.mutate({ threadId: currentThreadId });
 		},
+		handleMarkAsRead: () => {
+			if (currentThreadId) markAsRead.mutate(currentThreadId);
+		},
+		handleMarkAsUnread: () => {
+			if (currentThreadId) markAsUnread.mutate(currentThreadId);
+		},
+		handleOpenInNewTab: () => {
+			if (currentThreadId) {
+				const newUrl = `${pathname}?threadId=${currentThreadId}`;
+				window.open(newUrl, "_blank");
+			}
+		},
+		handleRestoreFromTrash: () => {
+			if (currentThreadId) {
+				restoreThread.mutate({ threadId: currentThreadId });
+				router.push(pathname);
+			}
+		},
 	};
 
 	return {
 		currentThreadId,
-		isStarred,
+		isStarred: emailData?.isStarred ?? isStarred,
+		isUnread: emailData?.isUnread ?? false,
+		isImportant: emailData?.isImportant ?? false,
 		disablePrev,
 		disableNext,
 		actions,

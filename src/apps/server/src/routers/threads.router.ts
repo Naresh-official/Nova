@@ -2,6 +2,7 @@ import { ThreadResponseSchema } from "src/schemas";
 import { protectedProcedure, router } from "../trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { DraftResponseSchema } from "src/schemas/draft.schema";
 
 const allowedLabelIds = z.enum([
 	"INBOX",
@@ -22,6 +23,7 @@ export const threadsRouter = router({
 				cursor: z.string().optional(),
 				q: z.string().optional(),
 				labelIds: z.array(allowedLabelIds).optional(),
+				folder: z.string().optional(),
 			})
 		)
 		.output(
@@ -31,8 +33,13 @@ export const threadsRouter = router({
 			})
 		)
 		.query(async ({ ctx, input }) => {
-			const { cursor, q, labelIds } = input;
-			const threads = await ctx.mailManager.list(cursor, q, labelIds);
+			const { cursor, q, labelIds, folder } = input;
+			const threads = await ctx.mailManager.threads.list(
+				cursor,
+				q,
+				labelIds,
+				folder
+			);
 			return {
 				emails: threads.emails,
 				nextCursor: threads.nextPageToken,
@@ -42,14 +49,14 @@ export const threadsRouter = router({
 	listThreadIds: protectedProcedure
 		.output(z.array(z.string()))
 		.query(async ({ ctx }) => {
-			const threads = await ctx.mailManager.listThreadIds();
+			const threads = await ctx.mailManager.threads.listThreadIds();
 			return threads;
 		}),
 
 	getThread: protectedProcedure
 		.input(z.string())
 		.query(async ({ ctx, input }) => {
-			const thread = await ctx.mailManager.getThread(input);
+			const thread = await ctx.mailManager.threads.getThread(input);
 			if (!thread) {
 				new TRPCError({
 					code: "NOT_FOUND",
@@ -57,46 +64,53 @@ export const threadsRouter = router({
 				});
 			}
 			if (thread.messages?.[0]?.labelIds?.includes("UNREAD")) {
-				await ctx.mailManager.markAsRead(input);
+				await ctx.mailManager.messages.markAsRead(input);
 			}
-			const attachments = await ctx.mailManager.getAttachments(thread);
+			const attachments =
+				await ctx.mailManager.attachments.getAttachments(thread);
 			return { thread, attachments };
 		}),
 
 	trashThread: protectedProcedure
 		.input(z.object({ threadId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
-			await ctx.mailManager.trashThread(input.threadId);
+			await ctx.mailManager.messages.trashThread(input.threadId);
+		}),
+
+	restoreThread: protectedProcedure
+		.input(z.object({ threadId: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.messages.restoreThread(input.threadId);
 		}),
 
 	toggleStar: protectedProcedure
 		.input(z.object({ threadId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
-			await ctx.mailManager.toggleStar(input.threadId);
+			await ctx.mailManager.messages.toggleStar(input.threadId);
 		}),
 
 	moveToArchive: protectedProcedure
 		.input(z.object({ threadId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
-			await ctx.mailManager.moveToArchive(input.threadId);
+			await ctx.mailManager.messages.moveToArchive(input.threadId);
 		}),
 
 	moveToSpam: protectedProcedure
 		.input(z.object({ threadId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
-			await ctx.mailManager.moveToSpam(input.threadId);
+			await ctx.mailManager.messages.moveToSpam(input.threadId);
 		}),
 
 	unsubscribeFromThread: protectedProcedure
 		.input(z.object({ threadId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
-			await ctx.mailManager.unsubscribeFromThread(input.threadId);
+			await ctx.mailManager.unsubscribe.unsubscribeFromThread(input.threadId);
 		}),
 
 	markAsImportant: protectedProcedure
 		.input(z.object({ threadId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
-			await ctx.mailManager.markAsImportant(input.threadId);
+			await ctx.mailManager.messages.markAsImportant(input.threadId);
 		}),
 
 	getAttachment: protectedProcedure
@@ -108,10 +122,11 @@ export const threadsRouter = router({
 		)
 		.query(async ({ ctx, input }) => {
 			try {
-				const { buffer } = await ctx.mailManager.getAttachmentBuffer(
-					input.messageId,
-					input.attachmentId
-				);
+				const { buffer } =
+					await ctx.mailManager.attachments.getAttachmentBuffer(
+						input.messageId,
+						input.attachmentId
+					);
 
 				// Return as base64 data URL for direct use in img src
 				const base64Data = buffer.toString("base64");
@@ -126,5 +141,46 @@ export const threadsRouter = router({
 					message: `Failed to fetch attachment: ${error.message}`,
 				});
 			}
+		}),
+
+	markAsRead: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.messages.markAsRead(input);
+		}),
+
+	markAsUnread: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.messages.markAsUnread(input);
+		}),
+
+	addLabelToThread: protectedProcedure
+		.input(
+			z.object({
+				threadId: z.string(),
+				labelId: z.string(),
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			console.log(input);
+			await ctx.mailManager.messages.addLabelToThread(
+				input.threadId,
+				input.labelId
+			);
+		}),
+
+	removeLabelFromThread: protectedProcedure
+		.input(
+			z.object({
+				threadId: z.string(),
+				labelId: z.string(),
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.messages.removeLabelFromThread(
+				input.threadId,
+				input.labelId
+			);
 		}),
 });

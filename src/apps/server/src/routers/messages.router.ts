@@ -32,7 +32,7 @@ export const messagesRouter = router({
 			const { senderName, to, subject, body, cc, bcc, attachments } = input;
 
 			try {
-				await ctx.mailManager.sendEmail(
+				await ctx.mailManager.emailComposer.sendEmail(
 					senderName,
 					to,
 					subject,

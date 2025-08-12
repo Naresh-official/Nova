@@ -16,7 +16,7 @@ export const metadata: Metadata = {
 	title: "Nova - AI-Powered Email Client",
 	description: "Premium email experience with AI assistance",
 	icons: {
-		icon: "logo.svg",
+		icon: "/logo.svg",
 	},
 };
 

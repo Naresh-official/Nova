@@ -22,18 +22,18 @@ export function ManagementItems({ labels }: ManagementItemsProps) {
 	const managementItems = [
 		{
 			title: "Archive",
-			url: "/archive",
+			url: "/mail/archive",
 			icon: Archive,
 		},
 		{
 			title: "Spam",
-			url: "/spam",
+			url: "/mail/spam",
 			icon: AlertTriangle,
 			count: labels?.find((label) => label.name === "SPAM")?.threadsTotal || 0,
 		},
 		{
-			title: "Bin",
-			url: "/bin",
+			title: "Trash",
+			url: "/mail/trash",
 			icon: Trash2,
 			count: labels?.find((label) => label.name === "TRASH")?.threadsTotal || 0,
 		},

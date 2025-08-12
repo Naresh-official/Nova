@@ -12,7 +12,7 @@ export const labelsRouter = router({
 			})
 		)
 		.query(async ({ ctx }) => {
-			const labels = await ctx.mailManager.getLabels();
+			const labels = await ctx.mailManager.labels.getLabels();
 
 			const core = labels.filter(
 				(label) =>
@@ -51,12 +51,18 @@ export const labelsRouter = router({
 		.mutation(async ({ ctx, input }) => {
 			const { name, color } = input;
 
-			await ctx.mailManager.createLabel({
+			await ctx.mailManager.labels.createLabel({
 				name: name.trim(),
 				color: {
 					backgroundColor: color.backgroundColor?.trim(),
 					textColor: color.textColor?.trim(),
 				},
 			});
+		}),
+
+	deleteLabel: protectedProcedure
+		.input(z.string())
+		.mutation(async ({ ctx, input }) => {
+			await ctx.mailManager.labels.deleteLabel(input);
 		}),
 });

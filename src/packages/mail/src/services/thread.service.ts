@@ -10,6 +10,7 @@ export class ThreadService {
 		"DRAFT",
 		"SENT",
 		"STARRED",
+		"YELLOW_STAR",
 		"UNREAD",
 		"IMPORTANT",
 		"CATEGORY_PERSONAL",
@@ -18,6 +19,7 @@ export class ThreadService {
 		"CATEGORY_FORUMS",
 		"CATEGORY_PROMOTIONS",
 		"MUTED",
+		"ARCHIVE",
 	];
 
 	constructor(private client: GmailClient) {}
@@ -25,14 +27,18 @@ export class ThreadService {
 	async list(
 		pageToken = "",
 		q = "",
-		labelIds: string[] = ["INBOX"]
+		labelIds: string[] = [],
+		folder: string | undefined
 	): Promise<{ emails: ThreadResponse[]; nextPageToken?: string }> {
+		const effectiveLabelIds = this.getEffectiveLabelIds(labelIds, folder);
+		const effectiveQuery = this.buildEffectiveQuery(q, folder);
+
 		const res = await this.client.gmail.users.threads.list({
 			userId: "me",
-			labelIds: labelIds,
+			labelIds: effectiveLabelIds,
 			maxResults: 20,
 			pageToken,
-			q,
+			q: effectiveQuery,
 		});
 
 		if (!res.data.threads) return { emails: [], nextPageToken: undefined };
@@ -58,7 +64,8 @@ export class ThreadService {
 
 		const threadsWithDetails = this.processThreadDetails(
 			threadDetails,
-			userEmail || undefined
+			userEmail || undefined,
+			folder
 		);
 
 		return {
@@ -87,9 +94,32 @@ export class ThreadService {
 		return res.data as gmail_v1.Schema$Thread;
 	}
 
+	private getEffectiveLabelIds(
+		labelIds: string[],
+		folder: string | undefined
+	): string[] {
+		if (folder) {
+			// For ARCHIVE, we use Gmail search query instead of labelIds
+			if (folder.toUpperCase() === "ARCHIVE") {
+				return [];
+			}
+			return [folder.toUpperCase()];
+		}
+		return labelIds;
+	}
+
+	private buildEffectiveQuery(q: string, folder?: string): string {
+		if (folder?.toUpperCase() === "ARCHIVE") {
+			const archiveQuery = "in:archive";
+			return q ? `${archiveQuery} ${q}` : archiveQuery;
+		}
+		return q;
+	}
+
 	private processThreadDetails(
 		threadDetails: gmail_v1.Schema$Thread[],
-		userEmail?: string
+		userEmail?: string,
+		folder?: string
 	): ThreadResponse[] {
 		return threadDetails
 			.filter((response) => {
@@ -97,6 +127,20 @@ export class ThreadService {
 				const headers = response?.messages?.[0]?.payload?.headers || [];
 				const fromHeader =
 					headers.find((h: any) => h.name === "From")?.value || "";
+
+				if (folder) {
+					const folderLabel = folder.toUpperCase();
+
+					if (folderLabel === "ARCHIVE") {
+						return !labelIds.includes("INBOX");
+					}
+
+					if (folderLabel === "SENT") {
+						return labelIds.includes("SENT");
+					}
+
+					return labelIds.includes(folderLabel);
+				}
 
 				const isInboxNotSent =
 					labelIds.includes("INBOX") && !labelIds.includes("SENT");

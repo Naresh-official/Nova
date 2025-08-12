@@ -32,19 +32,22 @@ export class LabelService {
 		name: string;
 		color?: { backgroundColor: string; textColor: string };
 	}) {
+		const requestBody: any = {
+			name: label.name,
+			labelListVisibility: "labelShow",
+			messageListVisibility: "show",
+		};
+
+		if (label.color && label.color.backgroundColor && label.color.textColor) {
+			requestBody.color = mapToGoogleLabelColor({
+				backgroundColor: label.color.backgroundColor,
+				textColor: label.color.textColor,
+			});
+		}
+
 		await this.client.gmail.users.labels.create({
 			userId: "me",
-			requestBody: {
-				name: label.name,
-				labelListVisibility: "labelShow",
-				messageListVisibility: "show",
-				color: label.color
-					? mapToGoogleLabelColor({
-							backgroundColor: label.color.backgroundColor,
-							textColor: label.color.textColor,
-						})
-					: undefined,
-			},
+			requestBody,
 		});
 	}
 	async updateLabel(id: string, label: gmail_v1.Schema$Label) {
