@@ -7,6 +7,7 @@ import { EmailComposer } from "./services/emailComposer.service";
 import { UnsubscribeService } from "./services/unsubscribe.service";
 import { LabelService } from "./services/label.service";
 import { DraftService } from "./services/draft.service";
+import type { gmail_v1 } from "@googleapis/gmail";
 
 export class GoogleMailManager {
 	private client: GmailClient;
@@ -28,10 +29,6 @@ export class GoogleMailManager {
 		this.unsubscribe = new UnsubscribeService(this.client);
 		this.labels = new LabelService(this.client);
 		this.drafts = new DraftService(this.client);
-	}
-
-	async getUserProfile() {
-		return this.client.getUserProfile();
 	}
 
 	async revokeToken() {

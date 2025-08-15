@@ -5,13 +5,14 @@ export function ComposeFooter({
 	handleSend,
 	onFileSelect,
 	onImagesInsert,
+	onDelete,
 }: {
 	handleSend: () => void;
 	onFileSelect: (files: File[]) => void;
 	onImagesInsert: (base64Images: string[]) => void;
+	onDelete: () => void;
 }) {
 	const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		console.log("Files selected:", e.target.files);
 		const files = Array.from(e.target.files || []);
 		onFileSelect(files);
 		e.target.value = "";
@@ -20,8 +21,6 @@ export function ComposeFooter({
 	const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const files = Array.from(e.target.files || []);
 		if (!files.length) return;
-
-		console.log("Images selected:", files);
 
 		try {
 			const base64Images = await Promise.all(
@@ -41,7 +40,6 @@ export function ComposeFooter({
 				})
 			);
 
-			console.log("Base64 images ready:", base64Images.length);
 			onImagesInsert(base64Images);
 		} catch (error) {
 			console.error("Error processing images:", error);
@@ -111,6 +109,7 @@ export function ComposeFooter({
 				variant="ghost"
 				size="icon"
 				className="text-white/50 hover:text-white hover:bg-[#333]"
+				onClick={onDelete}
 			>
 				<Trash2 className="h-4 w-4" />
 			</Button>

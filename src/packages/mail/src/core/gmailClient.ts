@@ -52,6 +52,7 @@ export class GmailClient {
 	}
 
 	async getUserProfile() {
-		return await this.gmail.users.getProfile({ userId: "me" });
+		const res = await this.gmail.users.getProfile({ userId: "me" });
+		return res.data;
 	}
 }

@@ -39,7 +39,7 @@ export function NovaSidebar() {
 	};
 
 	return (
-		<div className="pt-2 pl-2">
+		<div>
 			<Sidebar className="border-0 h-[calc(100vh-18px)] m-2 rounded-xl overflow-x-hidden">
 				<SidebarHeader className="p-4 bg-transparent">
 					<div className="flex items-center gap-3">
@@ -51,8 +51,8 @@ export function NovaSidebar() {
 									<Image
 										src={userImage}
 										alt={userName}
-										width={40}
-										height={40}
+										width={20}
+										height={20}
 										className="w-full h-full object-cover"
 									/>
 								) : (
@@ -71,7 +71,10 @@ export function NovaSidebar() {
 									<div className="font-semibold text-white truncate">
 										{userName}
 									</div>
-									<div className="text-xs text-[#999] truncate">
+									<div
+										title={userEmail}
+										className="text-xs text-[#999] truncate"
+									>
 										{userEmail}
 									</div>
 								</>

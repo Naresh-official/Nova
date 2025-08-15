@@ -33,6 +33,9 @@ function EmailContent() {
 
 	const MessageParser = new ParseGmailApi();
 	const parsed = MessageParser.parseMessage(thread?.messages?.[0] || {});
+	const imageAttachments = attachments?.filter((attachment) =>
+		attachment.mimeType.startsWith("image/")
+	);
 
 	const [isClient, setIsClient] = useState(false);
 
@@ -83,14 +86,14 @@ function EmailContent() {
 
 	if (!threadId) {
 		return (
-			<div className="flex-1 bg-black flex flex-col rounded-lg scroll-container h-[calc(100vh-18px)]">
+			<div className="hidden sm:flex-1 bg-black sm:flex flex-col rounded-lg scroll-container h-[calc(100vh-18px)]">
 				<EmptyState />
 			</div>
 		);
 	}
 
 	return (
-		<div className="flex-1 bg-black flex flex-col rounded-lg scroll-container h-[calc(100vh-18px)]">
+		<div className="absolute sm:static sm:flex sm:flex-1 bg-black flex-col rounded-lg scroll-container sm:h-[calc(100vh-18px)]">
 			<EmailActionBar onPrint={handlePrint} />
 			<EmailMetaHeader
 				tags={parsed.labelIds}
@@ -120,6 +123,7 @@ function EmailContent() {
 			<EmailBodyDisplay
 				processedHtml={processedHtml}
 				plainText={parsed.textPlain}
+				imageAttachments={imageAttachments}
 			/>
 
 			<EmailAttachments attachments={attachments} />

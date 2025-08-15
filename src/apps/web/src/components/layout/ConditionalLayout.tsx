@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { SidebarProvider } from "@nova/ui/components/sidebar";
 import { NovaSidebar } from "@/components/sidebar/NovaSidebar";
 import { ComposeMail } from "../compose/components/ComposeMail";
+import { useIsMobile } from "@nova/ui/hooks/use-mobile";
 
 interface ConditionalLayoutProps {
 	children: React.ReactNode;
@@ -17,6 +18,8 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
 	const isComposeOpen = useSearchParams().get("isComposeOpen");
 
 	const folders = ["INBOX", "SENT", "DRAFTS", "ARCHIVE", "TRASH", "SPAM"];
+
+	const isMobile = useIsMobile();
 
 	const isMailPage = pathname.startsWith("/mail");
 	const isValidMailPage = folders.includes(
@@ -42,7 +45,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
 		<div className="h-screen w-full ">
 			<SidebarProvider defaultOpen={true}>
 				<NovaSidebar />
-				<main className="flex-1 overflow-auto">{children}</main>
+				<main className="w-full ml-0 md:ml-2">{children}</main>
 			</SidebarProvider>
 			{isComposeOpen && <ComposeMail />}
 		</div>

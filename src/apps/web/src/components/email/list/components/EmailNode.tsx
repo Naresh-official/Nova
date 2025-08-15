@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { formatDate } from "date-fns";
+import { format, isToday } from "date-fns";
 import type { ThreadResponse } from "@nova/server/types";
 import {
 	extractSenderEmail,
@@ -29,6 +29,11 @@ function EmailNodeBase(
 	const senderName = extractSenderName(email.sender);
 	const senderInitial = senderName[0].toUpperCase();
 	const senderDomain = getDomainFromEmail(extractSenderEmail(email.sender));
+
+	const emailDate = new Date(email.date);
+	const dateDisplay = isToday(emailDate)
+		? format(emailDate, "h:mm a")
+		: format(emailDate, "MMM dd, yyyy");
 
 	return (
 		<EmailContextMenu email={email}>
@@ -84,9 +89,7 @@ function EmailNodeBase(
 									/>
 								)}
 							</div>
-							<span className="text-xs text-[#999]">
-								{formatDate(email.date, "MMM dd, yyyy")}{" "}
-							</span>
+							<span className="text-xs text-[#999]">{dateDisplay}</span>
 						</div>
 						<div className="flex items-center justify-between gap-2">
 							<h3 className="flex-1 text-sm mb-1 line-clamp-1 text-muted-foreground">

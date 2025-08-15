@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { format } from "date-fns";
+import { format, isToday } from "date-fns";
 import Image from "next/image";
 import {
 	extractSenderEmail,
@@ -19,6 +19,11 @@ function DraftNode({ draft, selectedDraftId, onSelect }: DraftNodeProps) {
 	const senderName = extractSenderName(draft.sender);
 	const senderInitial = senderName[0]?.toUpperCase() || "?";
 	const senderDomain = getDomainFromEmail(extractSenderEmail(draft.sender));
+
+	const draftDate = new Date(draft.date);
+	const dateDisplay = isToday(draftDate)
+		? format(draftDate, "h:mm a")
+		: format(draftDate, "MMM dd, yyyy");
 
 	return (
 		<div
@@ -50,9 +55,7 @@ function DraftNode({ draft, selectedDraftId, onSelect }: DraftNodeProps) {
 						<span className="text-sm text-white truncate max-w-[60%]">
 							{senderName}
 						</span>
-						<span className="text-xs text-[#999]">
-							{format(new Date(draft.date), "MMM dd, yyyy")}
-						</span>
+						<span className="text-xs text-[#999]">{dateDisplay}</span>
 					</div>
 					<div className="text-sm text-muted-foreground truncate">
 						{draft.subject || "(No subject)"}

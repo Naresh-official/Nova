@@ -6,11 +6,19 @@ import { extractBodyContent } from "../utils/extractBodyContent";
 interface EmailBodyDisplayProps {
 	processedHtml: string | null;
 	plainText: string | null;
+	imageAttachments?: {
+		filename: string;
+		mimeType: string;
+		data: string;
+		size: number;
+		src: string;
+	}[];
 }
 
 const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 	processedHtml,
 	plainText,
+	imageAttachments,
 }) => {
 	const hostRef = useRef<HTMLDivElement>(null);
 	const shadowRootRef = useRef<ShadowRoot | null>(null);
@@ -51,16 +59,28 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 						overflow: "hidden",
 						borderRadius: "0.5rem",
 						margin: "2rem",
-						minHeight: "200px",
+						minHeight: "100px",
 					}}
 				/>
 			)}
 
 			{!injected && processedHtml && (
 				<div
-					className="mt-4 p-4 bg-black rounded-lg"
+					className="mt-4 bg-black px-4 rounded-lg"
 					dangerouslySetInnerHTML={{ __html: processedHtml }}
 				/>
+			)}
+			{imageAttachments && imageAttachments.length > 0 && (
+				<div className="grid grid-cols-2 gap-2 p-4">
+					{imageAttachments.map((attachment) => (
+						<img
+							key={attachment.filename}
+							src={attachment.data}
+							alt={attachment.filename}
+							className="rounded-lg"
+						/>
+					))}
+				</div>
 			)}
 			{!processedHtml && plainText && (
 				<div className="mt-4 p-4 rounded-lg">

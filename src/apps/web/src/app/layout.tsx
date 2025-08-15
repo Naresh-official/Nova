@@ -37,7 +37,7 @@ export default function RootLayout({
 								<ConditionalLayout>{children}</ConditionalLayout>
 								<Toaster />
 							</RefreshStoreProvider>
-							<ReactQueryDevtools initialIsOpen={false} />
+							{/* <ReactQueryDevtools initialIsOpen={false} /> */}
 						</QueryStoreProvider>
 					</NextAuthSessionProvider>
 				</TRPCProvider>

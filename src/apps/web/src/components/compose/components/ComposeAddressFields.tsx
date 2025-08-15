@@ -96,7 +96,7 @@ export function ComposeAddressFields({
 						onKeyDown={handleKeyDown}
 						className="text-sm p-3 focus:outline-none"
 						style={{
-							width: `${toValue.length === 0 ? 20 : toValue.length * 9 + 16}px`,
+							width: `${toValue.length === 0 ? 20 : toValue.length * 10 + 16}px`,
 							minWidth: "60px",
 							maxWidth: "350px",
 						}}

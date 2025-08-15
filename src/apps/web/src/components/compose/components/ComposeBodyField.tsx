@@ -54,15 +54,16 @@ export const ComposeBodyField = forwardRef<ComposeBodyFieldRef, Props>(
 				},
 				insertMultipleImages: (images: string[]) => {
 					if (editor) {
-						images.forEach((src, index) => {
-							if (index === 0) {
-								// Focus on the first image
-								editor.chain().focus().setImage({ src }).run();
-							} else {
-								// Add subsequent images
-								editor.chain().setImage({ src }).run();
-							}
-						});
+						// Build HTML content for all images with proper spacing
+						const imageHtml = images
+							.map(
+								(src) =>
+									`<p><img src="${src}" class="max-w-full h-auto rounded-md my-2" /></p>`
+							)
+							.join("");
+
+						// Insert all images at once at the current cursor position
+						editor.chain().focus().insertContent(imageHtml).run();
 					}
 				},
 			}),

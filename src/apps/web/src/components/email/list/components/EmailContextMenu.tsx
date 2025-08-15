@@ -10,7 +10,6 @@ import {
 	Trash2,
 	Mail,
 	AlertTriangle,
-	Heart,
 	Clock,
 	Zap,
 	Star,

@@ -1,6 +1,8 @@
 import type { gmail_v1 } from "@googleapis/gmail";
 import type { GmailClient } from "../core/gmailClient";
 import type { DraftResponse } from "../types";
+import { EmailComposer } from "./emailComposer.service";
+import { createRawMessage } from "../utils/createRawMessage";
 
 export class DraftService {
 	constructor(private client: GmailClient) {}
@@ -13,8 +15,8 @@ export class DraftService {
 		if (!res.data.drafts) return [];
 
 		const access_token = await this.client.getAccessToken();
-		const profile = await this.client.getUserProfile();
-		const userEmail = profile.data.emailAddress as string;
+		const userEmail = (await this.client.getUserProfile())
+			.emailAddress as string;
 
 		const draftDetails = await Promise.all(
 			res.data.drafts.map(async (draft) => {
@@ -55,6 +57,90 @@ export class DraftService {
 				internalDate: message?.internalDate as string,
 				threadId: message?.threadId as string,
 			};
+		});
+	}
+
+	async createDraft(
+		senderName: string,
+		to: string[],
+		subject: string,
+		body: string,
+		cc: string[] = [],
+		bcc: string[] = [],
+		attachments: { filename: string; mimeType: string; data: string }[] = []
+	) {
+		const senderEmail = (await this.client.getUserProfile())
+			.emailAddress as string;
+
+		const rawMessage = await createRawMessage(
+			senderName,
+			to,
+			subject,
+			body,
+			cc,
+			bcc,
+			attachments,
+			senderEmail
+		);
+
+		await this.client.gmail.users.drafts.create({
+			userId: "me",
+			requestBody: {
+				message: {
+					raw: rawMessage,
+				},
+			},
+		});
+	}
+
+	async updateDraft(
+		senderName: string,
+		to: string[],
+		subject: string,
+		body: string,
+		cc: string[] = [],
+		bcc: string[] = [],
+		attachments: { filename: string; mimeType: string; data: string }[] = [],
+		draftId: string
+	) {
+		const senderEmail = (await this.client.getUserProfile())
+			.emailAddress as string;
+
+		const rawMessage = await createRawMessage(
+			senderName,
+			to,
+			subject,
+			body,
+			cc,
+			bcc,
+			attachments,
+			senderEmail
+		);
+
+		await this.client.gmail.users.drafts.update({
+			userId: "me",
+			id: draftId,
+			requestBody: {
+				message: {
+					raw: rawMessage,
+				},
+			},
+		});
+	}
+
+	async getDraft(draftId: string) {
+		const res = await this.client.gmail.users.drafts.get({
+			userId: "me",
+			id: draftId,
+		});
+
+		return res.data;
+	}
+
+	async deleteDraft(draftId: string) {
+		await this.client.gmail.users.drafts.delete({
+			userId: "me",
+			id: draftId,
 		});
 	}
 }

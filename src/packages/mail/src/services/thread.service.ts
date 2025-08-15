@@ -45,7 +45,7 @@ export class ThreadService {
 
 		const access_token = await this.client.getAccessToken();
 		const profile = await this.client.getUserProfile();
-		const userEmail = profile.data.emailAddress;
+		const userEmail = profile.emailAddress;
 
 		const threadDetails = await Promise.all(
 			res.data.threads.map(
