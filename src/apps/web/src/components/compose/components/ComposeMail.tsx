@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ComposeHeader } from "./ComposeHeader";
 import { ComposeAddressFields } from "./ComposeAddressFields";
 import { ComposeSubjectField } from "./ComposeSubjectField";
@@ -12,19 +13,17 @@ import { trpc } from "@/lib/client";
 import { toast } from "sonner";
 import { convertToBase64 } from "../utils/convertToBase64";
 
-interface ComposeMailProps {
-	onCloseAction: () => void;
-}
-
 interface ImagePreview {
 	id: string;
 	src: string;
 	name: string;
 }
 
-export function ComposeMail({ onCloseAction }: ComposeMailProps) {
+export function ComposeMail() {
 	const sendMessage = trpc.messages.sendMessage.useMutation();
 	const bodyFieldRef = useRef<ComposeBodyFieldRef>(null);
+	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	const { data: session } = useSession();
 	const { email: userEmail, name: userName } = session?.user || {};
@@ -39,6 +38,18 @@ export function ComposeMail({ onCloseAction }: ComposeMailProps) {
 	const [isMinimized, setIsMinimized] = useState(false);
 	const [attachments, setAttachments] = useState<File[]>([]);
 	const [imagePreviews, setImagePreviews] = useState<ImagePreview[]>([]);
+
+	const onCloseAction = () => {
+		setIsMinimized(false);
+		setIsExpanded(false);
+
+		const params = new URLSearchParams(searchParams?.toString() || "");
+		params.delete("isComposeOpen");
+		const newUrl = params.toString()
+			? `?${params.toString()}`
+			: window.location.pathname;
+		router.push(newUrl);
+	};
 
 	const handleImagesInsert = (base64Images: string[]) => {
 		const newPreviews: ImagePreview[] = base64Images.map((src, index) => ({
