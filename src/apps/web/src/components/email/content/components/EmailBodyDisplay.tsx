@@ -2,6 +2,10 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { extractBodyContent } from "../utils/extractBodyContent";
+import {
+	detectLightBackgrounds,
+	getEnhancedShadowStyles,
+} from "../utils/processEmailContent";
 
 interface EmailBodyDisplayProps {
 	processedHtml: string | null;
@@ -37,10 +41,14 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 			// Extract body content to avoid full HTML nesting
 			const htmlContent = extractBodyContent(processedHtml);
 
-			// Clear previous content
+			// Clear previous content and set up enhanced styling
 			shadowRoot.innerHTML = `
-      <div class="email-wrapper">${htmlContent}</div>
-    `;
+				${getEnhancedShadowStyles()}
+				<div class="email-wrapper">${htmlContent}</div>
+				<script>
+					${detectLightBackgrounds()}
+				</script>
+			`;
 
 			setInjected(true);
 		} catch (error) {
@@ -67,9 +75,63 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 			{!injected && processedHtml && (
 				<div
 					className="mt-4 bg-black px-4 rounded-lg"
-					dangerouslySetInnerHTML={{ __html: processedHtml }}
+					style={{
+						// Fallback inline styles for when shadow DOM fails
+						color: "white",
+					}}
+					dangerouslySetInnerHTML={{
+						__html: `
+							<style>
+								/* Inline fallback styles */
+								* { color: white !important; }
+								a { color: #60A5FA !important; }
+								[style*="background-color: white"],
+								[style*="background-color:#fff"],
+								[style*="background-color: #fff"],
+								[style*="background-color:#ffffff"],
+								[style*="background-color: #ffffff"],
+								[style*="background-color:#FFFFFF"],
+								[style*="background-color: #FFFFFF"],
+								[style*="background: white"],
+								[style*="background:#fff"],
+								[style*="background: #fff"],
+								[style*="background:#ffffff"],
+								[style*="background: #ffffff"],
+								[style*="background:#FFFFFF"],
+								[style*="background: #FFFFFF"],
+								[bgcolor="white"],
+								[bgcolor="#fff"],
+								[bgcolor="#ffffff"],
+								[bgcolor="#FFFFFF"] {
+									color: black !important;
+								}
+								[style*="background-color: white"] *,
+								[style*="background-color:#fff"] *,
+								[style*="background-color: #fff"] *,
+								[style*="background-color:#ffffff"] *,
+								[style*="background-color: #ffffff"] *,
+								[style*="background-color:#FFFFFF"] *,
+								[style*="background-color: #FFFFFF"] *,
+								[style*="background: white"] *,
+								[style*="background:#fff"] *,
+								[style*="background: #fff"] *,
+								[style*="background:#ffffff"] *,
+								[style*="background: #ffffff"] *,
+								[style*="background:#FFFFFF"] *,
+								[style*="background: #FFFFFF"] *,
+								[bgcolor="white"] *,
+								[bgcolor="#fff"] *,
+								[bgcolor="#ffffff"] *,
+								[bgcolor="#FFFFFF"] * {
+									color: black !important;
+								}
+							</style>
+							${processedHtml}
+						`,
+					}}
 				/>
 			)}
+
 			{imageAttachments && imageAttachments.length > 0 && (
 				<div className="grid grid-cols-2 gap-2 p-4">
 					{imageAttachments.map((attachment) => (
@@ -82,9 +144,12 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 					))}
 				</div>
 			)}
+
 			{!processedHtml && plainText && (
 				<div className="mt-4 p-4 rounded-lg">
-					<pre className="whitespace-pre-wrap break-words">{plainText}</pre>
+					<pre className="whitespace-pre-wrap break-words text-white">
+						{plainText}
+					</pre>
 				</div>
 			)}
 		</div>

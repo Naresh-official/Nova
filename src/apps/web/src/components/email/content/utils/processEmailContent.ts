@@ -1,3 +1,4 @@
+// Enhanced email processing with better background detection
 import sanitizeHtml from "sanitize-html";
 import * as cheerio from "cheerio";
 
@@ -13,6 +14,61 @@ interface IAttachment {
 	data: string; // base64
 	size: number;
 	src: string; // X-Attachment-Id or similar
+}
+
+// Helper function to check if a color is light/white
+function isLightColor(color: string): boolean {
+	if (!color) return false;
+
+	// Normalize the color string
+	color = color.toLowerCase().trim();
+
+	// Check for explicit white values
+	const whiteValues = [
+		"white",
+		"#fff",
+		"#ffff",
+		"#ffffff",
+		"rgb(255,255,255)",
+		"rgb(255, 255, 255)",
+		"rgba(255,255,255,1)",
+		"rgba(255, 255, 255, 1)",
+		"hsl(0,0%,100%)",
+		"hsl(0, 0%, 100%)",
+	];
+
+	if (whiteValues.includes(color)) return true;
+
+	// Check RGB values
+	const rgbMatch = color.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+	if (rgbMatch) {
+		const [, r, g, b] = rgbMatch.map(Number);
+		// Consider colors with high brightness as light
+		const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+		return brightness > 200;
+	}
+
+	// Check hex values
+	const hexMatch = color.match(/^#([a-f\d]{3}|[a-f\d]{6})$/i);
+	if (hexMatch) {
+		const hex = hexMatch[1];
+		const r = parseInt(
+			hex.length === 3 ? hex[0] + hex[0] : hex.substr(0, 2),
+			16
+		);
+		const g = parseInt(
+			hex.length === 3 ? hex[1] + hex[1] : hex.substr(2, 2),
+			16
+		);
+		const b = parseInt(
+			hex.length === 3 ? hex[2] + hex[2] : hex.substr(4, 2),
+			16
+		);
+		const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+		return brightness > 200;
+	}
+
+	return false;
 }
 
 // Server-side: Heavy lifting, preference-independent processing
@@ -52,12 +108,7 @@ export function preprocessEmailHtml(html: string): string {
 
 		transformTags: {
 			"*": (tagName, attribs) => {
-				if (attribs.style) {
-					attribs.style = attribs.style.replace(
-						/(^|\s)color\s*:\s*[^;]+;?/gi,
-						""
-					);
-				}
+				// Don't remove color styles here - we'll handle them in client-side processing
 				return { tagName, attribs };
 			},
 			a: (tagName, attribs) => {
@@ -122,7 +173,7 @@ export function preprocessEmailHtml(html: string): string {
 	return $.html();
 }
 
-// Client-side: Light styling + image preferences
+// Client-side: Light styling + image preferences + intelligent text color handling
 export function applyEmailPreferences(
 	preprocessedHtml: string,
 	shouldLoadImages: boolean
@@ -147,15 +198,36 @@ export function applyEmailPreferences(
 		}
 	});
 
+	// Intelligently handle text colors based on backgrounds
+	$("*").each((_, el) => {
+		const $el = $(el);
+		const style = $el.attr("style") || "";
+		const bgColor = $el.attr("bgcolor");
+
+		// Check for background colors in style attribute
+		const bgColorMatch = style.match(/background(?:-color)?\s*:\s*([^;]+)/i);
+		const backgroundMatch = style.match(/background\s*:\s*([^;]+)/i);
+
+		let elementBgColor =
+			bgColor ||
+			(bgColorMatch && bgColorMatch[1]) ||
+			(backgroundMatch && backgroundMatch[1]);
+
+		if (elementBgColor && isLightColor(elementBgColor)) {
+			// Add a class to identify elements with light backgrounds
+			const existingClass = $el.attr("class") || "";
+			$el.attr("class", `${existingClass} light-bg-element`.trim());
+		}
+	});
+
 	const html = $.html();
 
-	// Apply theme-specific styles
+	// Apply theme-specific styles with better contrast handling
 	const themeStyles = `
-    <style type="text/css">
+    <style>
       :host {
         display: block;
         line-height: 1.5;
-        color: yellow !important;
       }
 
       *, *::before, *::after {
@@ -165,16 +237,100 @@ export function applyEmailPreferences(
       body {
         margin: 0;
         padding: 0;
+        color: white;
       }
 
+      /* Default dark theme styles */
       a {
         cursor: pointer;
-        color: #60a5fa;
+        color: #60A5FA !important;
         text-decoration: underline;
       }
 
-      p {
+      h1, h2, h3, h4, h5, h6, p, span, div, td, th {
         color: white !important;
+      }
+
+      /* Light background handling - more specific selectors */
+      .light-bg-element,
+      .light-bg-element *,
+      .light-bg-element h1,
+      .light-bg-element h2,
+      .light-bg-element h3,
+      .light-bg-element h4,
+      .light-bg-element h5,
+      .light-bg-element h6,
+      .light-bg-element p,
+      .light-bg-element span,
+      .light-bg-element div,
+      .light-bg-element td,
+      .light-bg-element th {
+        color: #000000 !important;
+      }
+
+      .light-bg-element a {
+        color: #1D4ED8 !important;
+      }
+
+      /* Additional patterns for white backgrounds */
+      [style*="background-color: white"],
+      [style*="background-color:#ffffff"],
+      [style*="background-color: #ffffff"],
+      [style*="background-color:#FFFFFF"],
+      [style*="background-color: #FFFFFF"],
+      [style*="background-color:rgb(255,255,255)"],
+      [style*="background-color: rgb(255, 255, 255)"],
+      [style*="background: white"],
+      [style*="background:#ffffff"],
+      [style*="background: #ffffff"],
+      [style*="background:#FFFFFF"],
+      [style*="background: #FFFFFF"],
+      [style*="background:rgb(255,255,255)"],
+      [style*="background: rgb(255, 255, 255)"],
+      [bgcolor="white"],
+      [bgcolor="#ffffff"],
+      [bgcolor="#FFFFFF"] {
+        color: #000000 !important;
+      }
+
+      [style*="background-color: white"] *,
+      [style*="background-color:#ffffff"] *,
+      [style*="background-color: #ffffff"] *,
+      [style*="background-color:#FFFFFF"] *,
+      [style*="background-color: #FFFFFF"] *,
+      [style*="background-color:rgb(255,255,255)"] *,
+      [style*="background-color: rgb(255, 255, 255)"] *,
+      [style*="background: white"] *,
+      [style*="background:#ffffff"] *,
+      [style*="background: #ffffff"] *,
+      [style*="background:#FFFFFF"] *,
+      [style*="background: #FFFFFF"] *,
+      [style*="background:rgb(255,255,255)"] *,
+      [style*="background: rgb(255, 255, 255)"] *,
+      [bgcolor="white"] *,
+      [bgcolor="#ffffff"] *,
+      [bgcolor="#FFFFFF"] * {
+        color: #000000 !important;
+      }
+
+      [style*="background-color: white"] a,
+      [style*="background-color:#ffffff"] a,
+      [style*="background-color: #ffffff"] a,
+      [style*="background-color:#FFFFFF"] a,
+      [style*="background-color: #FFFFFF"] a,
+      [style*="background-color:rgb(255,255,255)"] a,
+      [style*="background-color: rgb(255, 255, 255)"] a,
+      [style*="background: white"] a,
+      [style*="background:#ffffff"] a,
+      [style*="background: #ffffff"] a,
+      [style*="background:#FFFFFF"] a,
+      [style*="background: #FFFFFF"] a,
+      [style*="background:rgb(255,255,255)"] a,
+      [style*="background: rgb(255, 255, 255)"] a,
+      [bgcolor="white"] a,
+      [bgcolor="#ffffff"] a,
+      [bgcolor="#FFFFFF"] a {
+        color: #1D4ED8 !important;
       }
 
       table {
@@ -213,8 +369,8 @@ export function applyEmailPreferences(
         border-radius: 8px !important;
         display: block !important;
       }
-  </style>
-`;
+    </style>
+  `;
 
 	const finalHtml = html.includes("<head")
 		? html.replace(/<head[^>]*>/i, (match) => `${match}\n${themeStyles}`)
@@ -270,3 +426,166 @@ export function processEmailHtml({
 	const withInlines = injectInlineAttachments(preprocessed, inlineAttachments);
 	return applyEmailPreferences(withInlines, shouldLoadImages);
 }
+
+// Updated React component styles
+export const getEnhancedShadowStyles = () => `
+<style>
+	/* Base styles */
+	a {
+		color: white !important;
+	}
+
+	/* JavaScript-enhanced background detection */
+	.email-wrapper {
+		color: white;
+	}
+
+	/* Comprehensive white background detection */
+	[style*="background-color: white"],
+	[style*="background-color:#fff"],
+	[style*="background-color: #fff"],
+	[style*="background-color:#ffffff"],
+	[style*="background-color: #ffffff"],
+	[style*="background-color:#FFFFFF"],
+	[style*="background-color: #FFFFFF"],
+	[style*="background-color:rgb(255,255,255)"],
+	[style*="background-color: rgb(255, 255, 255)"],
+	[style*="background-color:rgb(255,255,255,1)"],
+	[style*="background-color: rgb(255, 255, 255, 1)"],
+	[style*="background: white"],
+	[style*="background:#fff"],
+	[style*="background: #fff"],
+	[style*="background:#ffffff"],
+	[style*="background: #ffffff"],
+	[style*="background:#FFFFFF"],
+	[style*="background: #FFFFFF"],
+	[style*="background:rgb(255,255,255)"],
+	[style*="background: rgb(255, 255, 255)"],
+	[bgcolor="white"],
+	[bgcolor="#fff"],
+	[bgcolor="#ffffff"],
+	[bgcolor="#FFFFFF"],
+	.light-bg-detected {
+		color: black !important;
+	}
+
+	[style*="background-color: white"] *,
+	[style*="background-color:#fff"] *,
+	[style*="background-color: #fff"] *,
+	[style*="background-color:#ffffff"] *,
+	[style*="background-color: #ffffff"] *,
+	[style*="background-color:#FFFFFF"] *,
+	[style*="background-color: #FFFFFF"] *,
+	[style*="background-color:rgb(255,255,255)"] *,
+	[style*="background-color: rgb(255, 255, 255)"] *,
+	[style*="background-color:rgb(255,255,255,1)"] *,
+	[style*="background-color: rgb(255, 255, 255, 1)"] *,
+	[style*="background: white"] *,
+	[style*="background:#fff"] *,
+	[style*="background: #fff"] *,
+	[style*="background:#ffffff"] *,
+	[style*="background: #ffffff"] *,
+	[style*="background:#FFFFFF"] *,
+	[style*="background: #FFFFFF"] *,
+	[style*="background:rgb(255,255,255)"] *,
+	[style*="background: rgb(255, 255, 255)"] *,
+	[bgcolor="white"] *,
+	[bgcolor="#fff"] *,
+	[bgcolor="#ffffff"] *,
+	[bgcolor="#FFFFFF"] *,
+	.light-bg-detected * {
+		color: black !important;
+	}
+
+	/* Keep links readable on light backgrounds */
+	[style*="background-color: white"] a,
+	[style*="background-color:#fff"] a,
+	[style*="background-color: #fff"] a,
+	[style*="background-color:#ffffff"] a,
+	[style*="background-color: #ffffff"] a,
+	[style*="background-color:#FFFFFF"] a,
+	[style*="background-color: #FFFFFF"] a,
+	[style*="background-color:rgb(255,255,255)"] a,
+	[style*="background-color: rgb(255, 255, 255)"] a,
+	[style*="background: white"] a,
+	[style*="background:#fff"] a,
+	[style*="background: #fff"] a,
+	[style*="background:#ffffff"] a,
+	[style*="background: #ffffff"] a,
+	[style*="background:#FFFFFF"] a,
+	[style*="background: #FFFFFF"] a,
+	[style*="background:rgb(255,255,255)"] a,
+	[style*="background: rgb(255, 255, 255)"] a,
+	[bgcolor="white"] a,
+	[bgcolor="#fff"] a,
+	[bgcolor="#ffffff"] a,
+	[bgcolor="#FFFFFF"] a,
+	.light-bg-detected a {
+		color: #1D4ED8 !important;
+	}
+</style>
+`;
+
+// JavaScript function to detect light backgrounds
+export const detectLightBackgrounds = () => `
+	// Function to check if a color is light
+	function isLightColor(color) {
+		if (!color) return false;
+		
+		color = color.toLowerCase().trim();
+		
+		// Check for explicit white values
+		const whiteValues = [
+			'white', '#fff', '#ffff', '#ffffff',
+			'rgb(255,255,255)', 'rgb(255, 255, 255)',
+			'rgba(255,255,255,1)', 'rgba(255, 255, 255, 1)'
+		];
+		
+		if (whiteValues.includes(color)) return true;
+		
+		// Check RGB values
+		const rgbMatch = color.match(/rgb\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)\\s*\\)/);
+		if (rgbMatch) {
+			const [, r, g, b] = rgbMatch.map(Number);
+			const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+			return brightness > 200;
+		}
+		
+		// Check hex values
+		const hexMatch = color.match(/^#([a-f\\d]{3}|[a-f\\d]{6})$/i);
+		if (hexMatch) {
+			const hex = hexMatch[1];
+			const r = parseInt(hex.length === 3 ? hex[0] + hex[0] : hex.substr(0, 2), 16);
+			const g = parseInt(hex.length === 3 ? hex[1] + hex[1] : hex.substr(2, 2), 16);
+			const b = parseInt(hex.length === 3 ? hex[2] + hex[2] : hex.substr(4, 2), 16);
+			const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+			return brightness > 200;
+		}
+		
+		return false;
+	}
+
+	// Check all elements for light backgrounds
+	function detectAndMarkLightBackgrounds() {
+		const elements = document.querySelectorAll('*');
+		elements.forEach(el => {
+			const computedStyle = window.getComputedStyle(el);
+			const bgColor = computedStyle.backgroundColor;
+			const bgImg = computedStyle.backgroundImage;
+			
+			// Skip elements with background images (they might not be light)
+			if (bgImg && bgImg !== 'none') return;
+			
+			if (isLightColor(bgColor)) {
+				el.classList.add('light-bg-detected');
+			}
+		});
+	}
+
+	// Run detection when DOM is ready
+	if (document.readyState === 'loading') {
+		document.addEventListener('DOMContentLoaded', detectAndMarkLightBackgrounds);
+	} else {
+		detectAndMarkLightBackgrounds();
+	}
+`;
