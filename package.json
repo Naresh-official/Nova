@@ -8,6 +8,8 @@
 		"lint": "turbo lint",
 		"format": "prettier --write \"**/*.{ts,tsx,js,jsx,md,json,yaml,yml}\"",
 		"format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,md,json,yaml,yml}\"",
+		"build:web": "pnpm --filter @nova/web run build",
+		"build:server": "pnpm turbo run build --filter @nova/server",
 		"start:web": "pnpm --filter @nova/web run start",
 		"start:server": "pnpm --filter @nova/server run start"
 	},
