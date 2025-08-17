@@ -52,6 +52,10 @@
 		"typescript": "^5.8.3"
 	},
 	"turbo": {
+		"outputs": [
+			".next/**",
+			"!.next/cache/**"
+		],
 		"env": [
 			"GOOGLE_CLIENT_ID",
 			"GOOGLE_CLIENT_SECRET",
