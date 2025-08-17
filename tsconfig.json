@@ -1,3 +1,4 @@
 {
-	"extends": "@nova/typescript-config/base.json"
+	"extends": "@nova/typescript-config/base.json",
+	"exclude": ["node_modules", "packages/eslint-config/**/*.js"]
 }

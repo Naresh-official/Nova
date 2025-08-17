@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import type { ThreadResponse } from "@nova/server/types";
+import type { ThreadResponse } from "@server/types";
 import { trpc } from "@/lib/client";
 import { useQueryStore } from "@/components/providers/QueryStoreProvider";
 

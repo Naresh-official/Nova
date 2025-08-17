@@ -1,5 +1,5 @@
 import type { CreateExpressContextOptions } from "@trpc/server/adapters/express";
-import { PrismaClient } from "generated/prisma";
+import { PrismaClient } from "@prisma/client";
 
 export const prisma = new PrismaClient();
 

@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
-import { DraftResponseSchema } from "src/schemas/draft.schema";
-import { protectedProcedure, router } from "src/trpc";
 import { z } from "zod";
+import { DraftResponseSchema } from "@server/schemas";
+import { protectedProcedure, router } from "@server/trpc";
 
 export const draftRouter = router({
 	listDrafts: protectedProcedure

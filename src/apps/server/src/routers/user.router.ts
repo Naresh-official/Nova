@@ -1,5 +1,5 @@
-import type { User } from "../types";
-import { publicProcedure, router } from "../trpc";
+import type { User } from "@server/types";
+import { publicProcedure, router } from "@server/trpc";
 import { z } from "zod";
 
 export const userRouter = router({

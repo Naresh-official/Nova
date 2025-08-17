@@ -1,6 +1,6 @@
-import { SchemaLabel } from "src/schemas";
-import { protectedProcedure, router } from "src/trpc";
+import { protectedProcedure, router } from "@server/trpc";
 import { z } from "zod";
+import { SchemaLabel } from "@server/schemas";
 
 export const labelsRouter = router({
 	getLabels: protectedProcedure

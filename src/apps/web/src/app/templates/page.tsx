@@ -7,7 +7,7 @@ export default function TemplatesPage() {
 		<div className="flex h-screen bg-[#0D0D0D]">
 			<NovaSidebar />
 			<SidebarInset className="flex-1 flex flex-col">
-				<NovaHeader title="Templates" />
+				<NovaHeader />
 
 				<div className="flex-1 flex items-center justify-center animate-fade-in">
 					<div className="text-center">

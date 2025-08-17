@@ -12,7 +12,7 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 		trpc.createClient({
 			links: [
 				loggerLink({
-					enabled: (opts) => process.env.NODE_ENV === "development",
+					enabled: () => process.env.NODE_ENV === "development",
 				}),
 				httpBatchLink({
 					url:

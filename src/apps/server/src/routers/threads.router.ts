@@ -1,8 +1,7 @@
-import { ThreadResponseSchema } from "src/schemas";
-import { protectedProcedure, router } from "../trpc";
+import { ThreadResponseSchema } from "@server/schemas";
+import { protectedProcedure, router } from "@server/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { DraftResponseSchema } from "src/schemas/draft.schema";
 
 const allowedLabelIds = z.enum([
 	"INBOX",

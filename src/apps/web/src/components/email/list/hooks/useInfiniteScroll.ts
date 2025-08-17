@@ -1,12 +1,10 @@
 import { useCallback, useRef } from "react";
-import type { ThreadResponse } from "@nova/server/types";
 
 interface UseInfiniteScrollProps {
 	isLoading: boolean;
 	isFetchingNextPage: boolean;
 	hasNextPage: boolean | undefined;
 	fetchNextPage: () => void;
-	emails: ThreadResponse[];
 }
 
 export function useInfiniteScroll({
@@ -14,7 +12,6 @@ export function useInfiniteScroll({
 	isFetchingNextPage,
 	hasNextPage,
 	fetchNextPage,
-	emails,
 }: UseInfiniteScrollProps) {
 	const observer = useRef<IntersectionObserver | null>(null);
 

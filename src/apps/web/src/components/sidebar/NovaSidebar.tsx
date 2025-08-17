@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Pencil } from "lucide-react";
+import { Suspense } from "react";
 import {
 	Sidebar,
 	SidebarContent,
@@ -11,7 +12,6 @@ import {
 } from "@nova/ui/components/sidebar";
 import { Button } from "@nova/ui/components/button";
 import { Skeleton } from "@nova/ui/components/skeleton";
-import type { Dispatch, SetStateAction } from "react";
 import { CoreItems } from "./CoreItems";
 import { ManagementItems } from "./ManagementItems";
 import { Labels } from "./Labels";
@@ -19,7 +19,7 @@ import { BottomItems } from "./BottomItems";
 import { trpc } from "@/lib/client";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export function NovaSidebar() {
+function NovaSidebarContent() {
 	const { data: session, status } = useSession();
 	const { data: labels } = trpc.labels.getLabels.useQuery();
 	const router = useRouter();
@@ -110,5 +110,19 @@ export function NovaSidebar() {
 				</SidebarContent>
 			</Sidebar>
 		</div>
+	);
+}
+
+export function NovaSidebar() {
+	return (
+		<Suspense
+			fallback={
+				<div className="border-0 h-[calc(100vh-18px)] m-2 rounded-xl overflow-x-hidden w-64 bg-[#1a1a1a] flex items-center justify-center">
+					<div className="text-white">Loading sidebar...</div>
+				</div>
+			}
+		>
+			<NovaSidebarContent />
+		</Suspense>
 	);
 }

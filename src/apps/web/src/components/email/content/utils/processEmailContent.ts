@@ -208,7 +208,7 @@ export function applyEmailPreferences(
 		const bgColorMatch = style.match(/background(?:-color)?\s*:\s*([^;]+)/i);
 		const backgroundMatch = style.match(/background\s*:\s*([^;]+)/i);
 
-		let elementBgColor =
+		const elementBgColor =
 			bgColor ||
 			(bgColorMatch && bgColorMatch[1]) ||
 			(backgroundMatch && backgroundMatch[1]);

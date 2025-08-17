@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
@@ -15,7 +15,7 @@ import { ComposeBodyField } from "./ComposeBodyField";
 import { ComposeFooter } from "./ComposeFooter";
 import { ParseGmailApi } from "gmail-api-parse-message-ts";
 
-export function ComposeMail() {
+function ComposeMailInner() {
 	const utils = trpc.useUtils();
 	const sendMessage = trpc.messages.sendMessage.useMutation();
 	const saveDraft = trpc.drafts.saveDraft.useMutation({
@@ -286,5 +286,13 @@ export function ComposeMail() {
 				)}
 			</div>
 		</>
+	);
+}
+
+export function ComposeMail() {
+	return (
+		<Suspense fallback={<div>Loading Compose Mail...</div>}>
+			<ComposeMailInner />
+		</Suspense>
 	);
 }

@@ -1,11 +1,9 @@
 import React, { useState } from "react";
-import { MoreHorizontal } from "lucide-react";
 import {
 	formatDateString,
 	formatTimeString,
 	getDomainFromEmail,
 } from "@/lib/parsers";
-import { Button } from "@nova/ui/components/button";
 import Image from "next/image";
 import {
 	DropdownMenu,

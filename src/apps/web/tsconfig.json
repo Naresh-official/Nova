@@ -1,27 +1,47 @@
 {
-	"extends": "@nova/typescript-config/nextjs.json",
-	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["./src/*"],
-			"@nova/ui/*": ["../../packages/ui/src/*"],
-			"@nova/server/*": ["../server/src/*"]
-		},
-		"plugins": [
-			{
-				"name": "next"
-			}
-		],
-		"lib": ["dom", "dom.iterable", "esnext"],
-		"composite": true
-	},
-	"include": [
-		"next-env.d.ts",
-		"next.config.ts",
-		"src/**/*.ts",
-		"src/**/*.tsx",
-		".next/types/**/*.ts"
-	],
-	"exclude": ["node_modules"],
-	"references": [{ "path": "../server" }, { "path": "../../packages/ui" }]
+  "extends": "@nova/typescript-config/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@nova/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@server/*": [
+        "../server/src/*"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "composite": true
+  },
+  "include": [
+    "next-env.d.ts",
+    "next.config.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "../server"
+  ],
+  "references": [
+    {
+      "path": "../server"
+    },
+    {
+      "path": "../../packages/ui"
+    }
+  ]
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import type { ThreadResponse } from "@nova/server/types";
+import type { ThreadResponse } from "@server/types";
 import {
 	ExternalLink,
 	Reply,

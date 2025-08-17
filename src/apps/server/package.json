@@ -4,8 +4,8 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "tsx watch src/index.ts",
-		"build": "tsc --build",
+		"dev": "tsx src/index.ts",
+		"build": "prisma generate && tsup --tsconfig tsconfig.build.json",
 		"start": "node dist/index.js",
 		"studio": "prisma studio"
 	},

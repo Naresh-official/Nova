@@ -11,7 +11,6 @@ import { Input } from "@nova/ui/components/input";
 
 export default function SettingsPage() {
 	const [notifications, setNotifications] = useState(true);
-	const [darkMode, setDarkMode] = useState(true);
 	const [autoLabel, setAutoLabel] = useState(true);
 	const [readReceipts, setReadReceipts] = useState(false);
 
@@ -19,7 +18,7 @@ export default function SettingsPage() {
 		<div className="flex h-screen bg-[#0D0D0D]">
 			<NovaSidebar />
 			<SidebarInset className="flex-1 flex flex-col">
-				<NovaHeader title="Settings" />
+				<NovaHeader />
 
 				<div className="flex-1 p-6 animate-fade-in">
 					<div className="max-w-2xl mx-auto space-y-8">

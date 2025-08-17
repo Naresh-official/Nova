@@ -1,6 +1,7 @@
+"use client";
+
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { trpc } from "@/lib/client";
-import type { ThreadResponse } from "@nova/server/types";
 import { useQueryStore } from "@/components/providers/QueryStoreProvider";
 
 export function useEmailActions(specificThreadId?: string) {

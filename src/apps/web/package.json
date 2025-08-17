@@ -6,6 +6,7 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "next build",
+		"build:no-lint": "SKIP_ENV_VALIDATION=true next build",
 		"start": "next start",
 		"lint": "next lint",
 		"lint:fix": "next lint --fix",
@@ -49,6 +50,15 @@
 		"@types/sanitize-html": "^2.16.0",
 		"tailwind-scrollbar": "^4.0.2",
 		"typescript": "^5.8.3"
+	},
+	"turbo": {
+		"env": [
+			"GOOGLE_CLIENT_ID",
+			"GOOGLE_CLIENT_SECRET",
+			"BACKEND_URL",
+			"NEXTAUTH_SECRET",
+			"NODE_ENV"
+		]
 	},
 	"packageManager": "pnpm@10.13.1"
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { trpc } from "@/lib/client";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, Suspense } from "react";
 import { ParseGmailApi } from "gmail-api-parse-message-ts";
 import { useSession } from "next-auth/react";
 import { Button } from "@nova/ui/components/button";
@@ -20,7 +20,7 @@ import SenderInfo from "./SenderInfo";
 import EmailAttachments from "./EmailAttachments";
 import EmailBodyDisplay from "./EmailBodyDisplay";
 
-function EmailContent() {
+function EmailContentInner() {
 	const { data: session } = useSession();
 	const searchParams = useSearchParams();
 	const threadId = searchParams.get("threadId");
@@ -143,6 +143,20 @@ function EmailContent() {
 				</Button>
 			</div>
 		</div>
+	);
+}
+
+function EmailContent() {
+	return (
+		<Suspense
+			fallback={
+				<div className="flex-1 flex items-center justify-center text-gray-500">
+					Loading email content...
+				</div>
+			}
+		>
+			<EmailContentInner />
+		</Suspense>
 	);
 }
 

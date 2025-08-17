@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import type { DraftResponse } from "@nova/server/types";
+import type { DraftResponse } from "@server/types";
 import { trpc } from "@/lib/client";
 import DraftNode from "./DraftNode";
 import LoadingSkeleton from "./LoadingSkeleton";
@@ -12,7 +12,7 @@ interface DraftListContentProps {
 	isRefreshing: boolean;
 }
 
-function DraftListContent({ isRefreshing }: DraftListContentProps) {
+function DraftListContentInner({ isRefreshing }: DraftListContentProps) {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
@@ -62,6 +62,14 @@ function DraftListContent({ isRefreshing }: DraftListContentProps) {
 				/>
 			))}
 		</>
+	);
+}
+
+function DraftListContent({ isRefreshing }: DraftListContentProps) {
+	return (
+		<Suspense fallback={<LoadingSkeleton />}>
+			<DraftListContentInner isRefreshing={isRefreshing} />
+		</Suspense>
 	);
 }
 

@@ -11,7 +11,7 @@ import {
 	SidebarMenuItem,
 	SidebarMenuButton,
 } from "@nova/ui/components/sidebar";
-import type { SchemaLabelType } from "@nova/server/schemas";
+import type { SchemaLabelType } from "@server/schemas";
 
 interface ManagementItemsProps {
 	labels: SchemaLabelType[] | undefined;

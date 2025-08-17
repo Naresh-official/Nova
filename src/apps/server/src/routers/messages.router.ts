@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { protectedProcedure, router } from "src/trpc";
+import { protectedProcedure, router } from "@server/trpc";
 import { z } from "zod";
 
 export const messagesRouter = router({

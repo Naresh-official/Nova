@@ -6,7 +6,7 @@ import {
 	extractSenderName,
 	getDomainFromEmail,
 } from "@/lib/parsers";
-import type { DraftResponse } from "@nova/server/types";
+import type { DraftResponse } from "@server/types";
 interface DraftNodeProps {
 	draft: DraftResponse;
 	selectedDraftId?: string;

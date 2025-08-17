@@ -16,8 +16,7 @@ import { ReplyAll, Archive, Star, Trash2 } from "lucide-react";
 import { useEmailActions } from "@/hooks/useEmailActions";
 
 function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
-	const { currentThreadId, actions, isStarred, disableNext, disablePrev } =
-		useEmailActions();
+	const { actions, isStarred, disableNext, disablePrev } = useEmailActions();
 
 	return (
 		<div className="flex items-center justify-between p-2 rounded-lg font-sans">

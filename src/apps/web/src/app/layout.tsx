@@ -5,7 +5,7 @@ import "@nova/ui/globals.css";
 import { ConditionalLayout } from "@/components/layout/ConditionalLayout";
 import { TRPCProvider } from "@/components/providers/TRPCProvider";
 import NextAuthSessionProvider from "@/components/providers/SessionProvider";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { QueryStoreProvider } from "@/components/providers/QueryStoreProvider";
 import { RefreshStoreProvider } from "@/components/providers/RefreshStoreProvider";
 import { Toaster } from "@nova/ui/components/sonner";

@@ -10,7 +10,7 @@ export default function LoginPage() {
 	const handleGoogleSignIn = async () => {
 		try {
 			setLoading(true);
-			await signIn("google", { callbackUrl: "/inbox" });
+			await signIn("google", { callbackUrl: "/mail/inbox" });
 		} catch (error) {
 			console.error("Error signing in with Google:", error);
 		} finally {

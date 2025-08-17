@@ -1,6 +1,7 @@
 "use client";
 
 import { Bookmark, Trash2 } from "lucide-react";
+import { Suspense } from "react";
 import {
 	SidebarGroup,
 	SidebarGroupContent,
@@ -26,7 +27,7 @@ import {
 	AlertDialogTitle,
 	AlertDialogTrigger,
 } from "@nova/ui/components/alert-dialog";
-import type { SchemaLabelType } from "@nova/server/schemas";
+import type { SchemaLabelType } from "@server/schemas";
 import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { trpc } from "@/lib/client";
@@ -37,7 +38,7 @@ interface LabelsProps {
 	labels: SchemaLabelType[] | undefined;
 }
 
-export function Labels({ labels }: LabelsProps) {
+function LabelsContent({ labels }: LabelsProps) {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -168,5 +169,26 @@ export function Labels({ labels }: LabelsProps) {
 				</SidebarMenu>
 			</SidebarGroupContent>
 		</SidebarGroup>
+	);
+}
+
+export function Labels({ labels }: LabelsProps) {
+	return (
+		<Suspense
+			fallback={
+				<SidebarGroup>
+					<SidebarGroupLabel className="text-[#999] text-xs font-medium mb-2">
+						Labels
+					</SidebarGroupLabel>
+					<SidebarGroupContent>
+						<div className="pl-8 py-1 text-sm text-muted-foreground">
+							Loading labels...
+						</div>
+					</SidebarGroupContent>
+				</SidebarGroup>
+			}
+		>
+			<LabelsContent labels={labels} />
+		</Suspense>
 	);
 }

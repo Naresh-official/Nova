@@ -18,6 +18,10 @@
 		"verbatimModuleSyntax": true,
 		"allowImportingTsExtensions": true,
 		"allowArbitraryExtensions": true,
-		"types": ["node"]
+		"types": ["node"],
+		"baseUrl": ".",
+		"paths": {
+			"src/*": ["./src/*"]
+		}
 	}
 }

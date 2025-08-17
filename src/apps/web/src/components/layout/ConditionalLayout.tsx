@@ -1,25 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { redirect } from "next/navigation";
 import { SidebarProvider } from "@nova/ui/components/sidebar";
 import { NovaSidebar } from "@/components/sidebar/NovaSidebar";
 import { ComposeMail } from "../compose/components/ComposeMail";
-import { useIsMobile } from "@nova/ui/hooks/use-mobile";
 
 interface ConditionalLayoutProps {
 	children: React.ReactNode;
 }
 
-export function ConditionalLayout({ children }: ConditionalLayoutProps) {
+function ConditionalLayoutContent({ children }: ConditionalLayoutProps) {
 	const pathname = usePathname();
 
 	const isComposeOpen = useSearchParams().get("isComposeOpen");
 
 	const folders = ["INBOX", "SENT", "DRAFTS", "ARCHIVE", "TRASH", "SPAM"];
-
-	const isMobile = useIsMobile();
 
 	const isMailPage = pathname.startsWith("/mail");
 	const isValidMailPage = folders.includes(
@@ -49,5 +46,19 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
 			</SidebarProvider>
 			{isComposeOpen && <ComposeMail />}
 		</div>
+	);
+}
+
+export function ConditionalLayout({ children }: ConditionalLayoutProps) {
+	return (
+		<Suspense
+			fallback={
+				<div className="h-screen w-full bg-[#101010] flex items-center justify-center text-white">
+					Loading...
+				</div>
+			}
+		>
+			<ConditionalLayoutContent>{children}</ConditionalLayoutContent>
+		</Suspense>
 	);
 }

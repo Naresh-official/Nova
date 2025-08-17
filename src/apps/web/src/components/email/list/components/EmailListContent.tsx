@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { trpc } from "@/lib/client";
 import { useQueryStore } from "@/components/providers/QueryStoreProvider";
@@ -16,7 +16,18 @@ interface EmailListContentProps {
 	isRefreshing: boolean;
 }
 
-function EmailListContent({ folder, isRefreshing }: EmailListContentProps) {
+export default function EmailListContent({
+	folder,
+	isRefreshing,
+}: EmailListContentProps) {
+	return (
+		<Suspense fallback={<div>Loading emails...</div>}>
+			<Content folder={folder} isRefreshing={isRefreshing} />
+		</Suspense>
+	);
+}
+
+function Content({ folder, isRefreshing }: EmailListContentProps) {
 	const router = useRouter();
 	const query = useQueryStore((state) => state.query);
 	const labelIds = useQueryStore((state) => state.labelIds);
@@ -43,23 +54,16 @@ function EmailListContent({ folder, isRefreshing }: EmailListContentProps) {
 		isFetchingNextPage,
 		hasNextPage,
 		fetchNextPage,
-		emails,
 	});
 
-	// Handle auth errors
 	React.useEffect(() => {
 		if (error?.data?.code === "UNAUTHORIZED") {
 			router.push("/login");
 		}
 	}, [error, router]);
 
-	if (isLoading || isRefreshing) {
-		return <LoadingSkeleton />;
-	}
-
-	if (emails.length === 0) {
-		return <EmptyState message="No emails found" />;
-	}
+	if (isLoading || isRefreshing) return <LoadingSkeleton />;
+	if (emails.length === 0) return <EmptyState message="No emails found" />;
 
 	return (
 		<>
@@ -80,5 +84,3 @@ function EmailListContent({ folder, isRefreshing }: EmailListContentProps) {
 		</>
 	);
 }
-
-export default EmailListContent;

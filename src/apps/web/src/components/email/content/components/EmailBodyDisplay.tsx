@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { extractBodyContent } from "../utils/extractBodyContent";
 import {
 	detectLightBackgrounds,
@@ -135,12 +136,15 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 			{imageAttachments && imageAttachments.length > 0 && (
 				<div className="grid grid-cols-2 gap-2 p-4">
 					{imageAttachments.map((attachment) => (
-						<img
-							key={attachment.filename}
-							src={attachment.data}
-							alt={attachment.filename}
-							className="rounded-lg"
-						/>
+						<div key={attachment.filename} className="relative aspect-square">
+							<Image
+								src={attachment.data}
+								alt={attachment.filename}
+								fill
+								className="rounded-lg object-cover"
+								sizes="(max-width: 768px) 50vw, 25vw"
+							/>
+						</div>
 					))}
 				</div>
 			)}

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { format, isToday } from "date-fns";
-import type { ThreadResponse } from "@nova/server/types";
+import type { ThreadResponse } from "@server/types";
 import {
 	extractSenderEmail,
 	extractSenderName,

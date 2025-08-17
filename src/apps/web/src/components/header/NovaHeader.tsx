@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, PanelLeft, RefreshCcw, Search } from "lucide-react";
+import { ArrowLeft, RefreshCcw, Search } from "lucide-react";
 import { Button } from "@nova/ui/components/button";
 import {
 	Dialog,
