@@ -1,4 +1,9 @@
 {
 	"extends": "@nova/typescript-config/base.json",
-	"exclude": ["node_modules", "packages/eslint-config/**/*.js"]
+	"exclude": ["node_modules", "packages/eslint-config/**/*.js"],
+	"references": [
+		{ "path": "./src/apps/server" },
+		{ "path": "./src/packages/ai" },
+		{ "path": "./src/packages/mail" }
+	]
 }

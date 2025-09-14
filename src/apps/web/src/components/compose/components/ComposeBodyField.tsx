@@ -1,100 +1,88 @@
 "use client";
 
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
-import { useEffect, useImperativeHandle, forwardRef } from "react";
+import React, { useEffect } from "react";
+import { Button } from "@nova/ui/components/button";
+import { EditorContent, Editor } from "@tiptap/react";
+import { Sparkles } from "lucide-react";
+import { useSSE } from "@/hooks/useSSE";
+import { toast } from "sonner";
 
 interface Props {
-	body: string;
-	setBodyAction: (body: string) => void;
+	editor: Editor | null;
+	senderName: string | null | undefined;
+	senderEmail: string | null | undefined;
+	recipientEmail: string | null | undefined;
+	subject: string | null | undefined;
 }
 
-export interface ComposeBodyFieldRef {
-	insertImage: (src: string) => void;
-	insertMultipleImages: (images: string[]) => void;
-}
+export const ComposeBodyField = ({
+	editor,
+	senderName,
+	senderEmail,
+	recipientEmail,
+	subject,
+}: Props) => {
+	const isEmpty = () => {
+		return !editor?.getText().trim();
+	};
 
-export const ComposeBodyField = forwardRef<ComposeBodyFieldRef, Props>(
-	({ body, setBodyAction }, ref) => {
-		const editor = useEditor({
-			extensions: [
-				StarterKit,
-				Image.configure({
-					inline: false,
-					allowBase64: true,
-					HTMLAttributes: {
-						class: "max-w-full h-auto rounded-md my-2",
-					},
-				}),
-			],
-			content: body || "<p></p>",
-			editable: true,
-			immediatelyRender: false,
-			onUpdate: ({ editor }) => {
-				const html = editor.getHTML();
-				setBodyAction(html);
-			},
-		});
-
-		useEffect(() => {
-			if (editor && body !== editor.getHTML()) {
-				editor.commands.setContent(body);
-			}
-		}, [body, editor]);
-
-		// Expose editor methods to parent component
-		useImperativeHandle(
-			ref,
-			() => ({
-				insertImage: (src: string) => {
-					if (editor) {
-						editor.chain().focus().setImage({ src }).run();
-					}
-				},
-				insertMultipleImages: (images: string[]) => {
-					if (editor) {
-						// Build HTML content for all images with proper spacing
-						const imageHtml = images
-							.map(
-								(src) =>
-									`<p><img src="${src}" class="max-w-full h-auto rounded-md my-2" /></p>`
-							)
-							.join("");
-
-						// Insert all images at once at the current cursor position
-						editor.chain().focus().insertContent(imageHtml).run();
-					}
-				},
-			}),
-			[editor]
-		);
-
-		if (!editor) {
-			return <div className="p-3 text-white/50">Loading editor...</div>;
+	const { data, start, stop, isStreaming, error } = useSSE(
+		"/ai/enhance-email",
+		{
+			emailBody: editor?.getText() || "",
+			senderName,
+			senderEmail,
+			recipientEmail,
+			subject,
 		}
+	);
 
-		return (
-			<div className="flex-1 flex flex-col">
-				<EditorContent
-					editor={editor}
-					className="w-full scroll-container flex-1 bg-transparent text-sm text-white p-3 prose prose-invert max-w-none
-					[&_.ProseMirror]:focus:outline-none 
-					[&_.ProseMirror]:focus-visible:ring-0 
-					[&_.ProseMirror]:focus:border-none 
-					[&_.ProseMirror]:h-[200px]
-					[&_.ProseMirror_p.is-editor-empty:first-child::before]:content-['Type_your_message_here...'] 
-					[&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[#999] 
-					[&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left 
-					[&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none 
-					[&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0
-					[&_.ProseMirror_img]:max-w-full
-					[&_.ProseMirror_img]:rounded-md
-					[&_.ProseMirror_img]:my-2"
-				/>
-			</div>
-		);
+	useEffect(() => {
+		if (data && editor) {
+			editor.commands.setContent(data.trim());
+		}
+	}, [data, editor]);
+
+	useEffect(() => {
+		if (error) {
+			toast.error("Failed to enhance email", {
+				description:
+					error.message || "An error occurred while enhancing the email",
+			});
+		}
+	}, [error]);
+
+	if (!editor) {
+		return <div className="p-3 text-white/50">Loading editor...</div>;
 	}
-);
 
-ComposeBodyField.displayName = "ComposeBodyField";
+	return (
+		<div className="flex-1 flex flex-col">
+			<EditorContent
+				editor={editor}
+				className="w-full scroll-container flex-1 bg-transparent text-sm text-white p-3 mb-10 prose prose-invert max-w-none
+				[&_.ProseMirror]:focus:outline-none 
+				[&_.ProseMirror]:focus-visible:ring-0 
+				[&_.ProseMirror]:focus:border-none 
+				[&_.ProseMirror]:h-[250px]
+				[&_.ProseMirror_p.is-editor-empty:first-child::before]:content-['Type_your_message_here...'] 
+				[&_.ProseMirror_p.is-editor-empty:first-child::before]:text-[#999] 
+				[&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left 
+				[&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none 
+				[&_.ProseMirror_p.is-editor-empty:first-child::before]:h-0
+				[&_.ProseMirror_img]:max-w-full
+				[&_.ProseMirror_img]:rounded-md
+				[&_.ProseMirror_img]:my-2"
+			/>
+			<Button
+				variant="secondary"
+				className="w-42 border-2 border-primary absolute bottom-18 right-2"
+				disabled={isEmpty() || isStreaming}
+				onClick={start}
+			>
+				<Sparkles />
+				{isStreaming ? "Enhancing..." : "Enhance with AI"}
+			</Button>
+		</div>
+	);
+};

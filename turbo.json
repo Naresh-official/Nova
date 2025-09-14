@@ -29,6 +29,7 @@
 				"GOOGLE_CLIENT_SECRET",
 				"FRONTEND_URL",
 				"DATABASE_URL",
+				"GEMINI_API_KEY",
 				"PORT",
 				"NODE_ENV"
 			],
@@ -53,6 +54,7 @@
 				"GOOGLE_CLIENT_SECRET",
 				"FRONTEND_URL",
 				"DATABASE_URL",
+				"GEMINI_API_KEY",
 				"PORT",
 				"NODE_ENV"
 			]

@@ -1,34 +1,26 @@
-// {
-// 	"extends": "@nova/typescript-config/base.json",
-// 	"compilerOptions": {
-// 		"baseUrl": ".",
-// 		"paths": {},
-// 		"composite": true,
-// 		"declaration": true,
-// 		"declarationMap": true,
-// 		"noEmit": false,
-// 		"emitDeclarationOnly": true,
-// 		"allowImportingTsExtensions": true
-// 	},
-// 	// "references": [],
-// 	"exclude": ["node_modules", "generated"]
-// }
-
 {
 	"extends": "@nova/typescript-config/base.json",
-	"include": ["src"],
+	"include": ["src/**/*.ts"],
 	"exclude": ["node_modules", "generated"],
+	"references": [
+		{ "path": "../../packages/ai" },
+		{ "path": "../../packages/mail" }
+	],
 	"compilerOptions": {
 		"plugins": [
 			{
 				"name": "@effect/language-service"
 			}
 		],
-		"outDir": "dist",
+		"outDir": "./dist",
 		"rootDir": "src",
 		"baseUrl": ".",
 		"paths": {
-			"@server/*": ["src/*"]
+			"@server/*": ["src/*"],
+			"@nova/mail": ["../../packages/mail/src/index.ts"],
+			"@nova/mail/*": ["../../packages/mail/src/*"],
+			"@nova/ai": ["../../packages/ai/src/index.ts"],
+			"@nova/ai/*": ["../../packages/ai/src/*"]
 		},
 		"composite": true,
 		"noEmit": false,

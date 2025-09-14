@@ -30,8 +30,8 @@ export default function RootLayout({
 			<body
 				className={`${inter.className} bg-[#101010] text-white antialiased`}
 			>
-				<TRPCProvider>
-					<NextAuthSessionProvider>
+				<NextAuthSessionProvider>
+					<TRPCProvider>
 						<QueryStoreProvider>
 							<RefreshStoreProvider>
 								<ConditionalLayout>{children}</ConditionalLayout>
@@ -39,8 +39,8 @@ export default function RootLayout({
 							</RefreshStoreProvider>
 							{/* <ReactQueryDevtools initialIsOpen={false} /> */}
 						</QueryStoreProvider>
-					</NextAuthSessionProvider>
-				</TRPCProvider>
+					</TRPCProvider>
+				</NextAuthSessionProvider>
 			</body>
 		</html>
 	);

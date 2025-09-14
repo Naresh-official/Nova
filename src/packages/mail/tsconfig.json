@@ -1,5 +1,15 @@
 {
 	"extends": "@nova/typescript-config/base.json",
 	"include": ["**/*.ts"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules"],
+	"compilerOptions": {
+		"composite": true,
+		"declaration": true,
+		"declarationMap": true,
+		"outDir": "./dist",
+		"rootDir": "./src",
+		"noEmit": false,
+		"emitDeclarationOnly": true,
+		"allowImportingTsExtensions": true
+	}
 }

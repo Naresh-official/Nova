@@ -16,6 +16,7 @@
 		"@nova/ui": "workspace:*",
 		"@tanstack/react-query": "^5.83.0",
 		"@tanstack/react-query-devtools": "^5.84.0",
+		"@tiptap/extension-heading": "^3.4.2",
 		"@tiptap/extension-image": "^3.0.9",
 		"@tiptap/react": "^3.0.9",
 		"@tiptap/starter-kit": "^3.0.9",
@@ -64,5 +65,5 @@
 			"NODE_ENV"
 		]
 	},
-	"packageManager": "pnpm@10.13.1"
+	"packageManager": "pnpm@10.15.0"
 }

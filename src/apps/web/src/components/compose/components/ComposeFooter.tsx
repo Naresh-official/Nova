@@ -1,5 +1,5 @@
 import { Button } from "@nova/ui/components/button";
-import { Paperclip, Image, Smile, Trash2 } from "lucide-react";
+import { Paperclip, Image, Smile, Trash2, SendHorizontal } from "lucide-react";
 
 export function ComposeFooter({
 	handleSend,
@@ -53,9 +53,11 @@ export function ComposeFooter({
 			<div className="flex items-center gap-2">
 				<Button
 					onClick={handleSend}
+					title="Send Mail"
 					className="font-semibold text-sm h-8 px-4 rounded-full"
 				>
 					Send
+					<SendHorizontal />
 				</Button>
 
 				{/* Attachment Button */}
@@ -65,6 +67,7 @@ export function ComposeFooter({
 						variant="ghost"
 						size="icon"
 						type="button"
+						title="Attach Files"
 						className="text-white/50 hover:text-white hover:bg-[#333]"
 						asChild
 					>
@@ -87,6 +90,7 @@ export function ComposeFooter({
 						variant="ghost"
 						size="icon"
 						type="button"
+						title="Insert Images"
 						className="text-white/50 hover:text-white hover:bg-[#333]"
 						asChild
 					>
@@ -95,19 +99,12 @@ export function ComposeFooter({
 						</span>
 					</Button>
 				</label>
-
-				<Button
-					variant="ghost"
-					size="icon"
-					className="text-white/50 hover:text-white hover:bg-[#333]"
-				>
-					<Smile className="h-4 w-4" />
-				</Button>
 			</div>
 
 			<Button
 				variant="ghost"
 				size="icon"
+				title="Delete Draft"
 				className="text-white/50 hover:text-white hover:bg-[#333]"
 				onClick={onDelete}
 			>

@@ -1,13 +1,30 @@
 import { google } from "@ai-sdk/google";
-import { generateText } from "ai";
+import { streamText } from "ai";
 import { subjectGenerationPrompt } from "./prompts/subject.prompt";
+import { enhanceEmailPrompt } from "./prompts/body.prompt";
 
 export async function generateEmailSubject(emailBody: string) {
-	const { text } = await generateText({
+	const { textStream } = streamText({
 		model: google("gemini-2.5-flash"),
 		system: subjectGenerationPrompt,
 		prompt: `Email Body: ${emailBody}`,
 	});
 
-	return text;
+	return textStream;
+}
+
+export async function enhanceEmailContent(params: {
+	emailBody: string;
+	senderName?: string;
+	senderEmail?: string;
+	recipientEmail?: string;
+	subject?: string;
+}) {
+	const { textStream } = streamText({
+		model: google("gemini-2.5-flash"),
+		system: enhanceEmailPrompt,
+		prompt: JSON.stringify(params),
+	});
+
+	return textStream;
 }

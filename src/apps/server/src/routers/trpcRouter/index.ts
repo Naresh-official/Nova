@@ -1,5 +1,5 @@
 import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { protectedProcedure, router } from "../trpc";
+import { router } from "../../trpc";
 import { threadsRouter } from "./threads.router";
 import { userRouter } from "./user.router";
 import { messagesRouter } from "./messages.router";
