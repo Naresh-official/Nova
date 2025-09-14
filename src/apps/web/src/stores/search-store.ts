@@ -1,30 +1,17 @@
 import { createStore } from "zustand";
 import { z } from "zod";
 
-const allowedLabelIds = z.enum([
-	"STARRED",
-	"UNREAD",
-	"IMPORTANT",
-	"CATEGORY_PERSONAL",
-	"CATEGORY_SOCIAL",
-	"CATEGORY_UPDATES",
-	"CATEGORY_FORUMS",
-	"CATEGORY_PROMOTIONS",
-]);
-
-export type AllowedLabelId = z.infer<typeof allowedLabelIds>;
-
 export type searchQueryState = {
 	query: string;
-	labelIds: AllowedLabelId[];
+	labelIds: string[];
 };
 
 export type searchQueryActions = {
 	setQuery: (query: string) => void;
 	clearQuery: () => void;
-	setLabelIds: (labelIds: AllowedLabelId[]) => void;
-	addLabelId: (labelId: AllowedLabelId) => void;
-	removeLabelId: (labelId: AllowedLabelId) => void;
+	setLabelIds: (labelIds: string[]) => void;
+	addLabelId: (labelId: string) => void;
+	removeLabelId: (labelId: string) => void;
 	clearLabelIds: () => void;
 };
 
@@ -42,22 +29,17 @@ export const createSearchQueryStore = (
 		...initState,
 		setQuery: (query: string) => set({ query }),
 		clearQuery: () => set({ query: "" }),
-		setLabelIds: (labelIds: AllowedLabelId[]) => {
-			const validLabelIds = labelIds.filter(
-				(id) => allowedLabelIds.safeParse(id).success
-			);
-			set({ labelIds: validLabelIds });
+		setLabelIds: (labelIds: string[]) => {
+			set({ labelIds });
 		},
-		addLabelId: (labelId: AllowedLabelId) => {
-			if (allowedLabelIds.safeParse(labelId).success) {
-				set((state) => ({
-					labelIds: state.labelIds.includes(labelId)
-						? state.labelIds
-						: [...state.labelIds, labelId],
-				}));
-			}
+		addLabelId: (labelId: string) => {
+			set((state) => ({
+				labelIds: state.labelIds.includes(labelId)
+					? state.labelIds
+					: [...state.labelIds, labelId],
+			}));
 		},
-		removeLabelId: (labelId: AllowedLabelId) =>
+		removeLabelId: (labelId: string) =>
 			set((state) => ({
 				labelIds: state.labelIds.filter((id) => id !== labelId),
 			})),

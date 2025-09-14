@@ -55,7 +55,7 @@ export class ThreadService {
 							userId: "me",
 							id: thread.id!,
 							format: "METADATA",
-							metadataHeaders: ["From", "Subject", "Date"],
+							metadataHeaders: ["From", "Subject", "Date", "To"],
 							access_token,
 						})
 					).data
@@ -159,6 +159,7 @@ export class ThreadService {
 					headers.find((h: any) => h.name === "Subject")?.value || "";
 				const dateHeader =
 					headers.find((h: any) => h.name === "Date")?.value || "";
+				const toHeader = headers.find((h: any) => h.name === "To")?.value || "";
 
 				const customLabels = firstMessage?.labelIds?.filter(
 					(label) => !ThreadService.SYSTEM_LABEL_IDS.includes(label)
@@ -174,6 +175,7 @@ export class ThreadService {
 					isStarred: firstMessage?.labelIds?.includes("STARRED") || false,
 					messageCount: response.messages?.length || 0,
 					sender: fromHeader,
+					to: toHeader,
 					subject: subjectHeader,
 					date: dateHeader,
 					internalDate: firstMessage?.internalDate || "",

@@ -3,25 +3,13 @@ import { protectedProcedure, router } from "@server/trpc";
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
-const allowedLabelIds = z.enum([
-	"INBOX",
-	"STARRED",
-	"UNREAD",
-	"IMPORTANT",
-	"CATEGORY_PERSONAL",
-	"CATEGORY_SOCIAL",
-	"CATEGORY_UPDATES",
-	"CATEGORY_FORUMS",
-	"CATEGORY_PROMOTIONS",
-]);
-
 export const threadsRouter = router({
 	listThreads: protectedProcedure
 		.input(
 			z.object({
 				cursor: z.string().optional(),
 				q: z.string().optional(),
-				labelIds: z.array(allowedLabelIds).optional(),
+				labelIds: z.array(z.string()).optional(),
 				folder: z.string().optional(),
 			})
 		)

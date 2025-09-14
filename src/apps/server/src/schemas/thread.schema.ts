@@ -9,6 +9,7 @@ export const ThreadResponseSchema = z.object({
 	isStarred: z.boolean(),
 	messageCount: z.number(),
 	sender: z.string(),
+	to: z.string(),
 	subject: z.string(),
 	date: z.string(),
 	internalDate: z.string(),

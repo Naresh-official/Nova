@@ -7,6 +7,7 @@ export interface ThreadResponse {
 	isStarred: boolean;
 	messageCount: number;
 	sender: string;
+	to: string;
 	subject: string;
 	date: string;
 	internalDate: string;

@@ -28,9 +28,9 @@ import {
 	AlertDialogTrigger,
 } from "@nova/ui/components/alert-dialog";
 import type { SchemaLabelType } from "@server/schemas";
-import { usePathname, useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { trpc } from "@/lib/client";
+import { useQueryStore } from "../providers/QueryStoreProvider";
 
 import CreateLabelDialog from "./CreateLabelDialog";
 
@@ -39,32 +39,18 @@ interface LabelsProps {
 }
 
 function LabelsContent({ labels }: LabelsProps) {
-	const pathname = usePathname();
-	const searchParams = useSearchParams();
-	const router = useRouter();
+	const labelIds = useQueryStore((state) => state.labelIds);
+	const addLabelId = useQueryStore((state) => state.addLabelId);
+	const removeLabelId = useQueryStore((state) => state.removeLabelId);
 	const deleteLabel = trpc.labels.deleteLabel.useMutation();
 	const utils = trpc.useUtils();
 
 	const handleLabelClick = (labelId: string) => {
-		const current = new URLSearchParams(Array.from(searchParams.entries()));
-		const existingLabels = searchParams.get("labels");
-		let labelIds = existingLabels ? existingLabels.split(",") : [];
-
 		if (labelIds.includes(labelId)) {
-			labelIds = labelIds.filter((id) => id !== labelId);
+			removeLabelId(labelId);
 		} else {
-			labelIds.push(labelId);
+			addLabelId(labelId);
 		}
-
-		current.delete("labels");
-
-		let query = current.toString();
-
-		if (labelIds.length > 0) {
-			query += (query ? "&" : "") + `labels=${labelIds.join(",")}`;
-		}
-
-		router.push(`${pathname}${query ? `?${query}` : ""}`);
 	};
 
 	const confirmDeleteLabel = (labelId: string, labelName: string) => {
@@ -91,11 +77,7 @@ function LabelsContent({ labels }: LabelsProps) {
 				<SidebarMenu>
 					{labels && labels.length > 0 ? (
 						labels.map((item) => {
-							const existingLabels = searchParams.get("labels");
-							const selectedLabels = existingLabels
-								? existingLabels.split(",")
-								: [];
-							const isActive = selectedLabels.includes(item.id!);
+							const isActive = labelIds.includes(item.id!);
 
 							return (
 								<SidebarMenuItem key={item.id}>

@@ -53,11 +53,14 @@ export default function EmailContextMenu({
 	const addLabelMutation = trpc.threads.addLabelToThread.useMutation({
 		onMutate: async ({ threadId, labelId }) => {
 			await utils.threads.listThreads.cancel();
+			await utils.labels.getLabels.cancel();
 
+			// Update threads cache
 			utils.threads.listThreads.setInfiniteData(
 				{
 					q: query || undefined,
 					labelIds: labelIds,
+					folder,
 				},
 				(oldData) => {
 					if (!oldData) return oldData;
@@ -78,12 +81,24 @@ export default function EmailContextMenu({
 					};
 				}
 			);
+
+			// Update labels cache - increment usage count
+			utils.labels.getLabels.setData(undefined, (oldData) => {
+				if (!oldData) return oldData;
+
+				return {
+					...oldData,
+					customLabels: oldData.customLabels?.map((label) =>
+						label.id === labelId
+							? { ...label, threadsTotal: (label.threadsTotal || 0) + 1 }
+							: label
+					),
+				};
+			});
 		},
 		onError: () => {
 			utils.threads.listThreads.invalidate();
-		},
-		onSettled: () => {
-			utils.threads.listThreads.invalidate();
+			utils.labels.getLabels.invalidate();
 		},
 		onSuccess: () => {
 			toast.success("Label added successfully");
@@ -93,11 +108,14 @@ export default function EmailContextMenu({
 	const removeLabelMutation = trpc.threads.removeLabelFromThread.useMutation({
 		onMutate: async ({ threadId, labelId }) => {
 			await utils.threads.listThreads.cancel();
+			await utils.labels.getLabels.cancel();
 
+			// Update threads cache
 			utils.threads.listThreads.setInfiniteData(
 				{
 					q: query || undefined,
 					labelIds: labelIds,
+					folder,
 				},
 				(oldData) => {
 					if (!oldData) return oldData;
@@ -120,12 +138,27 @@ export default function EmailContextMenu({
 					};
 				}
 			);
+
+			// Update labels cache - decrement usage count
+			utils.labels.getLabels.setData(undefined, (oldData) => {
+				if (!oldData) return oldData;
+
+				return {
+					...oldData,
+					customLabels: oldData.customLabels?.map((label) =>
+						label.id === labelId
+							? {
+									...label,
+									threadsTotal: Math.max((label.threadsTotal || 0) - 1, 0),
+								}
+							: label
+					),
+				};
+			});
 		},
 		onError: () => {
 			utils.threads.listThreads.invalidate();
-		},
-		onSettled: () => {
-			utils.threads.listThreads.invalidate();
+			utils.labels.getLabels.invalidate();
 		},
 		onSuccess: () => {
 			toast.success("Label removed successfully");
