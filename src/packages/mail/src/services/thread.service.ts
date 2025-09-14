@@ -98,7 +98,7 @@ export class ThreadService {
 		labelIds: string[],
 		folder: string | undefined
 	): string[] {
-		if (folder) {
+		if (folder && folder !== "inbox") {
 			// For ARCHIVE, we use Gmail search query instead of labelIds
 			if (folder.toUpperCase() === "ARCHIVE") {
 				return [];

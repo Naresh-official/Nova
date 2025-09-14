@@ -33,6 +33,7 @@ export const threadsRouter = router({
 		)
 		.query(async ({ ctx, input }) => {
 			const { cursor, q, labelIds, folder } = input;
+
 			const threads = await ctx.mailManager.threads.list(
 				cursor,
 				q,

@@ -1,7 +1,17 @@
 import React from "react";
 import { FileText, Send, Sparkles } from "lucide-react";
+import { Button } from "@nova/ui/components/button";
+import { useRouter, useSearchParams } from "next/navigation";
 
 function EmptyState() {
+	const searchParams = useSearchParams();
+	const router = useRouter();
+
+	const handleComposeClick = () => {
+		const params = new URLSearchParams(searchParams?.toString() || "");
+		params.set("isComposeOpen", "true");
+		router.push(`?${params.toString()}`);
+	};
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-center p-8 text-center">
 			<div className="mb-6 flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-gray-700">
@@ -14,15 +24,15 @@ function EmptyState() {
 			</p>
 
 			<div className="mt-6 flex items-center gap-4">
-				<button className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600">
+				<Button variant="secondary">
 					<Sparkles className="h-4 w-4 text-purple-400" strokeWidth={2} />
 					Zero chat
-				</button>
+				</Button>
 
-				<button className="flex items-center gap-2 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-gray-300 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600">
+				<Button variant="secondary" onClick={handleComposeClick}>
 					<Send className="h-4 w-4" strokeWidth={2} />
 					Send email
-				</button>
+				</Button>
 			</div>
 		</div>
 	);
