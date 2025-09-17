@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { Button } from "@nova/ui/components/button";
 import { EditorContent, Editor } from "@tiptap/react";
 import { Sparkles } from "lucide-react";
-import { useSSE } from "@/hooks/useSSE";
+import { useStream } from "@/hooks/useStream";
 import { toast } from "sonner";
 
 interface Props {
@@ -26,16 +26,8 @@ export const ComposeBodyField = ({
 		return !editor?.getText().trim();
 	};
 
-	const { data, start, stop, isStreaming, error } = useSSE(
-		"/ai/enhance-email",
-		{
-			emailBody: editor?.getText() || "",
-			senderName,
-			senderEmail,
-			recipientEmail,
-			subject,
-		}
-	);
+	const { data, start, stop, isStreaming, error } =
+		useStream("/ai/enhance-email");
 
 	useEffect(() => {
 		if (data && editor) {
@@ -78,7 +70,15 @@ export const ComposeBodyField = ({
 				variant="secondary"
 				className="w-42 border-2 border-primary absolute bottom-18 right-2"
 				disabled={isEmpty() || isStreaming}
-				onClick={start}
+				onClick={() =>
+					start({
+						emailBody: editor?.getText() || "",
+						senderName,
+						senderEmail,
+						recipientEmail,
+						subject,
+					})
+				}
 			>
 				<Sparkles />
 				{isStreaming ? "Enhancing..." : "Enhance with AI"}

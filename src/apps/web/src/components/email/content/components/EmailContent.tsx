@@ -19,6 +19,7 @@ import EmailMetaHeader from "./EmailMetaHeader";
 import SenderInfo from "./SenderInfo";
 import EmailAttachments from "./EmailAttachments";
 import EmailBodyDisplay from "./EmailBodyDisplay";
+import { useStream } from "@/hooks/useStream";
 
 function EmailContentInner() {
 	const { data: session } = useSession();
@@ -37,11 +38,19 @@ function EmailContentInner() {
 		attachment.mimeType.startsWith("image/")
 	);
 
-	const [isClient, setIsClient] = useState(false);
+	// AI Summary Stream
+	const {
+		data: summaryData,
+		start: startSummaryStream,
+		stop,
+		isStreaming,
+		error: summaryError,
+		reset,
+	} = useStream(`/ai/summarize-email`);
 
 	useEffect(() => {
-		setIsClient(true);
-	}, []);
+		reset();
+	}, [threadId]);
 
 	// Process email HTML
 	const processedHtml = useMemo(() => {
@@ -76,7 +85,7 @@ function EmailContentInner() {
 		);
 	};
 
-	if (!isClient || isLoading) {
+	if (isLoading) {
 		return (
 			<div className="flex-1 flex items-center justify-center text-gray-500">
 				Loading...
@@ -118,6 +127,12 @@ function EmailContentInner() {
 				recipientEmail={parsed.to?.[0]?.email || ""}
 				date={parsed.sentDate}
 				isPersonal={parsed.labelIds.includes("CATEGORY_PERSONAL")}
+				startSummaryStream={startSummaryStream}
+				isStreaming={isStreaming}
+				summaryData={summaryData}
+				subject={parsed.subject}
+				emailBody={parsed.textHtml || parsed.textPlain}
+				summaryError={summaryError}
 			/>
 
 			<EmailBodyDisplay

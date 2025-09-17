@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
 	formatDateString,
 	formatTimeString,
@@ -10,6 +10,13 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@nova/ui/components/dropdown-menu";
+import { ScrollText } from "lucide-react";
+import { Button } from "@nova/ui/components/button";
+import { Skeleton } from "@nova/ui/components/skeleton";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import { toast } from "sonner";
 
 interface SenderInfoProps {
 	sender: {
@@ -21,6 +28,12 @@ interface SenderInfoProps {
 	recipientEmail: string;
 	date: number;
 	isPersonal: boolean;
+	startSummaryStream: ({}) => void;
+	isStreaming: boolean;
+	summaryData: string | null;
+	subject: string;
+	emailBody: string;
+	summaryError?: Error | null;
 }
 
 function SenderInfo({
@@ -29,8 +42,23 @@ function SenderInfo({
 	recipientEmail,
 	date,
 	isPersonal = false,
+	startSummaryStream,
+	isStreaming,
+	summaryData,
+	subject,
+	emailBody,
+	summaryError,
 }: SenderInfoProps) {
 	const [imageError, setImageError] = useState(false);
+
+	useEffect(() => {
+		if (summaryError) {
+			toast.error("Failed to enhance email", {
+				description:
+					summaryError.message || "An error occurred while enhancing the email",
+			});
+		}
+	}, [summaryError]);
 
 	return (
 		<div className="flex items-start justify-between p-4 rounded-lg">
@@ -94,6 +122,91 @@ function SenderInfo({
 					<span>{formatDateString(date)}</span>
 					<span>{formatTimeString(date)}</span>
 				</div>
+
+				<DropdownMenu
+					onOpenChange={(open) => {
+						if (open && !isStreaming && !summaryData) {
+							startSummaryStream({
+								sender: sender.name || sender.email,
+								recipientEmail: recipientEmail,
+								subject: subject,
+								dateTime: new Date(date).toString(),
+								emailBody: emailBody,
+							});
+						}
+					}}
+				>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							className="h-10"
+							title="Summarize email"
+							disabled={isStreaming}
+						>
+							<ScrollText size={30} className="min-w-6 min-h-6" />
+						</Button>
+					</DropdownMenuTrigger>
+
+					<DropdownMenuContent className="mr-4">
+						{isStreaming && !summaryData && (
+							<div className="flex flex-col gap-2 p-2">
+								<Skeleton className="h-6 w-md" />
+								<Skeleton className="h-6 w-md" />
+								<Skeleton className="h-6 w-md" />
+								<Skeleton className="h-6 w-md" />
+								<Skeleton className="h-6 w-md" />
+								<Skeleton className="h-6 w-md" />
+								<Skeleton className="h-6 w-md" />
+							</div>
+						)}
+
+						{summaryData && (
+							<div className="p-2 max-w-md text-sm text-zinc-200">
+								<div className="flex flex-col">
+									<ReactMarkdown
+										remarkPlugins={[remarkGfm]}
+										rehypePlugins={[rehypeRaw]}
+										components={{
+											h1: ({ node, ...props }) => (
+												<h1 className="text-2xl font-bold mb-2" {...props} />
+											),
+											h2: ({ node, ...props }) => (
+												<h2 className="text-xl font-semibold mb-2" {...props} />
+											),
+											h3: ({ node, ...props }) => (
+												<h3 className="text-lg font-semibold mb-1" {...props} />
+											),
+											ul: ({ node, ...props }) => (
+												<ul className="list-disc pl-5" {...props} />
+											),
+											ol: ({ node, ...props }) => (
+												<ol className="list-decimal pl-5" {...props} />
+											),
+											li: ({ node, ...props }) => (
+												<li className="mb-1" {...props} />
+											),
+											p: ({ node, ...props }) => (
+												<p className="mb-2" {...props} />
+											),
+										}}
+									>
+										{summaryData}
+									</ReactMarkdown>
+
+									{isStreaming && (
+										<div className="flex items-center m-2">
+											<span className="flex space-x-1">
+												<span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.3s]" />
+												<span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce [animation-delay:-0.15s]" />
+												<span className="w-1.5 h-1.5 bg-muted-foreground rounded-full animate-bounce" />
+											</span>
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 	);

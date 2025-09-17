@@ -14,8 +14,17 @@ function EmptyState() {
 	};
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-center p-8 text-center">
-			<div className="mb-6 flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-gray-700">
-				<FileText className="h-20 w-20 text-gray-600" strokeWidth={1} />
+			<div className="mb-6 flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-gray-700 relative">
+				<FileText
+					fill="#2e2e2e"
+					className="h-30 w-30 text-gray-600 opacity-80 rotate-[-20deg] absolute"
+					strokeWidth={0.2}
+				/>
+				<FileText
+					fill="#2e2e2e"
+					className="h-30 w-30 text-gray-600 opacity-80 relative z-10"
+					strokeWidth={0.4}
+				/>
 			</div>
 
 			<h2 className="text-xl font-semibold text-gray-300">It's empty here</h2>

@@ -175,7 +175,9 @@ export class ThreadService {
 					isStarred: firstMessage?.labelIds?.includes("STARRED") || false,
 					messageCount: response.messages?.length || 0,
 					sender: fromHeader,
-					to: toHeader,
+					to: toHeader.includes("<")
+						? toHeader.split("<")[1].replace(">", "")
+						: toHeader,
 					subject: subjectHeader,
 					date: dateHeader,
 					internalDate: firstMessage?.internalDate || "",

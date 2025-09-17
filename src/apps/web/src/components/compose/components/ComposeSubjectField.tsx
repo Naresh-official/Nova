@@ -1,4 +1,4 @@
-import { useSSE } from "@/hooks/useSSE";
+import { useStream } from "@/hooks/useStream";
 import { Button } from "@nova/ui/components/button";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
@@ -11,9 +11,8 @@ interface Props {
 }
 
 export function ComposeSubjectField({ subject, setSubject, body }: Props) {
-	const { data, start, stop, isStreaming, error } = useSSE(
-		"/ai/generate-subject",
-		{ emailBody: body }
+	const { data, start, stop, isStreaming, error } = useStream(
+		"/ai/generate-subject"
 	);
 
 	useEffect(() => {
@@ -49,7 +48,7 @@ export function ComposeSubjectField({ subject, setSubject, body }: Props) {
 			)}
 
 			<Button
-				onClick={start}
+				onClick={() => start({ emailBody: body })}
 				variant="ghost"
 				size="sm"
 				disabled={isStreaming || body.trim().length === 0}

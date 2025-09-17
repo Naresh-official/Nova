@@ -32,6 +32,7 @@ function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
 				<Button
 					variant="secondary"
 					className="flex items-center gap-2 px-4 py-2 text-zinc-200"
+					title="Reply all"
 				>
 					<ReplyAll size={20} />
 					<span className="text-sm font-medium">Reply all</span>
@@ -41,6 +42,7 @@ function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
 					variant="secondary"
 					onClick={actions.handleArchive}
 					className="p-2 text-zinc-300"
+					title="Archive"
 				>
 					<Archive size={18} />
 				</Button>
@@ -49,6 +51,7 @@ function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
 					variant="secondary"
 					onClick={actions.handleToggleStar}
 					className="p-2 text-zinc-300"
+					title={isStarred ? "Unstar" : "Star"}
 				>
 					<Star size={20} fill={isStarred ? "yellow" : "none"} />
 				</Button>
@@ -58,6 +61,7 @@ function EmailActionBar({ onPrint }: { onPrint?: () => void }) {
 						<Button
 							variant="secondary"
 							className="p-2 text-red-400 hover:bg-red-400/20"
+							title="Delete"
 						>
 							<Trash2 size={20} />
 						</Button>
