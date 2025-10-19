@@ -1,8 +1,5 @@
-import dotenv from "dotenv";
 import { prisma } from "./context";
 import app from "./app";
-
-dotenv.config();
 
 try {
 	prisma

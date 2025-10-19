@@ -4,9 +4,9 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"dev": "tsx --watch src/index.ts",
+		"dev": "dotenvx run -- tsx --watch src/index.ts",
 		"build": "prisma generate && tsup --tsconfig tsconfig.build.json",
-		"start": "node dist/index.js",
+		"start": "dotenvx run -- node dist/index.js",
 		"studio": "prisma studio"
 	},
 	"keywords": [],
@@ -25,6 +25,7 @@
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
+		"@dotenvx/dotenvx": "^1.51.0",
 		"@googleapis/gmail": "^14.0.1",
 		"@jrmdayn/googleapis-batcher": "^0.8.0",
 		"@nova/ai": "workspace:*",
@@ -33,10 +34,10 @@
 		"@trpc/server": "^11.4.3",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
-		"dotenv": "^17.0.1",
 		"express": "^5.1.0",
 		"google-auth-library": "^10.1.0",
 		"next-auth": "^4.24.11",
+		"ws": "^8.18.3",
 		"zod": "^3.24.2"
 	},
 	"turbo": {

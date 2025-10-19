@@ -56,32 +56,4 @@ app.get("/verify", async (req, res) => {
 	});
 });
 
-// TODO: Remove this SSE endpoint
-app.get("/sse", (req, res) => {
-	res.setHeader("Content-Type", "text/event-stream");
-	res.setHeader("Cache-Control", "no-cache");
-	res.setHeader("Connection", "keep-alive");
-	res.flushHeaders();
-
-	const longText =
-		"This is a long text message being sent chunk by chunk over SSE. " +
-		"It allows the frontend to display the response progressively, " +
-		"just like live typing or streaming responses from AI models. " +
-		"SSE is great for one-way communication from server to client.";
-
-	const chunks = longText.split(" ");
-
-	let index = 0;
-	const interval = setInterval(() => {
-		if (index < chunks.length) {
-			res.write(`data: ${chunks[index]}\n\n`);
-			index++;
-		} else {
-			clearInterval(interval);
-			res.write("event: done\ndata: Stream complete\n\n");
-			res.end();
-		}
-	}, 300); // send a word every 300ms
-});
-
 export default app;

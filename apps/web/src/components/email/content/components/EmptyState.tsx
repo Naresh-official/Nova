@@ -12,6 +12,13 @@ function EmptyState() {
 		params.set("isComposeOpen", "true");
 		router.push(`?${params.toString()}`);
 	};
+
+	const handleZeroChatClick = () => {
+		const params = new URLSearchParams(searchParams?.toString() || "");
+		params.set("isChatOpen", "true");
+		router.push(`?${params.toString()}`);
+	};
+
 	return (
 		<div className="flex h-full w-full flex-col items-center justify-center p-8 text-center">
 			<div className="mb-6 flex h-40 w-40 items-center justify-center rounded-full border-2 border-dashed border-gray-700 relative">
@@ -33,7 +40,7 @@ function EmptyState() {
 			</p>
 
 			<div className="mt-6 flex items-center gap-4">
-				<Button variant="secondary">
+				<Button variant="secondary" onClick={handleZeroChatClick}>
 					<Sparkles className="h-4 w-4 text-purple-400" strokeWidth={2} />
 					Zero chat
 				</Button>

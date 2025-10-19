@@ -6,6 +6,7 @@ import { NovaHeader } from "@/components/header/NovaHeader";
 import { useRefreshStore } from "@/components/providers/RefreshStoreProvider";
 import EmailListContent from "./EmailListContent";
 import DraftListContent from "./DraftListContent";
+import { useSession } from "next-auth/react";
 
 function EmailList() {
 	const pathname = usePathname();

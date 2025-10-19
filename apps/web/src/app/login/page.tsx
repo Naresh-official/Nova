@@ -4,13 +4,16 @@ import { Button } from "@nova/ui/components/button";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
 	const [loading, setLoading] = useState(false);
+	const redirectURL = useSearchParams().get("redirectUrl") || "/mail/inbox";
+
 	const handleGoogleSignIn = async () => {
 		try {
 			setLoading(true);
-			await signIn("google", { callbackUrl: "/mail/inbox" });
+			await signIn("google", { callbackUrl: redirectURL });
 		} catch (error) {
 			console.error("Error signing in with Google:", error);
 		} finally {

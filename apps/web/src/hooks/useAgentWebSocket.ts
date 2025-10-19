@@ -1,0 +1,112 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+interface UseAgentWebSocketOptions {
+	onMessage?: (data: any) => void;
+	onError?: (error: Event) => void;
+	onClose?: (event: CloseEvent) => void;
+	autoConnect?: boolean;
+	reconnect?: boolean;
+	reconnectInterval?: number; // ms
+}
+
+export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
+	const {
+		onMessage,
+		onError,
+		onClose,
+		autoConnect = true,
+		reconnect = true,
+		reconnectInterval = 3000,
+	} = options;
+
+	const [isConnected, setIsConnected] = useState(false);
+	const wsRef = useRef<WebSocket | null>(null);
+	const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
+
+	const connect = () => {
+		if (wsRef.current?.readyState === WebSocket.OPEN) return;
+
+		// Convert to WebSocket protocol
+		const wsUrl = process.env.NEXT_PUBLIC_AGENT_URL!;
+		console.log(wsUrl);
+
+		try {
+			const ws = new WebSocket(wsUrl);
+
+			ws.onopen = () => {
+				console.log(`✅ Connected to ${wsUrl}`);
+				setIsConnected(true);
+
+				// Send greeting
+				ws.send(JSON.stringify({ message: "hi" }));
+			};
+
+			ws.onmessage = (event) => {
+				try {
+					const data = JSON.parse(event.data);
+					console.log("📩 Message from agent:", data);
+					onMessage?.(data);
+				} catch (err) {
+					console.error("Failed to parse WebSocket message:", err, event.data);
+				}
+			};
+
+			ws.onerror = (event) => {
+				console.error("❌ WebSocket error event:", event);
+				onError?.(event);
+			};
+
+			ws.onclose = (event) => {
+				console.warn("⚠️ WebSocket closed:", event.code, event.reason);
+				setIsConnected(false);
+				onClose?.(event);
+
+				if (reconnect && !event.wasClean) {
+					console.log(
+						`🔁 Attempting reconnect in ${reconnectInterval / 1000}s...`
+					);
+					reconnectTimeout.current = setTimeout(connect, reconnectInterval);
+				}
+			};
+
+			wsRef.current = ws;
+		} catch (err) {
+			console.error("🚫 Failed to create WebSocket connection:", err);
+			if (reconnect) {
+				reconnectTimeout.current = setTimeout(connect, reconnectInterval);
+			}
+		}
+	};
+
+	const disconnect = () => {
+		if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+		if (wsRef.current) {
+			wsRef.current.close();
+			wsRef.current = null;
+			setIsConnected(false);
+		}
+	};
+
+	const sendMessage = (message: any) => {
+		if (wsRef.current?.readyState === WebSocket.OPEN) {
+			wsRef.current.send(JSON.stringify(message));
+		} else {
+			console.warn("WebSocket is not connected, message not sent:", message);
+		}
+	};
+
+	useEffect(() => {
+		if (autoConnect) connect();
+		return () => disconnect();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [autoConnect]);
+
+	return {
+		isConnected,
+		connect,
+		disconnect,
+		sendMessage,
+	};
+}

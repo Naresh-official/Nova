@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { Pencil } from "lucide-react";
+import { SquarePen } from "lucide-react";
 import { Suspense } from "react";
 import {
 	Sidebar,
@@ -86,7 +86,7 @@ function NovaSidebarContent() {
 						onClick={handleComposeClick}
 						disabled={isLoading}
 					>
-						<Pencil className="w-4 h-4 mr-2" />
+						<SquarePen className="w-4 h-4" />
 						Compose
 					</Button>
 				</SidebarHeader>
