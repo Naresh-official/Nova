@@ -19,18 +19,20 @@ try {
 	process.exit(1);
 }
 
-process.on("SIGTERM", () => {
-	console.log("SIGTERM received, closing server...");
-	server.close(() => {
-		console.log("Server closed");
-		process.exit(0);
+if (process.env.NODE_ENV === "production") {
+	process.on("SIGTERM", () => {
+		console.log("SIGTERM received, closing server...");
+		server.close(() => {
+			console.log("Server closed");
+			process.exit(0);
+		});
 	});
-});
 
-process.on("SIGINT", () => {
-	console.log("\nSIGINT received, closing server...");
-	server.close(() => {
-		console.log("Server closed");
-		process.exit(0);
+	process.on("SIGINT", () => {
+		console.log("\nSIGINT received, closing server...");
+		server.close(() => {
+			console.log("Server closed");
+			process.exit(0);
+		});
 	});
-});
+}

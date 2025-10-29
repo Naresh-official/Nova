@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 
 interface UseAgentWebSocketOptions {
-	onMessage?: (data: any) => void;
 	onError?: (error: Event) => void;
 	onClose?: (event: CloseEvent) => void;
 	autoConnect?: boolean;
@@ -13,7 +12,6 @@ interface UseAgentWebSocketOptions {
 
 export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 	const {
-		onMessage,
 		onError,
 		onClose,
 		autoConnect = true,
@@ -25,29 +23,44 @@ export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 	const wsRef = useRef<WebSocket | null>(null);
 	const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
 
+	const [messages, setMessages] = useState<
+		{
+			role: "agent" | "user";
+			type: string;
+			message: string;
+			timestamp: string;
+		}[]
+	>([]);
+
 	const connect = () => {
 		if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
 		// Convert to WebSocket protocol
 		const wsUrl = process.env.NEXT_PUBLIC_AGENT_URL!;
-		console.log(wsUrl);
 
 		try {
 			const ws = new WebSocket(wsUrl);
 
+			if (!ws) {
+				console.error("WebSocket creation failed");
+				return;
+			}
+
 			ws.onopen = () => {
-				console.log(`✅ Connected to ${wsUrl}`);
+				console.log("✅ WebSocket connected to:", wsUrl);
 				setIsConnected(true);
 
-				// Send greeting
-				ws.send(JSON.stringify({ message: "hi" }));
+				// Clear any previous reconnection attempts
+				if (reconnectTimeout.current) {
+					clearTimeout(reconnectTimeout.current);
+					reconnectTimeout.current = null;
+				}
 			};
 
 			ws.onmessage = (event) => {
 				try {
 					const data = JSON.parse(event.data);
-					console.log("📩 Message from agent:", data);
-					onMessage?.(data);
+					setMessages((prevMessages) => [...prevMessages, data]);
 				} catch (err) {
 					console.error("Failed to parse WebSocket message:", err, event.data);
 				}
@@ -61,6 +74,9 @@ export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 			ws.onclose = (event) => {
 				console.warn("⚠️ WebSocket closed:", event.code, event.reason);
 				setIsConnected(false);
+
+				setMessages([]);
+
 				onClose?.(event);
 
 				if (reconnect && !event.wasClean) {
@@ -83,14 +99,24 @@ export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 	const disconnect = () => {
 		if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
 		if (wsRef.current) {
+			setMessages([]);
 			wsRef.current.close();
 			wsRef.current = null;
 			setIsConnected(false);
 		}
 	};
 
-	const sendMessage = (message: any) => {
+	const sendMessage = (message: string) => {
 		if (wsRef.current?.readyState === WebSocket.OPEN) {
+			setMessages((prevMessages) => [
+				...prevMessages,
+				{
+					role: "user",
+					type: "message",
+					message: message,
+					timestamp: new Date().toISOString(),
+				},
+			]);
 			wsRef.current.send(JSON.stringify(message));
 		} else {
 			console.warn("WebSocket is not connected, message not sent:", message);
@@ -98,7 +124,10 @@ export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 	};
 
 	useEffect(() => {
-		if (autoConnect) connect();
+		if (autoConnect) {
+			const timeout = setTimeout(connect, 1000);
+			return () => clearTimeout(timeout);
+		}
 		return () => disconnect();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [autoConnect]);
@@ -106,6 +135,7 @@ export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 	return {
 		isConnected,
 		connect,
+		messages,
 		disconnect,
 		sendMessage,
 	};
