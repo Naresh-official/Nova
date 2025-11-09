@@ -127,27 +127,21 @@ export class ThreadService {
 				const headers = response?.messages?.[0]?.payload?.headers || [];
 				const fromHeader =
 					headers.find((h: any) => h.name === "From")?.value || "";
+				const messageCount = response.messages?.length || 0;
 
-				if (folder) {
-					const folderLabel = folder.toUpperCase();
+				const folderLabel = folder?.toUpperCase();
 
-					if (folderLabel === "ARCHIVE") {
-						return !labelIds.includes("INBOX");
-					}
-
-					if (folderLabel === "SENT") {
-						return labelIds.includes("SENT");
-					}
-
-					return labelIds.includes(folderLabel);
+				if (folderLabel === "ARCHIVE") {
+					return !labelIds.includes("INBOX");
 				}
 
-				const isInboxNotSent =
-					labelIds.includes("INBOX") && !labelIds.includes("SENT");
-				const isSentByUser =
-					labelIds.includes("SENT") && fromHeader.includes(userEmail || "");
+				if (folderLabel === "SENT") {
+					return labelIds.includes("SENT");
+				}
 
-				return isInboxNotSent || isSentByUser;
+				if (messageCount > 1) return true;
+
+				if (folderLabel) return labelIds.includes(folderLabel);
 			})
 			.map((response) => {
 				const firstMessage = response.messages?.[0];

@@ -2,16 +2,27 @@ import { createMimeMessage } from "mimetext";
 import { sanitizeTipTapHtml } from "./sanitizeTipTapHtml";
 import base64url from "base64url";
 
-export async function createRawMessage(
-	senderName: string,
-	to: string[],
-	subject: string,
-	body: string,
-	cc: string[] = [],
-	bcc: string[] = [],
-	attachments: { filename: string; mimeType: string; data: string }[] = [],
-	senderEmail: string
-) {
+export async function createRawMessage({
+	senderName,
+	to,
+	subject,
+	body,
+	cc = [],
+	bcc = [],
+	attachments = [],
+	senderEmail,
+	inReplyTo,
+}: {
+	senderName: string;
+	to?: string[];
+	subject?: string;
+	body: string;
+	cc?: string[];
+	bcc?: string[];
+	attachments?: { filename: string; mimeType: string; data: string }[];
+	senderEmail: string;
+	inReplyTo?: string;
+}) {
 	const msg = createMimeMessage();
 
 	msg.setSender({
@@ -19,11 +30,19 @@ export async function createRawMessage(
 		name: senderName,
 		type: "From",
 	});
-	if (to.length > 0) msg.setRecipients(to);
-	if (cc.length > 0) msg.setCc(cc);
-	if (bcc.length > 0) msg.setBcc(bcc);
+	if (to && to.length > 0) msg.setRecipients(to);
+	if (cc && cc.length > 0) msg.setCc(cc);
+	if (bcc && bcc.length > 0) msg.setBcc(bcc);
 
-	msg.setSubject(subject);
+	if (subject) {
+		msg.setSubject(subject);
+	}
+
+	// Add threading headers for replies
+	if (inReplyTo) {
+		msg.setHeader("In-Reply-To", inReplyTo);
+		msg.setHeader("References", inReplyTo);
+	}
 
 	const { html: processedMessage, inlineImages } = await sanitizeTipTapHtml(
 		body.trim()

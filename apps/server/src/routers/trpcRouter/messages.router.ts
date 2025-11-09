@@ -32,15 +32,15 @@ export const messagesRouter = router({
 			const { senderName, to, subject, body, cc, bcc, attachments } = input;
 
 			try {
-				await ctx.mailManager.emailComposer.sendEmail(
+				await ctx.mailManager.emailComposer.sendEmail({
 					senderName,
 					to,
 					subject,
 					body,
-					cc || [],
-					bcc || [],
-					attachments || []
-				);
+					cc,
+					bcc,
+					attachments,
+				});
 
 				return { success: true };
 			} catch (error) {
@@ -48,6 +48,39 @@ export const messagesRouter = router({
 				throw new TRPCError({
 					code: "INTERNAL_SERVER_ERROR",
 					message: "Failed to send email",
+				});
+			}
+		}),
+
+	replyToMessage: protectedProcedure
+		.input(
+			z.object({
+				senderName: z.string().min(1),
+				body: z.string().min(1),
+				threadId: z.string().min(1),
+			})
+		)
+		.output(
+			z.object({
+				success: z.boolean(),
+			})
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { senderName, body, threadId } = input;
+
+			try {
+				await ctx.mailManager.emailComposer.replyToEmail({
+					senderName,
+					body,
+					threadId,
+				});
+
+				return { success: true };
+			} catch (error) {
+				console.error("Failed to send reply email:", error);
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to send reply email",
 				});
 			}
 		}),
