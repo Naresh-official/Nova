@@ -20,6 +20,7 @@ import SenderInfo from "./SenderInfo";
 import EmailAttachments from "./EmailAttachments";
 import EmailBodyDisplay from "./EmailBodyDisplay";
 import { useStream } from "@/hooks/useStream";
+import EmailMessage from "./EmailMessage";
 
 function EmailContentInner() {
 	const { data: session } = useSession();
@@ -33,54 +34,31 @@ function EmailContentInner() {
 	const { thread, attachments } = data || {};
 
 	const MessageParser = new ParseGmailApi();
-	const parsed = MessageParser.parseMessage(thread?.messages?.[0] || {});
-	const imageAttachments = attachments?.filter((attachment) =>
-		attachment.mimeType.startsWith("image/")
-	);
+	const emailMessages =
+		thread?.messages?.map((message) => MessageParser.parseMessage(message)) ||
+		[];
 
-	// AI Summary Stream
-	const {
-		data: summaryData,
-		start: startSummaryStream,
-		stop,
-		isStreaming,
-		error: summaryError,
-		reset,
-	} = useStream(`/ai/summarize-email`);
+	const labelIds = new Set<string>();
 
-	useEffect(() => {
-		reset();
-	}, [threadId]);
+	emailMessages.forEach((message) => {
+		message.labelIds?.forEach((labelId) => labelIds.add(labelId));
+	});
 
-	// Process email HTML
-	const processedHtml = useMemo(() => {
-		if (!parsed.textHtml) return null;
-
-		try {
-			const rawHtml = preprocessEmailHtml(parsed.textHtml);
-
-			const { processedHtml: html } = processEmailHtml({
-				html: rawHtml,
-				shouldLoadImages: true,
-				inlineAttachments: attachments || [],
-				messageId: parsed.id || "",
-			});
-
-			return html;
-		} catch (error) {
-			console.error("Error processing email HTML:", error);
-			return null;
-		}
-	}, [parsed.textHtml, attachments, parsed.id]);
+	const subject = emailMessages.at(-1)?.subject || "";
 
 	const getRecipientText = () => {
-		if (parsed.to?.[0]?.email === session?.user?.email) return "You";
-		return parsed.to?.[0]?.name || "Unknown Recipient";
+		if (emailMessages[0].to?.[0]?.email === session?.user?.email) return "You";
+		return (
+			emailMessages[0].to?.[0]?.name ||
+			emailMessages[0].to?.[0]?.email ||
+			"Unknown Recipient"
+		);
 	};
 
+	// TODO : update print to use library and to print all messages in thread
 	const handlePrint = () => {
 		printEmail(
-			{ ...parsed, sentDate: String(parsed.sentDate) },
+			{ ...emailMessages[0], sentDate: String(emailMessages[0].sentDate) },
 			getRecipientText()
 		);
 	};
@@ -105,41 +83,25 @@ function EmailContentInner() {
 		<div className="absolute sm:static sm:flex sm:flex-1 bg-black flex-col rounded-lg scroll-container sm:h-[calc(100vh-18px)]">
 			<EmailActionBar onPrint={handlePrint} />
 			<EmailMetaHeader
-				tags={parsed.labelIds}
-				subject={parsed.subject}
+				tags={labelIds}
+				subject={subject}
 				initial={
-					parsed.from?.name?.charAt(0) || parsed.from?.email?.charAt(0) || "U"
+					emailMessages.at(-1)?.from?.name?.charAt(0) ||
+					emailMessages.at(-1)?.from?.email?.charAt(0) ||
+					"U"
 				}
-				name={parsed.from?.name || parsed.from?.email || "Unknown Sender"}
-				email={parsed.from?.email || ""}
+				name={
+					emailMessages.at(-1)?.from?.name ||
+					emailMessages.at(-1)?.from?.email ||
+					"Unknown Sender"
+				}
+				email={emailMessages.at(-1)?.from?.email || ""}
 			/>
 			<Separator />
-			<SenderInfo
-				sender={{
-					name: parsed.from?.name || parsed.from?.email || "Unknown Sender",
-					initial:
-						parsed.from?.name?.charAt(0) ||
-						parsed.from?.email?.charAt(0) ||
-						"U",
-					email: parsed.from?.email || "",
-				}}
-				recipient={getRecipientText()}
-				recipientEmail={parsed.to?.[0]?.email || ""}
-				date={parsed.sentDate}
-				isPersonal={parsed.labelIds.includes("CATEGORY_PERSONAL")}
-				startSummaryStream={startSummaryStream}
-				isStreaming={isStreaming}
-				summaryData={summaryData}
-				subject={parsed.subject}
-				emailBody={parsed.textHtml || parsed.textPlain}
-				summaryError={summaryError}
-			/>
 
-			<EmailBodyDisplay
-				processedHtml={processedHtml}
-				plainText={parsed.textPlain}
-				imageAttachments={imageAttachments}
-			/>
+			{emailMessages.map((message, index) => (
+				<EmailMessage key={index} message={message} attachments={attachments} />
+			))}
 
 			<EmailAttachments attachments={attachments} />
 

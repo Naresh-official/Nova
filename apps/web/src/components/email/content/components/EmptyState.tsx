@@ -2,20 +2,17 @@ import React from "react";
 import { FileText, Send, Sparkles } from "lucide-react";
 import { Button } from "@nova/ui/components/button";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useChatNavigationStore } from "@/components/providers/ChatNavigationProvider";
 
 function EmptyState() {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 
+	const startNewChat = useChatNavigationStore((state) => state.startNewChat);
+
 	const handleComposeClick = () => {
 		const params = new URLSearchParams(searchParams?.toString() || "");
 		params.set("isComposeOpen", "true");
-		router.push(`?${params.toString()}`);
-	};
-
-	const handleZeroChatClick = () => {
-		const params = new URLSearchParams(searchParams?.toString() || "");
-		params.set("isChatOpen", "true");
 		router.push(`?${params.toString()}`);
 	};
 
@@ -40,7 +37,7 @@ function EmptyState() {
 			</p>
 
 			<div className="mt-6 flex items-center gap-4">
-				<Button variant="secondary" onClick={handleZeroChatClick}>
+				<Button variant="secondary" onClick={startNewChat}>
 					<Sparkles className="h-4 w-4 text-purple-400" strokeWidth={2} />
 					Zero chat
 				</Button>

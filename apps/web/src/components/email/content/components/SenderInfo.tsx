@@ -17,6 +17,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import { toast } from "sonner";
+import { useSession } from "next-auth/react";
 
 interface SenderInfoProps {
 	sender: {
@@ -34,6 +35,7 @@ interface SenderInfoProps {
 	subject: string;
 	emailBody: string;
 	summaryError?: Error | null;
+	[key: string]: any;
 }
 
 function SenderInfo({
@@ -48,8 +50,11 @@ function SenderInfo({
 	subject,
 	emailBody,
 	summaryError,
+	...props
 }: SenderInfoProps) {
 	const [imageError, setImageError] = useState(false);
+
+	const { data: session } = useSession();
 
 	useEffect(() => {
 		if (summaryError) {
@@ -61,28 +66,38 @@ function SenderInfo({
 	}, [summaryError]);
 
 	return (
-		<div className="flex items-start justify-between p-4 rounded-lg">
+		<div className="flex items-start justify-between p-4 rounded-lg" {...props}>
 			<div className="flex items-center gap-3">
 				{/* Avatar */}
 				<div className="flex-shrink-0 flex items-center justify-center w-10 h-10 bg-zinc-600 rounded-full overflow-hidden text-xl font-medium text-zinc-200">
 					{sender.email && !imageError && !isPersonal ? (
 						<Image
 							src={`https://t2.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${getDomainFromEmail(sender.email)}&size=48`}
-							alt={sender.name}
+							alt={
+								sender.name === "Sender"
+									? (session?.user?.name as string)
+									: sender.name
+							}
 							height={40}
 							width={40}
 							className="rounded-full"
 							onError={() => setImageError(true)}
 						/>
 					) : (
-						<span>{sender.initial}</span>
+						<span>
+							{sender.name === "Sender"
+								? (session?.user?.name?.charAt(0) as string)
+								: sender.name.charAt(0)}
+						</span>
 					)}
 				</div>
 
 				{/* Sender and Recipient Info */}
 				<div className="flex flex-col">
 					<div className="flex items-center gap-2">
-						<span className="font-bold text-zinc-100">{sender.name}</span>
+						<span className="font-bold text-zinc-100">
+							{sender.name === "Sender" ? "You" : sender.name}
+						</span>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
 								<a className="text-xs text-muted-foreground hover:underline hover:underline-offset-4">

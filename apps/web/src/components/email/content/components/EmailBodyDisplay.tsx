@@ -18,12 +18,14 @@ interface EmailBodyDisplayProps {
 		size: number;
 		src: string;
 	}[];
+	showContent: boolean;
 }
 
 const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 	processedHtml,
 	plainText,
 	imageAttachments,
+	showContent,
 }) => {
 	const hostRef = useRef<HTMLDivElement>(null);
 	const shadowRootRef = useRef<ShadowRoot | null>(null);
@@ -59,7 +61,9 @@ const EmailBodyDisplay: React.FC<EmailBodyDisplayProps> = ({
 	}, [processedHtml]);
 
 	return (
-		<div className="rounded-lg p-4 selectable-email-container">
+		<div
+			className={`rounded-lg p-4 selectable-email-container ${showContent ? "block" : "hidden"}`}
+		>
 			{processedHtml && (
 				<div
 					ref={hostRef}

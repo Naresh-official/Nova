@@ -18,7 +18,7 @@ import Image from "next/image";
 import { getDomainFromEmail } from "@/lib/parsers";
 
 interface EmailMetaHeaderProps {
-	tags: string[];
+	tags: Set<string>;
 	subject: string;
 	initial: string;
 	name: string;
@@ -26,7 +26,7 @@ interface EmailMetaHeaderProps {
 }
 
 function EmailMetaHeader({
-	tags = [],
+	tags = new Set(),
 	subject,
 	initial,
 	name,
@@ -44,7 +44,7 @@ function EmailMetaHeader({
 
 	const [imageError, setImageError] = useState(false);
 
-	const isPersonal = tags.includes("CATEGORY_PERSONAL");
+	const isPersonal = tags.has("CATEGORY_PERSONAL");
 
 	return (
 		<div className="flex flex-col gap-4 p-4 rounded-lg">
@@ -52,7 +52,7 @@ function EmailMetaHeader({
 
 			<div className="flex items-center gap-2">
 				<div className="flex items-center gap-2">
-					{Alltags.filter((tag) => tags.includes(tag.name)).map((tag) => (
+					{Alltags.filter((tag) => tags.has(tag.name)).map((tag) => (
 						<Tooltip key={tag.name}>
 							<TooltipTrigger>
 								<div
@@ -83,7 +83,9 @@ function EmailMetaHeader({
 							<span>{initial}</span>
 						)}
 					</div>
-					<span className="text-sm text-zinc-200">{name}</span>
+					<span className="text-sm text-zinc-200">
+						{name === "Sender" ? "You" : name}
+					</span>
 				</div>
 			</div>
 		</div>
