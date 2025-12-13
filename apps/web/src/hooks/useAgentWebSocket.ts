@@ -36,7 +36,7 @@ export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 		if (wsRef.current?.readyState === WebSocket.OPEN) return;
 
 		// Convert to WebSocket protocol
-		const wsUrl = process.env.NEXT_PUBLIC_AGENT_URL!;
+		const wsUrl = process.env.NEXT_PUBLIC_EXPRESS_BACKEND_URL! + "/agent";
 
 		try {
 			const ws = new WebSocket(wsUrl);
@@ -57,9 +57,9 @@ export function useAgentWebSocket(options: UseAgentWebSocketOptions = {}) {
 				}
 			};
 
-			ws.onmessage = (event) => {
+			ws.onmessage = async (event) => {
 				try {
-					const data = JSON.parse(event.data);
+					const data = JSON.parse(await event.data.text());
 					setMessages((prevMessages) => [...prevMessages, data]);
 				} catch (err) {
 					console.error("Failed to parse WebSocket message:", err, event.data);

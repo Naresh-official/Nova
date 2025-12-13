@@ -1,9 +1,14 @@
-// writer.agent.ts
 import { writer_prompt } from "@agent/prompts/writer.prompt";
-import { createDocumentTool, createEmailTool } from "@agent/tools/test";
+import {
+	createDraftEmailTool,
+	createSendMailTool,
+	replyToEmailTool,
+} from "@agent/tools/writer.tools";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 import { createAgent, HumanMessage, tool } from "langchain";
 import z from "zod";
+import type { AgentOptions } from ".";
+import { fetchEmailThreadTool } from "@agent/tools/thread.tool";
 
 const model = new ChatGoogleGenerativeAI({
 	temperature: 0.7,
@@ -11,31 +16,31 @@ const model = new ChatGoogleGenerativeAI({
 	apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
-
-
-const createWriterAgentWithTools = (credentials: {
-	accessToken: string;
-	refreshToken: string;
-}) => {
-	const emailTool = createEmailTool(credentials);
-	const documentTool = createDocumentTool(credentials);
+const createWriterAgentWithTools = ({
+	mailManager,
+	userinfo,
+}: AgentOptions) => {
+	const sendMail = createSendMailTool({ mailManager, userinfo });
+	const createDraft = createDraftEmailTool({ mailManager, userinfo });
+	const replyToEmail = replyToEmailTool({
+		mailManager,
+		userinfo,
+	});
+	const fetchEmailThread = fetchEmailThreadTool({ mailManager });
 
 	const agent = createAgent({
 		model,
-		tools: [emailTool, documentTool],
+		tools: [sendMail, createDraft, replyToEmail, fetchEmailThread],
 		systemPrompt: writer_prompt,
 	});
 
 	return agent;
 };
 
-const createWriterAgentTool = (credentials: {
-	accessToken: string;
-	refreshToken: string;
-}) => {
+const createWriterAgentTool = ({ mailManager, userinfo }: AgentOptions) => {
 	return tool(
 		async ({ query }) => {
-			const writerAgent = createWriterAgentWithTools(credentials);
+			const writerAgent = createWriterAgentWithTools({ mailManager, userinfo });
 
 			const result = await writerAgent.invoke({
 				messages: [new HumanMessage({ content: query })],
@@ -46,7 +51,7 @@ const createWriterAgentTool = (credentials: {
 		{
 			name: "writer_agent",
 			description:
-				"Agent specialized in drafting and composing text content such as emails, replies, and documents.",
+				"Specialized agent for drafting and sending professional emails. Capable of composing new emails from scratch and replying to existing email threads by analyzing thread context. Maintains appropriate tone consistency, validates recipients and content, and ensures professional formatting. Handles both simple compositions and context-aware thread replies with proper subject line and recipient management.",
 			schema: z.object({
 				query: z
 					.string()

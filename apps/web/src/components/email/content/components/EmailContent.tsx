@@ -1,25 +1,18 @@
 "use client";
 
 import { trpc } from "@/lib/client";
-import React, { useEffect, useMemo, useState, Suspense } from "react";
+import React, { Suspense } from "react";
 import { ParseGmailApi } from "gmail-api-parse-message-ts";
 import { useSession } from "next-auth/react";
 import { Button } from "@nova/ui/components/button";
 import { Forward, Reply, ReplyAll } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Separator } from "@nova/ui/components/separator";
-import {
-	preprocessEmailHtml,
-	processEmailHtml,
-} from "../utils/processEmailContent";
 import { printEmail } from "../utils/printEmail";
 import EmptyState from "./EmptyState";
 import EmailActionBar from "./EmailActionBar";
 import EmailMetaHeader from "./EmailMetaHeader";
-import SenderInfo from "./SenderInfo";
 import EmailAttachments from "./EmailAttachments";
-import EmailBodyDisplay from "./EmailBodyDisplay";
-import { useStream } from "@/hooks/useStream";
 import EmailMessage from "./EmailMessage";
 
 function EmailContentInner() {
@@ -100,7 +93,12 @@ function EmailContentInner() {
 			<Separator />
 
 			{emailMessages.map((message, index) => (
-				<EmailMessage key={index} message={message} attachments={attachments} />
+				<EmailMessage
+					key={index}
+					message={message}
+					attachments={attachments}
+					isLastMessage={index === emailMessages.length - 1}
+				/>
 			))}
 
 			<EmailAttachments attachments={attachments} />

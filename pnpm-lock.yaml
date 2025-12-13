@@ -111,12 +111,6 @@ importers:
       '@dotenvx/dotenvx':
         specifier: ^1.51.0
         version: 1.51.0
-      '@googleapis/gmail':
-        specifier: ^14.0.1
-        version: 14.0.1
-      '@jrmdayn/googleapis-batcher':
-        specifier: ^0.8.0
-        version: 0.8.0(gaxios@7.1.2)(googleapis@163.0.0)
       '@nova/ai':
         specifier: workspace:*
         version: link:../../packages/ai

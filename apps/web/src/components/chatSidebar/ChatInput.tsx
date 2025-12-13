@@ -3,11 +3,11 @@ import { Textarea } from "@nova/ui/components/textarea";
 import { ArrowUp, Mic } from "lucide-react";
 import { Button } from "@nova/ui/components/button";
 
-interface IntelligentInputProps {
+interface ChatInputProps {
 	sendMessage: (message: string) => void;
 }
 
-function IntelligentInput({ sendMessage }: IntelligentInputProps) {
+function ChatInput({ sendMessage }: ChatInputProps) {
 	const formRef = useRef<HTMLFormElement | null>(null);
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -47,4 +47,4 @@ function IntelligentInput({ sendMessage }: IntelligentInputProps) {
 	);
 }
 
-export default IntelligentInput;
+export default ChatInput;

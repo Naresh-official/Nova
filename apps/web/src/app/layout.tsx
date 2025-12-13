@@ -9,6 +9,7 @@ import NextAuthSessionProvider from "@/components/providers/SessionProvider";
 import { QueryStoreProvider } from "@/components/providers/QueryStoreProvider";
 import { RefreshStoreProvider } from "@/components/providers/RefreshStoreProvider";
 import { Toaster } from "@nova/ui/components/sonner";
+import { ChatNavigationProvider } from "@/components/providers/ChatNavigationProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,8 +35,10 @@ export default function RootLayout({
 					<TRPCProvider>
 						<QueryStoreProvider>
 							<RefreshStoreProvider>
-								<ConditionalLayout>{children}</ConditionalLayout>
-								<Toaster />
+								<ChatNavigationProvider>
+									<ConditionalLayout>{children}</ConditionalLayout>
+									<Toaster />
+								</ChatNavigationProvider>
 							</RefreshStoreProvider>
 							{/* <ReactQueryDevtools initialIsOpen={false} /> */}
 						</QueryStoreProvider>

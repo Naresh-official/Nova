@@ -20,10 +20,15 @@ interface EmailMessageProps {
 				src: string;
 		  }>
 		| undefined;
+	isLastMessage: boolean;
 }
 
-function EmailMessage({ message, attachments }: EmailMessageProps) {
-	const [showContent, setShowContent] = useState(false);
+function EmailMessage({
+	message,
+	attachments,
+	isLastMessage,
+}: EmailMessageProps) {
+	const [showContent, setShowContent] = useState(isLastMessage);
 
 	const { data: session } = useSession();
 	const {
@@ -81,8 +86,8 @@ function EmailMessage({ message, attachments }: EmailMessageProps) {
 			<EmailBodyDisplay
 				processedHtml={html}
 				plainText={message.textPlain || ""}
-        imageAttachments={imageAttachments}
-        showContent={showContent}
+				imageAttachments={imageAttachments}
+				showContent={showContent}
 			/>
 		</div>
 	);

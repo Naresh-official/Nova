@@ -2,11 +2,11 @@
 
 import EmailContent from "@/components/email/content/components/EmailContent";
 import EmailList from "@/components/email/list/components/EmailList";
-import IntelligentSidebar from "@/components/chatSidebar/components/ChatSidebar";
-import { useSearchParams } from "next/navigation";
+import ChatSidebar from "@/components/chatSidebar/ChatSidebar";
+import { useChatNavigationStore } from "@/components/providers/ChatNavigationProvider";
 
 export default function InboxPage() {
-	const isChatOpen = useSearchParams().get("isChatOpen");
+	const isChatOpen = useChatNavigationStore((state) => state.isChatOpen);
 
 	return (
 		<div className="h-screen p-0 sm:p-2 w-screen md:w-full">
@@ -16,8 +16,8 @@ export default function InboxPage() {
 				{/* Email Content */}
 				<EmailContent />
 
-				{isChatOpen && <IntelligentSidebar />}
-			</div>
+				{isChatOpen && <ChatSidebar />}
+      </div>
 		</div>
 	);
 }

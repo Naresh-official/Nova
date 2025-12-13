@@ -1,5 +1,7 @@
 import { prisma } from "./context";
-import app from "./app";
+import httpServer from "./app";
+
+const PORT = process.env.PORT || 5001;
 
 try {
 	prisma
@@ -9,8 +11,9 @@ try {
 			console.error("DB Connection failed", e);
 		});
 
-	app.listen(8000, () => {
-		console.log("Server is running on http://localhost:8000");
+	httpServer.listen(PORT, () => {
+		console.log(`Server running on port ${PORT}`);
+		console.log(`WebSocket available at ws://localhost:${PORT}/api/v1/agent`);
 	});
 } catch (error: unknown) {
 	console.error("Error starting server:", error);

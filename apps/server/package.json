@@ -26,8 +26,6 @@
 	},
 	"dependencies": {
 		"@dotenvx/dotenvx": "^1.51.0",
-		"@googleapis/gmail": "^14.0.1",
-		"@jrmdayn/googleapis-batcher": "^0.8.0",
 		"@nova/ai": "workspace:*",
 		"@nova/mail": "workspace:*",
 		"@prisma/client": "6.17.1",

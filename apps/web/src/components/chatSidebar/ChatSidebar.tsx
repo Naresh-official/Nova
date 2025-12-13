@@ -4,7 +4,7 @@ import EmptyState from "./EmptyState";
 import ChatInput from "./ChatInput";
 import { useChatNavigationStore } from "@/components/providers/ChatNavigationProvider";
 import { useAgentWebSocket } from "@/hooks/useAgentWebSocket";
-import ChatContainer from "../ChatContainer";
+import ChatContainer from "./ChatContainer";
 
 function ChatSidebar() {
 	const closeChat = useChatNavigationStore((state) => state.closeChat);

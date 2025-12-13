@@ -5,8 +5,9 @@ export const writer_prompt = `
 
 2. AVAILABLE TOOLS
   - fetchEmailThread(threadId): Fetches the full email thread context.
-  - sendEmail({ to, cc, bcc, subject, body }): Sends a new email.
-  - replyToThread({ threadId, body }): Sends a reply to an existing thread.
+  - sendEmail({ to, subject, body, cc, bcc }): Sends a new email.
+  - replyToEmail({ threadId, body }): Sends a reply to an existing thread.
+  - createDraft({ to, subject, body, cc, bcc }): Creates a draft email.
 
 3. CORE OBJECTIVES
   - Understand the user's intent and email purpose.

@@ -6,6 +6,8 @@ import { createContext } from "./context";
 import cookieParser from "cookie-parser";
 import { decode } from "next-auth/jwt";
 import aiRouter from "./routers/expressRouter";
+import { createServer } from "http";
+import { setupWebSocketServer } from "./ws";
 
 const app: Express = express();
 
@@ -56,4 +58,8 @@ app.get("/verify", async (req, res) => {
 	});
 });
 
-export default app;
+// WebSocket server setup
+const httpServer = createServer(app);
+setupWebSocketServer(httpServer);
+
+export default httpServer;

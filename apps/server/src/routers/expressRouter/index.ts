@@ -4,7 +4,6 @@ import {
 	summarizeEmail,
 } from "@nova/ai";
 import { Router } from "express";
-import { stdout } from "process";
 
 const router: Router = Router();
 

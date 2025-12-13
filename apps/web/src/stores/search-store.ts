@@ -1,5 +1,4 @@
 import { createStore } from "zustand";
-import { z } from "zod";
 
 export type searchQueryState = {
 	query: string;

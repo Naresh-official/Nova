@@ -2,19 +2,19 @@ import React from "react";
 import { Button } from "@nova/ui/components/button";
 import { Expand, PictureInPicture, Plus, X } from "lucide-react";
 
-interface IntelligentHeaderBarProps {
+interface ChatHeaderBarProps {
 	closeChat: () => void;
 	toggleExpand: () => void;
 	togglePoppedOut: () => void;
 	startNewChat: () => void;
 }
 
-function IntelligentHeaderBar({
+function ChatHeaderBar({
 	closeChat,
 	toggleExpand,
 	togglePoppedOut,
 	startNewChat,
-}: IntelligentHeaderBarProps) {
+}: ChatHeaderBarProps) {
 	return (
 		<div className="flex justify-between items-center mb-4">
 			<div>
@@ -57,4 +57,4 @@ function IntelligentHeaderBar({
 	);
 }
 
-export default IntelligentHeaderBar;
+export default ChatHeaderBar;

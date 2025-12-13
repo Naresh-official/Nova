@@ -1,16 +1,8 @@
-import { prisma } from "@server/context";
-import server from "./app";
+import server, { wss } from "./app";
 
 const PORT = 8001;
 
 try {
-	prisma
-		.$connect()
-		.then(() => console.log("Connected to DB"))
-		.catch((e: unknown) => {
-			console.error("DB Connection failed", e);
-		});
-
 	server.listen(PORT, () => {
 		console.log(`🚀 WebSocket server running on ws://localhost:${PORT}`);
 	});
@@ -19,20 +11,22 @@ try {
 	process.exit(1);
 }
 
-if (process.env.NODE_ENV === "production") {
-	process.on("SIGTERM", () => {
-		console.log("SIGTERM received, closing server...");
-		server.close(() => {
-			console.log("Server closed");
-			process.exit(0);
-		});
+const shutdown = () => {
+	console.log("\nShutting down...");
+
+	server.close(() => {
+		console.log("HTTP server closed");
 	});
 
-	process.on("SIGINT", () => {
-		console.log("\nSIGINT received, closing server...");
-		server.close(() => {
-			console.log("Server closed");
-			process.exit(0);
-		});
+	for (const client of wss.clients) {
+		client.close(1001, "Server shutdown");
+	}
+
+	wss.close(() => {
+		console.log("WebSocket server closed");
+		process.exit(0);
 	});
-}
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
