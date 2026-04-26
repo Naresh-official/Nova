@@ -1,7 +1,6 @@
 import type { gmail_v1 } from "@googleapis/gmail";
 import type { GmailClient } from "../core/gmailClient";
 import type { DraftResponse } from "../types";
-import { EmailComposer } from "./emailComposer.service";
 import { createRawMessage } from "../utils/createRawMessage";
 
 export class DraftService {
@@ -72,7 +71,7 @@ export class DraftService {
 		const senderEmail = (await this.client.getUserProfile())
 			.emailAddress as string;
 
-		const rawMessage = await createRawMessage(
+		const rawMessage = await createRawMessage({
 			senderName,
 			to,
 			subject,
@@ -80,8 +79,8 @@ export class DraftService {
 			cc,
 			bcc,
 			attachments,
-			senderEmail
-		);
+			senderEmail,
+		});
 
 		await this.client.gmail.users.drafts.create({
 			userId: "me",
@@ -106,7 +105,7 @@ export class DraftService {
 		const senderEmail = (await this.client.getUserProfile())
 			.emailAddress as string;
 
-		const rawMessage = await createRawMessage(
+		const rawMessage = await createRawMessage({
 			senderName,
 			to,
 			subject,
@@ -114,8 +113,8 @@ export class DraftService {
 			cc,
 			bcc,
 			attachments,
-			senderEmail
-		);
+			senderEmail,
+		});
 
 		await this.client.gmail.users.drafts.update({
 			userId: "me",

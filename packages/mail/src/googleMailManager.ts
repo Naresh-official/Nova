@@ -1,4 +1,4 @@
-import type { ManagerConfig, ThreadResponse } from "./types";
+import type { ManagerConfig } from "./types";
 import { GmailClient } from "./core/gmailClient";
 import { ThreadService } from "./services/thread.service";
 import { MessageService } from "./services/message.service";
