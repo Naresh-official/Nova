@@ -4,8 +4,7 @@
 	"exclude": ["node_modules", "generated"],
 	"references": [
 		{ "path": "../../packages/ai" },
-		{ "path": "../../packages/mail" },
-		{ "path": "../server" }
+		{ "path": "../../packages/mail" }
 	],
 	"compilerOptions": {
 		"plugins": [
@@ -17,8 +16,7 @@
 		"rootDir": "src",
 		"baseUrl": ".",
 		"paths": {
-			"@agent/*": ["src/*"],
-			"@server/*": ["../server/src/*"],
+			"@server/*": ["src/*"],
 			"@nova/mail": ["../../packages/mail/src/index.ts"],
 			"@nova/mail/*": ["../../packages/mail/src/*"],
 			"@nova/ai": ["../../packages/ai/src/index.ts"],
